@@ -6,6 +6,36 @@ MCP (Model Context Protocol) 서버로 동작하여 AI 모델이 URL 데이터�
 
 > 합성키 컨벤션: [`../spec/composite-key-conventions.md`](../spec/composite-key-conventions.md)
 
+## MCP 서버 모드
+
+### 1. HTTP/SSE 모드 (기본값)
+RESTful API 엔드포인트를 통해 MCP 기능을 제공합니다.
+
+### 2. stdio 모드
+표준 입출력을 통한 대화형 명령 인터페이스를 제공합니다.
+
+#### stdio 모드 명령어
+```bash
+# 서버 실행
+./url-db -mcp-mode=stdio DATABASE_URL=file:~/mcp/url-db/url-db.db
+
+# 사용 가능한 명령어
+> help                                    # 도움말 표시
+> list_domains                           # 모든 도메인 목록
+> list_nodes <domain_name>               # 도메인 내 노드 목록
+> create_node <domain> <url> [title]     # 새 노드 생성
+> get_node <composite_id>                # 노드 상세 정보
+> update_node <composite_id> <title>     # 노드 제목 수정
+> delete_node <composite_id>             # 노드 삭제
+> server_info                            # 서버 정보
+> quit                                   # 세션 종료
+
+# 예시
+> create_node tech-articles https://example.com/article "Example Article"
+> get_node url-db:tech-articles:123
+> list_nodes tech-articles
+```
+
 ## 엔드포인트 목록
 
 ### 1. 노드 생성 (MCP)
@@ -322,3 +352,262 @@ MCP (Model Context Protocol) 서버로 동작하여 AI 모델이 URL 데이터�
 - `title`: 선택, 최대 255자
 - `description`: 선택, 최대 1000자
 - `domain_name`: 필수, 영문자, 숫자, 하이픈만 허용, 최대 50자
+
+## Claude Desktop 통합 예시
+
+### 도메인 및 노드 관리
+```text
+사용자: "url-db에 'tech-articles' 도메인을 만들어줘"
+AI: tech-articles 도메인을 생성했습니다.
+
+사용자: "https://example.com/react-tutorial을 tech-articles에 추가해줘"
+AI: URL을 tech-articles 도메인에 추가했습니다. (composite_id: url-db:tech-articles:123)
+
+사용자: "방금 추가한 URL의 제목을 'React Tutorial 2024'로 변경해줘"
+AI: 노드의 제목을 업데이트했습니다.
+```
+
+### 속성 관리
+```text
+사용자: "url-db:tech-articles:123에 category 속성을 'frontend'로 설정해줘"
+AI: category 속성을 설정했습니다.
+
+사용자: "같은 URL에 priority를 'high'로, rating을 '5'로 설정해줘"
+AI: priority와 rating 속성을 설정했습니다.
+
+사용자: "이 URL의 모든 속성을 보여줘"
+AI: url-db:tech-articles:123의 속성:
+- category: frontend (tag)
+- priority: high (string)
+- rating: 5 (number)
+```
+
+### 검색 및 조회
+```text
+사용자: "tech-articles 도메인의 모든 URL을 보여줘"
+AI: tech-articles 도메인의 URL 목록입니다...
+
+사용자: "https://example.com/react-tutorial이 어느 도메인에 있는지 찾아줘"
+AI: 해당 URL은 tech-articles 도메인에 있습니다. (composite_id: url-db:tech-articles:123)
+
+사용자: "url-db:tech-articles:123, url-db:tech-articles:124의 정보를 한번에 가져와줘"
+AI: 요청하신 노드들의 정보입니다...
+```
+
+## 프로그래밍 언어별 통합 예시
+
+### Python
+```python
+import requests
+
+# MCP 서버 기본 URL
+BASE_URL = "http://localhost:8080/api/mcp"
+
+# 노드 생성
+def create_node(domain_name, url, title=None, description=None):
+    response = requests.post(f"{BASE_URL}/nodes", json={
+        "domain_name": domain_name,
+        "url": url,
+        "title": title,
+        "description": description
+    })
+    return response.json()
+
+# 노드 조회
+def get_node(composite_id):
+    response = requests.get(f"{BASE_URL}/nodes/{composite_id}")
+    return response.json()
+
+# 속성 설정
+def set_node_attributes(composite_id, attributes):
+    response = requests.put(
+        f"{BASE_URL}/nodes/{composite_id}/attributes",
+        json={"attributes": attributes}
+    )
+    return response.json()
+
+# 사용 예시
+node = create_node("tech-articles", "https://example.com/article", "My Article")
+print(f"Created node: {node['composite_id']}")
+
+# 속성 추가
+set_node_attributes(node['composite_id'], [
+    {"name": "category", "value": "javascript"},
+    {"name": "priority", "value": "high"}
+])
+```
+
+### JavaScript/TypeScript
+```typescript
+// MCP 클라이언트 클래스
+class MCPClient {
+  constructor(private baseUrl: string = 'http://localhost:8080/api/mcp') {}
+
+  async createNode(params: {
+    domain_name: string;
+    url: string;
+    title?: string;
+    description?: string;
+  }) {
+    const response = await fetch(`${this.baseUrl}/nodes`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(params)
+    });
+    return response.json();
+  }
+
+  async getNode(compositeId: string) {
+    const response = await fetch(`${this.baseUrl}/nodes/${compositeId}`);
+    return response.json();
+  }
+
+  async setNodeAttributes(compositeId: string, attributes: Array<{
+    name: string;
+    value: string;
+  }>) {
+    const response = await fetch(
+      `${this.baseUrl}/nodes/${compositeId}/attributes`,
+      {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ attributes })
+      }
+    );
+    return response.json();
+  }
+}
+
+// 사용 예시
+const client = new MCPClient();
+
+const node = await client.createNode({
+  domain_name: 'tech-articles',
+  url: 'https://example.com/article',
+  title: 'My Article'
+});
+
+console.log(`Created node: ${node.composite_id}`);
+```
+
+### Go
+```go
+package main
+
+import (
+    "bytes"
+    "encoding/json"
+    "fmt"
+    "net/http"
+)
+
+type MCPClient struct {
+    BaseURL string
+}
+
+type CreateNodeRequest struct {
+    DomainName  string `json:"domain_name"`
+    URL         string `json:"url"`
+    Title       string `json:"title,omitempty"`
+    Description string `json:"description,omitempty"`
+}
+
+type MCPNode struct {
+    CompositeID string `json:"composite_id"`
+    URL         string `json:"url"`
+    DomainName  string `json:"domain_name"`
+    Title       string `json:"title"`
+}
+
+func (c *MCPClient) CreateNode(req CreateNodeRequest) (*MCPNode, error) {
+    data, _ := json.Marshal(req)
+    resp, err := http.Post(
+        c.BaseURL+"/nodes",
+        "application/json",
+        bytes.NewBuffer(data),
+    )
+    if err != nil {
+        return nil, err
+    }
+    defer resp.Body.Close()
+
+    var node MCPNode
+    if err := json.NewDecoder(resp.Body).Decode(&node); err != nil {
+        return nil, err
+    }
+    return &node, nil
+}
+
+// 사용 예시
+func main() {
+    client := &MCPClient{BaseURL: "http://localhost:8080/api/mcp"}
+    
+    node, err := client.CreateNode(CreateNodeRequest{
+        DomainName: "tech-articles",
+        URL:        "https://example.com/article",
+        Title:      "My Article",
+    })
+    if err != nil {
+        panic(err)
+    }
+    
+    fmt.Printf("Created node: %s\n", node.CompositeID)
+}
+```
+
+## 고급 사용 시나리오
+
+### 1. 배치 처리
+```python
+# 여러 URL을 한 번에 조회
+composite_ids = [
+    "url-db:tech-articles:123",
+    "url-db:tech-articles:124",
+    "url-db:recipes:456"
+]
+
+response = requests.post(f"{BASE_URL}/nodes/batch", json={
+    "composite_ids": composite_ids
+})
+result = response.json()
+
+print(f"Found {len(result['nodes'])} nodes")
+print(f"Not found: {result['not_found']}")
+```
+
+### 2. 도메인별 노드 관리
+```javascript
+// 도메인 생성 후 노드 추가
+async function setupDomain(domainName: string, description: string) {
+  // 도메인 생성
+  await client.createDomain({ name: domainName, description });
+  
+  // 초기 노드들 추가
+  const urls = [
+    { url: 'https://example.com/1', title: 'Article 1' },
+    { url: 'https://example.com/2', title: 'Article 2' }
+  ];
+  
+  for (const item of urls) {
+    await client.createNode({
+      domain_name: domainName,
+      ...item
+    });
+  }
+}
+```
+
+### 3. 속성 기반 워크플로우
+```python
+# 우선순위가 높은 항목에 속성 추가
+def mark_high_priority_items(domain_name):
+    # 도메인의 모든 노드 조회
+    nodes = get_domain_nodes(domain_name)
+    
+    for node in nodes:
+        if should_be_high_priority(node):
+            set_node_attributes(node['composite_id'], [
+                {"name": "priority", "value": "high"},
+                {"name": "reviewed", "value": "false"}
+            ])
+```

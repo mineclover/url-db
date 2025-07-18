@@ -34,10 +34,13 @@ build.bat   # Windows
 ### 2. MCP stdio 모드 실행
 ```bash
 # Unix/Linux/macOS
-./bin/url-db -mcp-mode=stdio
+./url-db -mcp-mode=stdio
 
 # Windows
-bin\url-db.exe -mcp-mode=stdio
+url-db.exe -mcp-mode=stdio
+
+# DATABASE_URL을 인자로 전달하는 경우
+./url-db -mcp-mode=stdio DATABASE_URL=file:~/mcp/url-db/url-db.db
 ```
 
 ### 3. MCP SSE 모드 실행 (기본값)
@@ -69,6 +72,10 @@ claude mcp add url-db /path/to/url-db/bin/url-db \
 claude mcp add url-db /Users/junwoobang/mcp/url-db/bin/url-db \
   --args="-mcp-mode=stdio" \
   --env="DATABASE_URL=file:/Users/junwoobang/mcp/url-db/url-db.db"
+
+# 실행 파일과 인자를 함께 전달하는 방법 (권장)
+# 중요: -- 를 사용하여 claude mcp add의 옵션과 프로그램의 인자를 구분
+claude mcp add url-db -- ~/mcp/url-db/url-db -mcp-mode=stdio DATABASE_URL=file:~/mcp/url-db/url-db.db
 ```
 
 ### 2. 수동 설정 파일 편집 방식
@@ -283,10 +290,14 @@ my-db:bookmarks:456
 cd /path/to/url-db
 ./build.sh
 
-# 2단계: Claude MCP에 추가
-claude mcp add url-db /path/to/url-db/bin/url-db \
+# 2단계: Claude MCP에 추가 (다음 두 방법 중 하나 사용)
+# 방법 1: 환경변수 사용
+claude mcp add url-db /path/to/url-db/url-db \
   --args="-mcp-mode=stdio" \
   --env="DATABASE_URL=file:/path/to/url-db/url-db.db"
+
+# 방법 2: CLI 인자로 직접 전달 (권장)
+claude mcp add url-db -- /path/to/url-db/url-db -mcp-mode=stdio DATABASE_URL=file:/path/to/url-db/url-db.db
 
 # 3단계: Claude Desktop 재시작
 ```
