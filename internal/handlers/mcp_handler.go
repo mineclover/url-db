@@ -34,6 +34,19 @@ func NewMCPHandler(mcpService MCPService) *MCPHandler {
 	}
 }
 
+// CreateMCPNode godoc
+// @Summary      Create a new MCP node
+// @Description  Create a new URL node using MCP composite key format
+// @Tags         mcp
+// @Accept       json
+// @Produce      json
+// @Param        node  body      models.CreateMCPNodeRequest  true  "MCP node data"
+// @Success      201   {object}  models.MCPNode
+// @Failure      400   {object}  map[string]interface{}
+// @Failure      404   {object}  map[string]interface{}
+// @Failure      409   {object}  map[string]interface{}
+// @Failure      500   {object}  map[string]interface{}
+// @Router       /mcp/nodes [post]
 func (h *MCPHandler) CreateMCPNode(c *gin.Context) {
 	var req models.CreateMCPNodeRequest
 	if err := h.BindJSON(c, &req); err != nil {
@@ -50,6 +63,17 @@ func (h *MCPHandler) CreateMCPNode(c *gin.Context) {
 	c.JSON(http.StatusCreated, node)
 }
 
+// GetMCPNode godoc
+// @Summary      Get an MCP node
+// @Description  Get MCP node by composite ID
+// @Tags         mcp
+// @Produce      json
+// @Param        composite_id  path      string  true  "Composite ID (domain::url)"
+// @Success      200           {object}  models.MCPNode
+// @Failure      400           {object}  map[string]interface{}
+// @Failure      404           {object}  map[string]interface{}
+// @Failure      500           {object}  map[string]interface{}
+// @Router       /mcp/nodes/{composite_id} [get]
 func (h *MCPHandler) GetMCPNode(c *gin.Context) {
 	compositeID := c.Param("composite_id")
 	if compositeID == "" {
@@ -66,6 +90,18 @@ func (h *MCPHandler) GetMCPNode(c *gin.Context) {
 	c.JSON(http.StatusOK, node)
 }
 
+// GetMCPNodes godoc
+// @Summary      List MCP nodes
+// @Description  Get all MCP nodes with pagination, domain filtering, and search
+// @Tags         mcp
+// @Produce      json
+// @Param        domain_name  query  string  false  "Filter by domain name"
+// @Param        page         query  int     false  "Page number" default(1)
+// @Param        size         query  int     false  "Page size (max 100)" default(20)
+// @Param        search       query  string  false  "Search term for URL content"
+// @Success      200          {object}  models.MCPNodeListResponse
+// @Failure      500          {object}  map[string]interface{}
+// @Router       /mcp/nodes [get]
 func (h *MCPHandler) GetMCPNodes(c *gin.Context) {
 	domainName := h.GetStringQuery(c, "domain_name")
 	page := h.ParseIntQuery(c, "page", 1)
@@ -85,6 +121,19 @@ func (h *MCPHandler) GetMCPNodes(c *gin.Context) {
 	c.JSON(http.StatusOK, response)
 }
 
+// UpdateMCPNode godoc
+// @Summary      Update an MCP node
+// @Description  Update MCP node title and description by composite ID
+// @Tags         mcp
+// @Accept       json
+// @Produce      json
+// @Param        composite_id  path      string                       true  "Composite ID (domain::url)"
+// @Param        node          body      models.UpdateMCPNodeRequest  true  "Updated MCP node data"
+// @Success      200           {object}  models.MCPNode
+// @Failure      400           {object}  map[string]interface{}
+// @Failure      404           {object}  map[string]interface{}
+// @Failure      500           {object}  map[string]interface{}
+// @Router       /mcp/nodes/{composite_id} [put]
 func (h *MCPHandler) UpdateMCPNode(c *gin.Context) {
 	compositeID := c.Param("composite_id")
 	if compositeID == "" {
@@ -107,6 +156,16 @@ func (h *MCPHandler) UpdateMCPNode(c *gin.Context) {
 	c.JSON(http.StatusOK, node)
 }
 
+// DeleteMCPNode godoc
+// @Summary      Delete an MCP node
+// @Description  Delete MCP node by composite ID
+// @Tags         mcp
+// @Param        composite_id  path  string  true  "Composite ID (domain::url)"
+// @Success      204
+// @Failure      400  {object}  map[string]interface{}
+// @Failure      404  {object}  map[string]interface{}
+// @Failure      500  {object}  map[string]interface{}
+// @Router       /mcp/nodes/{composite_id} [delete]
 func (h *MCPHandler) DeleteMCPNode(c *gin.Context) {
 	compositeID := c.Param("composite_id")
 	if compositeID == "" {
@@ -123,6 +182,18 @@ func (h *MCPHandler) DeleteMCPNode(c *gin.Context) {
 	c.Status(http.StatusNoContent)
 }
 
+// FindMCPNodeByURL godoc
+// @Summary      Find MCP node by URL
+// @Description  Find an MCP node by its URL within a domain
+// @Tags         mcp
+// @Accept       json
+// @Produce      json
+// @Param        request  body      models.FindMCPNodeRequest  true  "Domain and URL to search for"
+// @Success      200      {object}  models.MCPNode
+// @Failure      400      {object}  map[string]interface{}
+// @Failure      404      {object}  map[string]interface{}
+// @Failure      500      {object}  map[string]interface{}
+// @Router       /mcp/nodes/find [post]
 func (h *MCPHandler) FindMCPNodeByURL(c *gin.Context) {
 	var req models.FindMCPNodeRequest
 	if err := h.BindJSON(c, &req); err != nil {
@@ -139,6 +210,17 @@ func (h *MCPHandler) FindMCPNodeByURL(c *gin.Context) {
 	c.JSON(http.StatusOK, node)
 }
 
+// BatchGetMCPNodes godoc
+// @Summary      Batch get MCP nodes
+// @Description  Get multiple MCP nodes by their composite IDs in a single request
+// @Tags         mcp
+// @Accept       json
+// @Produce      json
+// @Param        request  body      models.BatchMCPNodeRequest  true  "List of composite IDs"
+// @Success      200      {object}  models.BatchMCPNodeResponse
+// @Failure      400      {object}  map[string]interface{}
+// @Failure      500      {object}  map[string]interface{}
+// @Router       /mcp/nodes/batch [post]
 func (h *MCPHandler) BatchGetMCPNodes(c *gin.Context) {
 	var req models.BatchMCPNodeRequest
 	if err := h.BindJSON(c, &req); err != nil {
@@ -155,6 +237,14 @@ func (h *MCPHandler) BatchGetMCPNodes(c *gin.Context) {
 	c.JSON(http.StatusOK, response)
 }
 
+// GetMCPDomains godoc
+// @Summary      List MCP domains
+// @Description  Get all domains with their node counts in MCP format
+// @Tags         mcp
+// @Produce      json
+// @Success      200  {object}  map[string]interface{}
+// @Failure      500  {object}  map[string]interface{}
+// @Router       /mcp/domains [get]
 func (h *MCPHandler) GetMCPDomains(c *gin.Context) {
 	domains, err := h.mcpService.GetMCPDomains()
 	if err != nil {
@@ -167,6 +257,18 @@ func (h *MCPHandler) GetMCPDomains(c *gin.Context) {
 	})
 }
 
+// CreateMCPDomain godoc
+// @Summary      Create a new MCP domain
+// @Description  Create a new domain using MCP format
+// @Tags         mcp
+// @Accept       json
+// @Produce      json
+// @Param        domain  body      models.CreateMCPDomainRequest  true  "MCP domain data"
+// @Success      201     {object}  models.MCPDomain
+// @Failure      400     {object}  map[string]interface{}
+// @Failure      409     {object}  map[string]interface{}
+// @Failure      500     {object}  map[string]interface{}
+// @Router       /mcp/domains [post]
 func (h *MCPHandler) CreateMCPDomain(c *gin.Context) {
 	var req models.CreateMCPDomainRequest
 	if err := h.BindJSON(c, &req); err != nil {
@@ -183,6 +285,17 @@ func (h *MCPHandler) CreateMCPDomain(c *gin.Context) {
 	c.JSON(http.StatusCreated, domain)
 }
 
+// GetMCPNodeAttributes godoc
+// @Summary      Get MCP node attributes
+// @Description  Get all attribute values for an MCP node by composite ID
+// @Tags         mcp
+// @Produce      json
+// @Param        composite_id  path      string  true  "Composite ID (domain::url)"
+// @Success      200           {object}  models.MCPNodeAttributesResponse
+// @Failure      400           {object}  map[string]interface{}
+// @Failure      404           {object}  map[string]interface{}
+// @Failure      500           {object}  map[string]interface{}
+// @Router       /mcp/nodes/{composite_id}/attributes [get]
 func (h *MCPHandler) GetMCPNodeAttributes(c *gin.Context) {
 	compositeID := c.Param("composite_id")
 	if compositeID == "" {
@@ -199,6 +312,19 @@ func (h *MCPHandler) GetMCPNodeAttributes(c *gin.Context) {
 	c.JSON(http.StatusOK, response)
 }
 
+// SetMCPNodeAttributes godoc
+// @Summary      Set MCP node attributes
+// @Description  Set or update attribute values for an MCP node by composite ID
+// @Tags         mcp
+// @Accept       json
+// @Produce      json
+// @Param        composite_id  path      string                              true  "Composite ID (domain::url)"
+// @Param        attributes    body      models.SetMCPNodeAttributesRequest  true  "Attribute data to set"
+// @Success      200           {object}  models.MCPNodeAttributesResponse
+// @Failure      400           {object}  map[string]interface{}
+// @Failure      404           {object}  map[string]interface{}
+// @Failure      500           {object}  map[string]interface{}
+// @Router       /mcp/nodes/{composite_id}/attributes [put]
 func (h *MCPHandler) SetMCPNodeAttributes(c *gin.Context) {
 	compositeID := c.Param("composite_id")
 	if compositeID == "" {
@@ -221,6 +347,14 @@ func (h *MCPHandler) SetMCPNodeAttributes(c *gin.Context) {
 	c.JSON(http.StatusOK, response)
 }
 
+// GetMCPServerInfo godoc
+// @Summary      Get MCP server information
+// @Description  Get server capabilities and configuration information
+// @Tags         mcp
+// @Produce      json
+// @Success      200  {object}  models.MCPServerInfo
+// @Failure      500  {object}  map[string]interface{}
+// @Router       /mcp/server/info [get]
 func (h *MCPHandler) GetMCPServerInfo(c *gin.Context) {
 	info, err := h.mcpService.GetMCPServerInfo()
 	if err != nil {
@@ -246,19 +380,19 @@ func (h *MCPHandler) RegisterRoutes(r *gin.Engine) {
 				nodes.DELETE("/:composite_id", h.DeleteMCPNode)
 				nodes.POST("/find", h.FindMCPNodeByURL)
 				nodes.POST("/batch", h.BatchGetMCPNodes)
-				
+
 				// Node attributes
 				nodes.GET("/:composite_id/attributes", h.GetMCPNodeAttributes)
 				nodes.PUT("/:composite_id/attributes", h.SetMCPNodeAttributes)
 			}
-			
+
 			// Domain operations
 			domains := mcp.Group("/domains")
 			{
 				domains.GET("", h.GetMCPDomains)
 				domains.POST("", h.CreateMCPDomain)
 			}
-			
+
 			// Server info
 			server := mcp.Group("/server")
 			{

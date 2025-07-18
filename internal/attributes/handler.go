@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	"github.com/url-db/internal/models"
+	"url-db/internal/models"
 )
 
 // AttributeHandler handles HTTP requests for attributes
@@ -28,7 +28,20 @@ func (h *AttributeHandler) RegisterRoutes(router *gin.RouterGroup) {
 	router.DELETE("/attributes/:id", h.DeleteAttribute)
 }
 
-// CreateAttribute creates a new attribute
+// CreateAttribute godoc
+// @Summary      Create a new attribute
+// @Description  Create a new attribute for a domain
+// @Tags         attributes
+// @Accept       json
+// @Produce      json
+// @Param        domain_id  path      int                           true  "Domain ID"
+// @Param        attribute  body      models.CreateAttributeRequest true  "Attribute data"
+// @Success      201        {object}  models.Attribute
+// @Failure      400        {object}  map[string]interface{}
+// @Failure      404        {object}  map[string]interface{}
+// @Failure      409        {object}  map[string]interface{}
+// @Failure      500        {object}  map[string]interface{}
+// @Router       /domains/{domain_id}/attributes [post]
 func (h *AttributeHandler) CreateAttribute(c *gin.Context) {
 	domainIDStr := c.Param("domain_id")
 	domainID, err := strconv.Atoi(domainIDStr)
@@ -58,7 +71,17 @@ func (h *AttributeHandler) CreateAttribute(c *gin.Context) {
 	c.JSON(http.StatusCreated, attribute)
 }
 
-// GetAttribute retrieves an attribute by ID
+// GetAttribute godoc
+// @Summary      Get an attribute
+// @Description  Get attribute by ID
+// @Tags         attributes
+// @Produce      json
+// @Param        id  path      int  true  "Attribute ID"
+// @Success      200 {object}  models.Attribute
+// @Failure      400 {object}  map[string]interface{}
+// @Failure      404 {object}  map[string]interface{}
+// @Failure      500 {object}  map[string]interface{}
+// @Router       /attributes/{id} [get]
 func (h *AttributeHandler) GetAttribute(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := strconv.Atoi(idStr)
@@ -79,7 +102,17 @@ func (h *AttributeHandler) GetAttribute(c *gin.Context) {
 	c.JSON(http.StatusOK, attribute)
 }
 
-// ListAttributes lists all attributes for a domain
+// ListAttributes godoc
+// @Summary      List attributes
+// @Description  Get all attributes for a domain
+// @Tags         attributes
+// @Produce      json
+// @Param        domain_id  path      int  true  "Domain ID"
+// @Success      200        {object}  models.AttributeListResponse
+// @Failure      400        {object}  map[string]interface{}
+// @Failure      404        {object}  map[string]interface{}
+// @Failure      500        {object}  map[string]interface{}
+// @Router       /domains/{domain_id}/attributes [get]
 func (h *AttributeHandler) ListAttributes(c *gin.Context) {
 	domainIDStr := c.Param("domain_id")
 	domainID, err := strconv.Atoi(domainIDStr)
@@ -100,7 +133,19 @@ func (h *AttributeHandler) ListAttributes(c *gin.Context) {
 	c.JSON(http.StatusOK, response)
 }
 
-// UpdateAttribute updates an attribute
+// UpdateAttribute godoc
+// @Summary      Update an attribute
+// @Description  Update attribute description by ID
+// @Tags         attributes
+// @Accept       json
+// @Produce      json
+// @Param        id         path      int                           true  "Attribute ID"
+// @Param        attribute  body      models.UpdateAttributeRequest true  "Updated attribute data"
+// @Success      200        {object}  models.Attribute
+// @Failure      400        {object}  map[string]interface{}
+// @Failure      404        {object}  map[string]interface{}
+// @Failure      500        {object}  map[string]interface{}
+// @Router       /attributes/{id} [put]
 func (h *AttributeHandler) UpdateAttribute(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := strconv.Atoi(idStr)
@@ -130,7 +175,17 @@ func (h *AttributeHandler) UpdateAttribute(c *gin.Context) {
 	c.JSON(http.StatusOK, attribute)
 }
 
-// DeleteAttribute deletes an attribute
+// DeleteAttribute godoc
+// @Summary      Delete an attribute
+// @Description  Delete attribute by ID (only if no associated values exist)
+// @Tags         attributes
+// @Param        id  path  int  true  "Attribute ID"
+// @Success      204
+// @Failure      400  {object}  map[string]interface{}
+// @Failure      404  {object}  map[string]interface{}
+// @Failure      409  {object}  map[string]interface{}
+// @Failure      500  {object}  map[string]interface{}
+// @Router       /attributes/{id} [delete]
 func (h *AttributeHandler) DeleteAttribute(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := strconv.Atoi(idStr)

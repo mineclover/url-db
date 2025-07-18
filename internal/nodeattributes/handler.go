@@ -6,7 +6,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"internal/models"
+	"url-db/internal/models"
 )
 
 type Handler struct {
@@ -32,6 +32,19 @@ func (h *Handler) RegisterRoutes(router *gin.Engine) {
 	}
 }
 
+// CreateNodeAttribute godoc
+// @Summary      Create a node attribute
+// @Description  Create a new attribute value for a URL node
+// @Tags         node-attributes
+// @Accept       json
+// @Produce      json
+// @Param        url_id     path      int                               true  "URL Node ID"
+// @Param        attribute  body      models.CreateNodeAttributeRequest true  "Node attribute data"
+// @Success      201        {object}  models.NodeAttribute
+// @Failure      400        {object}  map[string]interface{}
+// @Failure      409        {object}  map[string]interface{}
+// @Failure      500        {object}  map[string]interface{}
+// @Router       /urls/{url_id}/attributes [post]
 func (h *Handler) CreateNodeAttribute(c *gin.Context) {
 	urlID, err := strconv.Atoi(c.Param("url_id"))
 	if err != nil {
@@ -81,6 +94,16 @@ func (h *Handler) CreateNodeAttribute(c *gin.Context) {
 	c.JSON(http.StatusCreated, nodeAttribute)
 }
 
+// GetNodeAttributesByNodeID godoc
+// @Summary      Get node attributes
+// @Description  Get all attribute values for a URL node
+// @Tags         node-attributes
+// @Produce      json
+// @Param        url_id  path      int  true  "URL Node ID"
+// @Success      200     {object}  models.NodeAttributeListResponse
+// @Failure      400     {object}  map[string]interface{}
+// @Failure      500     {object}  map[string]interface{}
+// @Router       /urls/{url_id}/attributes [get]
 func (h *Handler) GetNodeAttributesByNodeID(c *gin.Context) {
 	urlID, err := strconv.Atoi(c.Param("url_id"))
 	if err != nil {
@@ -103,6 +126,17 @@ func (h *Handler) GetNodeAttributesByNodeID(c *gin.Context) {
 	c.JSON(http.StatusOK, response)
 }
 
+// GetNodeAttributeByID godoc
+// @Summary      Get a node attribute
+// @Description  Get a specific node attribute by ID
+// @Tags         node-attributes
+// @Produce      json
+// @Param        id  path      int  true  "Node Attribute ID"
+// @Success      200 {object}  models.NodeAttribute
+// @Failure      400 {object}  map[string]interface{}
+// @Failure      404 {object}  map[string]interface{}
+// @Failure      500 {object}  map[string]interface{}
+// @Router       /url-attributes/{id} [get]
 func (h *Handler) GetNodeAttributeByID(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
@@ -133,6 +167,20 @@ func (h *Handler) GetNodeAttributeByID(c *gin.Context) {
 	c.JSON(http.StatusOK, nodeAttribute)
 }
 
+// UpdateNodeAttribute godoc
+// @Summary      Update a node attribute
+// @Description  Update a node attribute value and order index by ID
+// @Tags         node-attributes
+// @Accept       json
+// @Produce      json
+// @Param        id         path      int                               true  "Node Attribute ID"
+// @Param        attribute  body      models.UpdateNodeAttributeRequest true  "Updated node attribute data"
+// @Success      200        {object}  models.NodeAttribute
+// @Failure      400        {object}  map[string]interface{}
+// @Failure      404        {object}  map[string]interface{}
+// @Failure      409        {object}  map[string]interface{}
+// @Failure      500        {object}  map[string]interface{}
+// @Router       /url-attributes/{id} [put]
 func (h *Handler) UpdateNodeAttribute(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
@@ -179,6 +227,16 @@ func (h *Handler) UpdateNodeAttribute(c *gin.Context) {
 	c.JSON(http.StatusOK, nodeAttribute)
 }
 
+// DeleteNodeAttribute godoc
+// @Summary      Delete a node attribute
+// @Description  Delete a node attribute by ID
+// @Tags         node-attributes
+// @Param        id  path  int  true  "Node Attribute ID"
+// @Success      204
+// @Failure      400  {object}  map[string]interface{}
+// @Failure      404  {object}  map[string]interface{}
+// @Failure      500  {object}  map[string]interface{}
+// @Router       /url-attributes/{id} [delete]
 func (h *Handler) DeleteNodeAttribute(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
@@ -209,6 +267,17 @@ func (h *Handler) DeleteNodeAttribute(c *gin.Context) {
 	c.Status(http.StatusNoContent)
 }
 
+// DeleteNodeAttributeByNodeIDAndAttributeID godoc
+// @Summary      Delete a node attribute by node and attribute ID
+// @Description  Delete a specific node attribute by URL node ID and attribute ID
+// @Tags         node-attributes
+// @Param        url_id       path  int  true  "URL Node ID"
+// @Param        attribute_id path  int  true  "Attribute ID"
+// @Success      204
+// @Failure      400  {object}  map[string]interface{}
+// @Failure      404  {object}  map[string]interface{}
+// @Failure      500  {object}  map[string]interface{}
+// @Router       /urls/{url_id}/attributes/{attribute_id} [delete]
 func (h *Handler) DeleteNodeAttributeByNodeIDAndAttributeID(c *gin.Context) {
 	urlID, err := strconv.Atoi(c.Param("url_id"))
 	if err != nil {

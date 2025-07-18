@@ -16,6 +16,20 @@ func NewNodeHandler(service NodeService) *NodeHandler {
 	return &NodeHandler{service: service}
 }
 
+// CreateNode godoc
+// @Summary      Create a new URL node
+// @Description  Create a new URL node in a domain
+// @Tags         nodes
+// @Accept       json
+// @Produce      json
+// @Param        domain_id  path      int                        true   "Domain ID"
+// @Param        node       body      models.CreateNodeRequest  true   "Node data"
+// @Success      201        {object}  models.Node
+// @Failure      400        {object}  map[string]interface{}
+// @Failure      404        {object}  map[string]interface{}
+// @Failure      409        {object}  map[string]interface{}
+// @Failure      500        {object}  map[string]interface{}
+// @Router       /domains/{domain_id}/urls [post]
 func (h *NodeHandler) CreateNode(c *gin.Context) {
 	domainIDStr := c.Param("domain_id")
 	domainID, err := strconv.Atoi(domainIDStr)
@@ -66,6 +80,20 @@ func (h *NodeHandler) CreateNode(c *gin.Context) {
 	c.JSON(http.StatusCreated, node)
 }
 
+// GetNodesByDomain godoc
+// @Summary      Get nodes by domain
+// @Description  Get all nodes in a domain with pagination and optional search
+// @Tags         nodes
+// @Produce      json
+// @Param        domain_id  path   int     true   "Domain ID"
+// @Param        page       query  int     false  "Page number" default(1)
+// @Param        size       query  int     false  "Page size" default(20)
+// @Param        search     query  string  false  "Search term for URL content"
+// @Success      200        {object}  models.NodeListResponse
+// @Failure      400        {object}  map[string]interface{}
+// @Failure      404        {object}  map[string]interface{}
+// @Failure      500        {object}  map[string]interface{}
+// @Router       /domains/{domain_id}/urls [get]
 func (h *NodeHandler) GetNodesByDomain(c *gin.Context) {
 	domainIDStr := c.Param("domain_id")
 	domainID, err := strconv.Atoi(domainIDStr)
@@ -107,6 +135,17 @@ func (h *NodeHandler) GetNodesByDomain(c *gin.Context) {
 	c.JSON(http.StatusOK, response)
 }
 
+// GetNode godoc
+// @Summary      Get a node
+// @Description  Get node by ID
+// @Tags         nodes
+// @Produce      json
+// @Param        id  path      int  true  "Node ID"
+// @Success      200 {object}  models.Node
+// @Failure      400 {object}  map[string]interface{}
+// @Failure      404 {object}  map[string]interface{}
+// @Failure      500 {object}  map[string]interface{}
+// @Router       /urls/{id} [get]
 func (h *NodeHandler) GetNode(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := strconv.Atoi(idStr)
@@ -138,6 +177,19 @@ func (h *NodeHandler) GetNode(c *gin.Context) {
 	c.JSON(http.StatusOK, node)
 }
 
+// UpdateNode godoc
+// @Summary      Update a node
+// @Description  Update node title and description by ID
+// @Tags         nodes
+// @Accept       json
+// @Produce      json
+// @Param        id    path      int                       true  "Node ID"
+// @Param        node  body      models.UpdateNodeRequest  true  "Updated node data"
+// @Success      200   {object}  models.Node
+// @Failure      400   {object}  map[string]interface{}
+// @Failure      404   {object}  map[string]interface{}
+// @Failure      500   {object}  map[string]interface{}
+// @Router       /urls/{id} [put]
 func (h *NodeHandler) UpdateNode(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := strconv.Atoi(idStr)
@@ -178,6 +230,16 @@ func (h *NodeHandler) UpdateNode(c *gin.Context) {
 	c.JSON(http.StatusOK, node)
 }
 
+// DeleteNode godoc
+// @Summary      Delete a node
+// @Description  Delete node by ID
+// @Tags         nodes
+// @Param        id  path  int  true  "Node ID"
+// @Success      204
+// @Failure      400  {object}  map[string]interface{}
+// @Failure      404  {object}  map[string]interface{}
+// @Failure      500  {object}  map[string]interface{}
+// @Router       /urls/{id} [delete]
 func (h *NodeHandler) DeleteNode(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := strconv.Atoi(idStr)
@@ -209,6 +271,19 @@ func (h *NodeHandler) DeleteNode(c *gin.Context) {
 	c.Status(http.StatusNoContent)
 }
 
+// FindNodeByURL godoc
+// @Summary      Find node by URL
+// @Description  Find a node by its URL within a domain
+// @Tags         nodes
+// @Accept       json
+// @Produce      json
+// @Param        domain_id  path      int                         true  "Domain ID"
+// @Param        request    body      models.FindNodeByURLRequest true  "URL to search for"
+// @Success      200        {object}  models.Node
+// @Failure      400        {object}  map[string]interface{}
+// @Failure      404        {object}  map[string]interface{}
+// @Failure      500        {object}  map[string]interface{}
+// @Router       /domains/{domain_id}/urls/find [post]
 func (h *NodeHandler) FindNodeByURL(c *gin.Context) {
 	domainIDStr := c.Param("domain_id")
 	domainID, err := strconv.Atoi(domainIDStr)
@@ -264,13 +339,13 @@ func (h *NodeHandler) RegisterRoutes(r *gin.Engine) {
 	{
 		// Node creation by domain
 		api.POST("/domains/:domain_id/urls", h.CreateNode)
-		
+
 		// Node list by domain
 		api.GET("/domains/:domain_id/urls", h.GetNodesByDomain)
-		
+
 		// Find node by URL
 		api.POST("/domains/:domain_id/urls/find", h.FindNodeByURL)
-		
+
 		// Individual node operations
 		api.GET("/urls/:id", h.GetNode)
 		api.PUT("/urls/:id", h.UpdateNode)
