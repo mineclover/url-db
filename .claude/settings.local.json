@@ -40,7 +40,8 @@
       "Bash(air:*)",
       "Bash(git commit:*)",
       "Bash(./url-db:*)",
-      "Bash(killall:*)"
+      "Bash(killall:*)",
+      "Bash(chmod:*)"
     ],
     "deny": []
   }
