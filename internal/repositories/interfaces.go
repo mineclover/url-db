@@ -15,7 +15,7 @@ type DomainRepository interface {
 	Update(domain *models.Domain) error
 	Delete(id int) error
 	ExistsByName(name string) (bool, error)
-	
+
 	// 트랜잭션 지원 메서드
 	CreateTx(tx *sql.Tx, domain *models.Domain) error
 	UpdateTx(tx *sql.Tx, domain *models.Domain) error
@@ -33,12 +33,12 @@ type NodeRepository interface {
 	Delete(id int) error
 	ExistsByDomainAndContent(domainID int, content string) (bool, error)
 	CountNodesByDomain(ctx context.Context, domainID int) (int, error)
-	
+
 	// 배치 처리 메서드
 	BatchCreate(nodes []models.Node) error
 	BatchUpdate(nodes []models.Node) error
 	BatchDelete(ids []int) error
-	
+
 	// 트랜잭션 지원 메서드
 	CreateTx(tx *sql.Tx, node *models.Node) error
 	UpdateTx(tx *sql.Tx, node *models.Node) error
@@ -54,7 +54,7 @@ type AttributeRepository interface {
 	Update(attribute *models.Attribute) error
 	Delete(id int) error
 	ExistsByDomainAndName(domainID int, name string) (bool, error)
-	
+
 	// 트랜잭션 지원 메서드
 	CreateTx(tx *sql.Tx, attribute *models.Attribute) error
 	UpdateTx(tx *sql.Tx, attribute *models.Attribute) error
@@ -73,13 +73,13 @@ type NodeAttributeRepository interface {
 	DeleteByNode(nodeID int) error
 	DeleteByAttribute(attributeID int) error
 	ExistsByNodeAndAttribute(nodeID, attributeID int) (bool, error)
-	
+
 	// 배치 처리 메서드
 	BatchCreate(nodeAttributes []models.NodeAttribute) error
 	BatchUpdate(nodeAttributes []models.NodeAttribute) error
 	BatchDeleteByNode(nodeID int) error
 	BatchDeleteByAttribute(attributeID int) error
-	
+
 	// 트랜잭션 지원 메서드
 	CreateTx(tx *sql.Tx, nodeAttribute *models.NodeAttribute) error
 	UpdateTx(tx *sql.Tx, nodeAttribute *models.NodeAttribute) error
@@ -99,11 +99,11 @@ type NodeConnectionRepository interface {
 	DeleteBySourceNode(ctx context.Context, sourceNodeID int) error
 	DeleteByTargetNode(ctx context.Context, targetNodeID int) error
 	ExistsBySourceAndTarget(ctx context.Context, sourceNodeID, targetNodeID int, relationshipType string) (bool, error)
-	
+
 	// 배치 처리 메서드
 	BatchCreate(ctx context.Context, connections []models.NodeConnection) error
 	BatchDelete(ctx context.Context, ids []int) error
-	
+
 	// 트랜잭션 지원 메서드
 	CreateTx(tx *sql.Tx, connection *models.NodeConnection) error
 	UpdateTx(tx *sql.Tx, connection *models.NodeConnection) error

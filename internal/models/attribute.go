@@ -36,6 +36,7 @@ type UpdateAttributeRequest struct {
 
 type AttributeListResponse struct {
 	Attributes []Attribute `json:"attributes"`
+	Domain     *Domain     `json:"domain,omitempty"`
 }
 
 type NodeAttribute struct {
@@ -70,7 +71,8 @@ type NodeAttributeWithInfo struct {
 }
 
 type NodeAttributeListResponse struct {
-	Attributes []NodeAttributeWithInfo `json:"attributes"`
+	NodeAttributes []NodeAttributeWithInfo `json:"node_attributes"`
+	Attributes     []NodeAttributeWithInfo `json:"attributes"` // For backward compatibility
 }
 
 // MCP-specific models
@@ -90,4 +92,15 @@ type SetMCPNodeAttributesRequest struct {
 		Name  string `json:"name" binding:"required"`
 		Value string `json:"value" binding:"required"`
 	} `json:"attributes" binding:"required"`
+}
+
+type MCPNodeAttribute struct {
+	Name  string `json:"name"`
+	Type  string `json:"type"`
+	Value string `json:"value"`
+}
+
+type MCPNodeAttributesResponse struct {
+	CompositeID string         `json:"composite_id"`
+	Attributes  []MCPAttribute `json:"attributes"`
 }

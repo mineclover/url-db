@@ -24,15 +24,15 @@ func (r *sqliteDomainRepository) Create(domain *models.Domain) error {
 		VALUES (?, ?, datetime('now'), datetime('now'))
 		RETURNING id, created_at, updated_at
 	`
-	
+
 	err := r.QueryRow(query, domain.Name, domain.Description).Scan(
 		&domain.ID, &domain.CreatedAt, &domain.UpdatedAt,
 	)
-	
+
 	if err != nil {
 		return MapSQLiteError(err)
 	}
-	
+
 	return nil
 }
 
@@ -43,21 +43,21 @@ func (r *sqliteDomainRepository) GetByID(id int) (*models.Domain, error) {
 		FROM domains
 		WHERE id = ?
 	`
-	
+
 	domain := &models.Domain{}
 	err := r.QueryRow(query, id).Scan(
 		&domain.ID, &domain.Name, &domain.Description,
 		&domain.CreatedAt, &domain.UpdatedAt,
 	)
-	
+
 	if err == sql.ErrNoRows {
 		return nil, ErrDomainNotFound
 	}
-	
+
 	if err != nil {
 		return nil, MapSQLiteError(err)
 	}
-	
+
 	return domain, nil
 }
 
@@ -68,21 +68,21 @@ func (r *sqliteDomainRepository) GetByName(name string) (*models.Domain, error) 
 		FROM domains
 		WHERE name = ?
 	`
-	
+
 	domain := &models.Domain{}
 	err := r.QueryRow(query, name).Scan(
 		&domain.ID, &domain.Name, &domain.Description,
 		&domain.CreatedAt, &domain.UpdatedAt,
 	)
-	
+
 	if err == sql.ErrNoRows {
 		return nil, ErrDomainNotFound
 	}
-	
+
 	if err != nil {
 		return nil, MapSQLiteError(err)
 	}
-	
+
 	return domain, nil
 }
 
@@ -95,13 +95,13 @@ func (r *sqliteDomainRepository) List(offset, limit int) ([]models.Domain, int, 
 		ORDER BY created_at DESC
 		LIMIT ? OFFSET ?
 	`
-	
+
 	rows, err := r.Query(query, limit, offset)
 	if err != nil {
 		return nil, 0, MapSQLiteError(err)
 	}
 	defer rows.Close()
-	
+
 	var domains []models.Domain
 	for rows.Next() {
 		var domain models.Domain
@@ -112,11 +112,11 @@ func (r *sqliteDomainRepository) List(offset, limit int) ([]models.Domain, int, 
 		}
 		domains = append(domains, domain)
 	}
-	
+
 	if err := rows.Err(); err != nil {
 		return nil, 0, MapSQLiteError(err)
 	}
-	
+
 	// 총 개수 조회
 	countQuery := `SELECT COUNT(*) FROM domains`
 	var total int
@@ -124,7 +124,7 @@ func (r *sqliteDomainRepository) List(offset, limit int) ([]models.Domain, int, 
 	if err != nil {
 		return nil, 0, MapSQLiteError(err)
 	}
-	
+
 	return domains, total, nil
 }
 
@@ -136,53 +136,53 @@ func (r *sqliteDomainRepository) Update(domain *models.Domain) error {
 		WHERE id = ?
 		RETURNING updated_at
 	`
-	
+
 	err := r.QueryRow(query, domain.Name, domain.Description, domain.ID).Scan(
 		&domain.UpdatedAt,
 	)
-	
+
 	if err == sql.ErrNoRows {
 		return ErrDomainNotFound
 	}
-	
+
 	if err != nil {
 		return MapSQLiteError(err)
 	}
-	
+
 	return nil
 }
 
 // Delete 는 도메인을 삭제합니다.
 func (r *sqliteDomainRepository) Delete(id int) error {
 	query := `DELETE FROM domains WHERE id = ?`
-	
+
 	result, err := r.Execute(query, id)
 	if err != nil {
 		return MapSQLiteError(err)
 	}
-	
+
 	rowsAffected, err := result.RowsAffected()
 	if err != nil {
 		return MapSQLiteError(err)
 	}
-	
+
 	if rowsAffected == 0 {
 		return ErrDomainNotFound
 	}
-	
+
 	return nil
 }
 
 // ExistsByName 은 이름으로 도메인 존재 여부를 확인합니다.
 func (r *sqliteDomainRepository) ExistsByName(name string) (bool, error) {
 	query := `SELECT EXISTS(SELECT 1 FROM domains WHERE name = ?)`
-	
+
 	var exists bool
 	err := r.QueryRow(query, name).Scan(&exists)
 	if err != nil {
 		return false, MapSQLiteError(err)
 	}
-	
+
 	return exists, nil
 }
 
@@ -195,15 +195,15 @@ func (r *sqliteDomainRepository) CreateTx(tx *sql.Tx, domain *models.Domain) err
 		VALUES (?, ?, datetime('now'), datetime('now'))
 		RETURNING id, created_at, updated_at
 	`
-	
+
 	err := r.QueryRowInTransaction(tx, query, domain.Name, domain.Description).Scan(
 		&domain.ID, &domain.CreatedAt, &domain.UpdatedAt,
 	)
-	
+
 	if err != nil {
 		return MapSQLiteError(err)
 	}
-	
+
 	return nil
 }
 
@@ -215,39 +215,39 @@ func (r *sqliteDomainRepository) UpdateTx(tx *sql.Tx, domain *models.Domain) err
 		WHERE id = ?
 		RETURNING updated_at
 	`
-	
+
 	err := r.QueryRowInTransaction(tx, query, domain.Name, domain.Description, domain.ID).Scan(
 		&domain.UpdatedAt,
 	)
-	
+
 	if err == sql.ErrNoRows {
 		return ErrDomainNotFound
 	}
-	
+
 	if err != nil {
 		return MapSQLiteError(err)
 	}
-	
+
 	return nil
 }
 
 // DeleteTx 는 트랜잭션 내에서 도메인을 삭제합니다.
 func (r *sqliteDomainRepository) DeleteTx(tx *sql.Tx, id int) error {
 	query := `DELETE FROM domains WHERE id = ?`
-	
+
 	result, err := r.ExecuteInTransaction(tx, query, id)
 	if err != nil {
 		return MapSQLiteError(err)
 	}
-	
+
 	rowsAffected, err := result.RowsAffected()
 	if err != nil {
 		return MapSQLiteError(err)
 	}
-	
+
 	if rowsAffected == 0 {
 		return ErrDomainNotFound
 	}
-	
+
 	return nil
 }

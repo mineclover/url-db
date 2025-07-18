@@ -1,20 +1,21 @@
 package mcp
 
 import (
+	"log"
 	"net/http"
 	"strconv"
-	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/url-db/internal/models"
+	"url-db/internal/models"
 )
 
 type MCPHandler struct {
-	mcpService         MCPService
-	batchProcessor     *BatchProcessor
-	domainManager      *DomainManager
-	attributeManager   *AttributeManager
-	metadataManager    *MetadataManager
+	mcpService       MCPService
+	batchProcessor   *BatchProcessor
+	domainManager    *DomainManager
+	attributeManager *AttributeManager
+	metadataManager  *MetadataManager
 }
 
 func NewMCPHandler(
@@ -25,11 +26,11 @@ func NewMCPHandler(
 	metadataManager *MetadataManager,
 ) *MCPHandler {
 	return &MCPHandler{
-		mcpService:         mcpService,
-		batchProcessor:     batchProcessor,
-		domainManager:      domainManager,
-		attributeManager:   attributeManager,
-		metadataManager:    metadataManager,
+		mcpService:       mcpService,
+		batchProcessor:   batchProcessor,
+		domainManager:    domainManager,
+		attributeManager: attributeManager,
+		metadataManager:  metadataManager,
 	}
 }
 
@@ -574,7 +575,7 @@ func (h *MCPHandler) RegisterRoutes(r *gin.RouterGroup) {
 			nodes.GET("/:composite_id", h.GetNode)
 			nodes.PUT("/:composite_id", h.UpdateNode)
 			nodes.DELETE("/:composite_id", h.DeleteNode)
-			
+
 			nodes.GET("/:composite_id/attributes", h.GetNodeAttributes)
 			nodes.PUT("/:composite_id/attributes", h.SetNodeAttributes)
 			nodes.POST("/:composite_id/attributes", h.AddNodeAttribute)
@@ -646,8 +647,3 @@ func (h *MCPHandler) loggingMiddleware() gin.HandlerFunc {
 		)
 	}
 }
-
-import (
-	"log"
-	"time"
-)

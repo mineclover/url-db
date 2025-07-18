@@ -15,7 +15,7 @@ func TestNewService(t *testing.T) {
 
 func TestServiceCreate(t *testing.T) {
 	service := NewService("url-db")
-	
+
 	tests := []struct {
 		name        string
 		domainName  string
@@ -58,12 +58,12 @@ func TestServiceCreate(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			result, err := service.Create(tt.domainName, tt.id)
-			
+
 			if tt.expectError {
 				assert.Error(t, err)
 				return
 			}
-			
+
 			require.NoError(t, err)
 			assert.Equal(t, tt.expected, result)
 		})
@@ -72,7 +72,7 @@ func TestServiceCreate(t *testing.T) {
 
 func TestServiceCreateWithTool(t *testing.T) {
 	service := NewService("url-db")
-	
+
 	tests := []struct {
 		name        string
 		toolName    string
@@ -121,12 +121,12 @@ func TestServiceCreateWithTool(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			result, err := service.CreateWithTool(tt.toolName, tt.domainName, tt.id)
-			
+
 			if tt.expectError {
 				assert.Error(t, err)
 				return
 			}
-			
+
 			require.NoError(t, err)
 			assert.Equal(t, tt.expected, result)
 		})
@@ -135,7 +135,7 @@ func TestServiceCreateWithTool(t *testing.T) {
 
 func TestServiceParse(t *testing.T) {
 	service := NewService("url-db")
-	
+
 	tests := []struct {
 		name           string
 		compositeKey   string
@@ -175,12 +175,12 @@ func TestServiceParse(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			result, err := service.Parse(tt.compositeKey)
-			
+
 			if tt.expectError {
 				assert.Error(t, err)
 				return
 			}
-			
+
 			require.NoError(t, err)
 			assert.Equal(t, tt.expectedResult, result)
 		})
@@ -189,7 +189,7 @@ func TestServiceParse(t *testing.T) {
 
 func TestServiceValidate(t *testing.T) {
 	service := NewService("url-db")
-	
+
 	tests := []struct {
 		name         string
 		compositeKey string
@@ -227,7 +227,7 @@ func TestServiceValidate(t *testing.T) {
 
 func TestServiceParseComponents(t *testing.T) {
 	service := NewService("url-db")
-	
+
 	tests := []struct {
 		name               string
 		compositeKey       string
@@ -265,12 +265,12 @@ func TestServiceParseComponents(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			toolName, domainName, id, err := service.ParseComponents(tt.compositeKey)
-			
+
 			if tt.expectError {
 				assert.Error(t, err)
 				return
 			}
-			
+
 			require.NoError(t, err)
 			assert.Equal(t, tt.expectedToolName, toolName)
 			assert.Equal(t, tt.expectedDomainName, domainName)
@@ -281,7 +281,7 @@ func TestServiceParseComponents(t *testing.T) {
 
 func TestServiceGetToolName(t *testing.T) {
 	service := NewService("url-db")
-	
+
 	tests := []struct {
 		name         string
 		compositeKey string
@@ -313,12 +313,12 @@ func TestServiceGetToolName(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			result, err := service.GetToolName(tt.compositeKey)
-			
+
 			if tt.expectError {
 				assert.Error(t, err)
 				return
 			}
-			
+
 			require.NoError(t, err)
 			assert.Equal(t, tt.expected, result)
 		})
@@ -327,7 +327,7 @@ func TestServiceGetToolName(t *testing.T) {
 
 func TestServiceGetDomainName(t *testing.T) {
 	service := NewService("url-db")
-	
+
 	tests := []struct {
 		name         string
 		compositeKey string
@@ -359,12 +359,12 @@ func TestServiceGetDomainName(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			result, err := service.GetDomainName(tt.compositeKey)
-			
+
 			if tt.expectError {
 				assert.Error(t, err)
 				return
 			}
-			
+
 			require.NoError(t, err)
 			assert.Equal(t, tt.expected, result)
 		})
@@ -373,7 +373,7 @@ func TestServiceGetDomainName(t *testing.T) {
 
 func TestServiceGetID(t *testing.T) {
 	service := NewService("url-db")
-	
+
 	tests := []struct {
 		name         string
 		compositeKey string
@@ -405,12 +405,12 @@ func TestServiceGetID(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			result, err := service.GetID(tt.compositeKey)
-			
+
 			if tt.expectError {
 				assert.Error(t, err)
 				return
 			}
-			
+
 			require.NoError(t, err)
 			assert.Equal(t, tt.expected, result)
 		})
@@ -419,7 +419,7 @@ func TestServiceGetID(t *testing.T) {
 
 func TestServiceIsValidFormat(t *testing.T) {
 	service := NewService("url-db")
-	
+
 	tests := []struct {
 		name         string
 		compositeKey string
@@ -452,14 +452,14 @@ func TestServiceIsValidFormat(t *testing.T) {
 
 func TestServiceNormalizeComponents(t *testing.T) {
 	service := NewService("url-db")
-	
+
 	tests := []struct {
-		name                   string
-		toolName               string
-		domainName             string
-		expectedToolName       string
-		expectedDomainName     string
-		expectError            bool
+		name               string
+		toolName           string
+		domainName         string
+		expectedToolName   string
+		expectedDomainName string
+		expectError        bool
 	}{
 		{
 			name:               "기본 정규화",
@@ -492,12 +492,12 @@ func TestServiceNormalizeComponents(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			toolName, domainName, err := service.NormalizeComponents(tt.toolName, tt.domainName)
-			
+
 			if tt.expectError {
 				assert.Error(t, err)
 				return
 			}
-			
+
 			require.NoError(t, err)
 			assert.Equal(t, tt.expectedToolName, toolName)
 			assert.Equal(t, tt.expectedDomainName, domainName)
@@ -507,7 +507,7 @@ func TestServiceNormalizeComponents(t *testing.T) {
 
 func TestServiceValidateComponents(t *testing.T) {
 	service := NewService("url-db")
-	
+
 	tests := []struct {
 		name        string
 		toolName    string
@@ -554,7 +554,7 @@ func TestServiceValidateComponents(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			err := service.ValidateComponents(tt.toolName, tt.domainName, tt.id)
-			
+
 			if tt.expectError {
 				assert.Error(t, err)
 			} else {

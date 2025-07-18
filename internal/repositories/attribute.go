@@ -24,15 +24,15 @@ func (r *sqliteAttributeRepository) Create(attribute *models.Attribute) error {
 		VALUES (?, ?, ?, ?, datetime('now'))
 		RETURNING id, created_at
 	`
-	
+
 	err := r.QueryRow(query, attribute.DomainID, attribute.Name, attribute.Type, attribute.Description).Scan(
 		&attribute.ID, &attribute.CreatedAt,
 	)
-	
+
 	if err != nil {
 		return MapSQLiteError(err)
 	}
-	
+
 	return nil
 }
 
@@ -43,21 +43,21 @@ func (r *sqliteAttributeRepository) GetByID(id int) (*models.Attribute, error) {
 		FROM attributes
 		WHERE id = ?
 	`
-	
+
 	attribute := &models.Attribute{}
 	err := r.QueryRow(query, id).Scan(
 		&attribute.ID, &attribute.DomainID, &attribute.Name,
 		&attribute.Type, &attribute.Description, &attribute.CreatedAt,
 	)
-	
+
 	if err == sql.ErrNoRows {
 		return nil, ErrAttributeNotFound
 	}
-	
+
 	if err != nil {
 		return nil, MapSQLiteError(err)
 	}
-	
+
 	return attribute, nil
 }
 
@@ -68,21 +68,21 @@ func (r *sqliteAttributeRepository) GetByDomainAndName(domainID int, name string
 		FROM attributes
 		WHERE domain_id = ? AND name = ?
 	`
-	
+
 	attribute := &models.Attribute{}
 	err := r.QueryRow(query, domainID, name).Scan(
 		&attribute.ID, &attribute.DomainID, &attribute.Name,
 		&attribute.Type, &attribute.Description, &attribute.CreatedAt,
 	)
-	
+
 	if err == sql.ErrNoRows {
 		return nil, ErrAttributeNotFound
 	}
-	
+
 	if err != nil {
 		return nil, MapSQLiteError(err)
 	}
-	
+
 	return attribute, nil
 }
 
@@ -94,13 +94,13 @@ func (r *sqliteAttributeRepository) ListByDomain(domainID int) ([]models.Attribu
 		WHERE domain_id = ?
 		ORDER BY name
 	`
-	
+
 	rows, err := r.Query(query, domainID)
 	if err != nil {
 		return nil, MapSQLiteError(err)
 	}
 	defer rows.Close()
-	
+
 	var attributes []models.Attribute
 	for rows.Next() {
 		var attribute models.Attribute
@@ -111,11 +111,11 @@ func (r *sqliteAttributeRepository) ListByDomain(domainID int) ([]models.Attribu
 		}
 		attributes = append(attributes, attribute)
 	}
-	
+
 	if err := rows.Err(); err != nil {
 		return nil, MapSQLiteError(err)
 	}
-	
+
 	return attributes, nil
 }
 
@@ -126,55 +126,55 @@ func (r *sqliteAttributeRepository) Update(attribute *models.Attribute) error {
 		SET name = ?, type = ?, description = ?
 		WHERE id = ?
 	`
-	
+
 	result, err := r.Execute(query, attribute.Name, attribute.Type, attribute.Description, attribute.ID)
 	if err != nil {
 		return MapSQLiteError(err)
 	}
-	
+
 	rowsAffected, err := result.RowsAffected()
 	if err != nil {
 		return MapSQLiteError(err)
 	}
-	
+
 	if rowsAffected == 0 {
 		return ErrAttributeNotFound
 	}
-	
+
 	return nil
 }
 
 // Delete 는 속성을 삭제합니다.
 func (r *sqliteAttributeRepository) Delete(id int) error {
 	query := `DELETE FROM attributes WHERE id = ?`
-	
+
 	result, err := r.Execute(query, id)
 	if err != nil {
 		return MapSQLiteError(err)
 	}
-	
+
 	rowsAffected, err := result.RowsAffected()
 	if err != nil {
 		return MapSQLiteError(err)
 	}
-	
+
 	if rowsAffected == 0 {
 		return ErrAttributeNotFound
 	}
-	
+
 	return nil
 }
 
 // ExistsByDomainAndName 은 도메인 ID와 이름으로 속성 존재 여부를 확인합니다.
 func (r *sqliteAttributeRepository) ExistsByDomainAndName(domainID int, name string) (bool, error) {
 	query := `SELECT EXISTS(SELECT 1 FROM attributes WHERE domain_id = ? AND name = ?)`
-	
+
 	var exists bool
 	err := r.QueryRow(query, domainID, name).Scan(&exists)
 	if err != nil {
 		return false, MapSQLiteError(err)
 	}
-	
+
 	return exists, nil
 }
 
@@ -187,15 +187,15 @@ func (r *sqliteAttributeRepository) CreateTx(tx *sql.Tx, attribute *models.Attri
 		VALUES (?, ?, ?, ?, datetime('now'))
 		RETURNING id, created_at
 	`
-	
+
 	err := r.QueryRowInTransaction(tx, query, attribute.DomainID, attribute.Name, attribute.Type, attribute.Description).Scan(
 		&attribute.ID, &attribute.CreatedAt,
 	)
-	
+
 	if err != nil {
 		return MapSQLiteError(err)
 	}
-	
+
 	return nil
 }
 
@@ -206,41 +206,41 @@ func (r *sqliteAttributeRepository) UpdateTx(tx *sql.Tx, attribute *models.Attri
 		SET name = ?, type = ?, description = ?
 		WHERE id = ?
 	`
-	
+
 	result, err := r.ExecuteInTransaction(tx, query, attribute.Name, attribute.Type, attribute.Description, attribute.ID)
 	if err != nil {
 		return MapSQLiteError(err)
 	}
-	
+
 	rowsAffected, err := result.RowsAffected()
 	if err != nil {
 		return MapSQLiteError(err)
 	}
-	
+
 	if rowsAffected == 0 {
 		return ErrAttributeNotFound
 	}
-	
+
 	return nil
 }
 
 // DeleteTx 는 트랜잭션 내에서 속성을 삭제합니다.
 func (r *sqliteAttributeRepository) DeleteTx(tx *sql.Tx, id int) error {
 	query := `DELETE FROM attributes WHERE id = ?`
-	
+
 	result, err := r.ExecuteInTransaction(tx, query, id)
 	if err != nil {
 		return MapSQLiteError(err)
 	}
-	
+
 	rowsAffected, err := result.RowsAffected()
 	if err != nil {
 		return MapSQLiteError(err)
 	}
-	
+
 	if rowsAffected == 0 {
 		return ErrAttributeNotFound
 	}
-	
+
 	return nil
 }

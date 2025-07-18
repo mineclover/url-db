@@ -67,6 +67,7 @@ type BatchMCPNodeRequest struct {
 type BatchMCPNodeResponse struct {
 	Nodes    []MCPNode `json:"nodes"`
 	NotFound []string  `json:"not_found"`
+	Errors   []string  `json:"errors,omitempty"`
 }
 
 type MCPNodeListResponse struct {
@@ -75,4 +76,9 @@ type MCPNodeListResponse struct {
 	Page       int       `json:"page"`
 	Size       int       `json:"size"`
 	TotalPages int       `json:"total_pages"`
+}
+
+type UpdateMCPNodeRequest struct {
+	Title       string `json:"title" binding:"max=255"`
+	Description string `json:"description" binding:"max=1000"`
 }

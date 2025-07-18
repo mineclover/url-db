@@ -4,20 +4,20 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func SetupRoutes(r *gin.Engine, 
+func SetupRoutes(r *gin.Engine,
 	domainHandler *DomainHandler,
 	nodeHandler *NodeHandler,
 	attributeHandler *AttributeHandler,
 	nodeAttributeHandler *NodeAttributeHandler,
 	mcpHandler *MCPHandler,
 	healthHandler *HealthHandler) {
-	
+
 	// Setup middleware
 	SetupMiddleware(r)
-	
+
 	// Health check routes (no auth required)
 	healthHandler.RegisterRoutes(r)
-	
+
 	// API routes
 	api := r.Group("/api")
 	{
@@ -29,7 +29,7 @@ func SetupRoutes(r *gin.Engine,
 			domains.GET("/:id", domainHandler.GetDomain)
 			domains.PUT("/:id", domainHandler.UpdateDomain)
 			domains.DELETE("/:id", domainHandler.DeleteDomain)
-			
+
 			// Domain-specific node routes
 			domainNodes := domains.Group("/:domain_id/urls")
 			{
@@ -37,7 +37,7 @@ func SetupRoutes(r *gin.Engine,
 				domainNodes.GET("", nodeHandler.GetNodesByDomain)
 				domainNodes.POST("/find", nodeHandler.FindNodeByURL)
 			}
-			
+
 			// Domain-specific attribute routes
 			domainAttributes := domains.Group("/:domain_id/attributes")
 			{
@@ -45,14 +45,14 @@ func SetupRoutes(r *gin.Engine,
 				domainAttributes.GET("", attributeHandler.GetAttributesByDomain)
 			}
 		}
-		
+
 		// Node routes
 		urls := api.Group("/urls")
 		{
 			urls.GET("/:id", nodeHandler.GetNode)
 			urls.PUT("/:id", nodeHandler.UpdateNode)
 			urls.DELETE("/:id", nodeHandler.DeleteNode)
-			
+
 			// Node-specific attribute routes
 			urlAttributes := urls.Group("/:url_id/attributes")
 			{
@@ -61,7 +61,7 @@ func SetupRoutes(r *gin.Engine,
 				urlAttributes.DELETE("/:attribute_id", nodeAttributeHandler.DeleteNodeAttributeByNodeAndAttribute)
 			}
 		}
-		
+
 		// Attribute routes
 		attributes := api.Group("/attributes")
 		{
@@ -69,7 +69,7 @@ func SetupRoutes(r *gin.Engine,
 			attributes.PUT("/:id", attributeHandler.UpdateAttribute)
 			attributes.DELETE("/:id", attributeHandler.DeleteAttribute)
 		}
-		
+
 		// Node attribute routes
 		urlAttributesGlobal := api.Group("/url-attributes")
 		{
@@ -77,7 +77,7 @@ func SetupRoutes(r *gin.Engine,
 			urlAttributesGlobal.PUT("/:id", nodeAttributeHandler.UpdateNodeAttribute)
 			urlAttributesGlobal.DELETE("/:id", nodeAttributeHandler.DeleteNodeAttribute)
 		}
-		
+
 		// MCP routes
 		mcp := api.Group("/mcp")
 		{
@@ -91,19 +91,19 @@ func SetupRoutes(r *gin.Engine,
 				nodes.DELETE("/:composite_id", mcpHandler.DeleteMCPNode)
 				nodes.POST("/find", mcpHandler.FindMCPNodeByURL)
 				nodes.POST("/batch", mcpHandler.BatchGetMCPNodes)
-				
+
 				// Node attributes
 				nodes.GET("/:composite_id/attributes", mcpHandler.GetMCPNodeAttributes)
 				nodes.PUT("/:composite_id/attributes", mcpHandler.SetMCPNodeAttributes)
 			}
-			
+
 			// Domain operations
 			domains := mcp.Group("/domains")
 			{
 				domains.GET("", mcpHandler.GetMCPDomains)
 				domains.POST("", mcpHandler.CreateMCPDomain)
 			}
-			
+
 			// Server info
 			server := mcp.Group("/server")
 			{
@@ -116,12 +116,12 @@ func SetupRoutes(r *gin.Engine,
 func NewRouter() *gin.Engine {
 	// Set gin mode based on environment
 	gin.SetMode(gin.ReleaseMode) // Can be configured via environment variable
-	
+
 	r := gin.New()
-	
+
 	// Add basic middleware that should always be present
 	r.Use(gin.Recovery())
-	
+
 	return r
 }
 
@@ -136,7 +136,7 @@ type RouterConfig struct {
 
 func SetupRouter(config *RouterConfig) *gin.Engine {
 	r := NewRouter()
-	
+
 	SetupRoutes(r,
 		config.DomainHandler,
 		config.NodeHandler,
@@ -145,6 +145,6 @@ func SetupRouter(config *RouterConfig) *gin.Engine {
 		config.MCPHandler,
 		config.HealthHandler,
 	)
-	
+
 	return r
 }

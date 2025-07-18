@@ -13,18 +13,18 @@ type HealthService interface {
 }
 
 type HealthInfo struct {
-	Status      string            `json:"status"`
-	Version     string            `json:"version"`
-	Timestamp   time.Time         `json:"timestamp"`
-	Database    DatabaseHealth    `json:"database"`
-	System      SystemHealth      `json:"system"`
-	Checks      map[string]string `json:"checks"`
+	Status    string            `json:"status"`
+	Version   string            `json:"version"`
+	Timestamp time.Time         `json:"timestamp"`
+	Database  DatabaseHealth    `json:"database"`
+	System    SystemHealth      `json:"system"`
+	Checks    map[string]string `json:"checks"`
 }
 
 type DatabaseHealth struct {
-	Status      string `json:"status"`
-	Connection  string `json:"connection"`
-	Response    string `json:"response"`
+	Status     string `json:"status"`
+	Connection string `json:"connection"`
+	Response   string `json:"response"`
 }
 
 type SystemHealth struct {
@@ -50,7 +50,7 @@ func NewHealthHandler(healthService HealthService) *HealthHandler {
 func (h *HealthHandler) GetHealth(c *gin.Context) {
 	checks := make(map[string]string)
 	overallStatus := "healthy"
-	
+
 	// Check database connection
 	dbStatus := "healthy"
 	if err := h.healthService.CheckDatabaseConnection(); err != nil {
@@ -60,7 +60,7 @@ func (h *HealthHandler) GetHealth(c *gin.Context) {
 	} else {
 		checks["database"] = "ok"
 	}
-	
+
 	health := &HealthInfo{
 		Status:    overallStatus,
 		Version:   "1.0.0",
@@ -77,18 +77,18 @@ func (h *HealthHandler) GetHealth(c *gin.Context) {
 		},
 		Checks: checks,
 	}
-	
+
 	statusCode := http.StatusOK
 	if overallStatus == "unhealthy" {
 		statusCode = http.StatusServiceUnavailable
 	}
-	
+
 	c.JSON(statusCode, health)
 }
 
 func (h *HealthHandler) GetLiveness(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
-		"status": "alive",
+		"status":    "alive",
 		"timestamp": time.Now(),
 	})
 }
@@ -97,25 +97,25 @@ func (h *HealthHandler) GetReadiness(c *gin.Context) {
 	// Check if the service is ready to serve traffic
 	if err := h.healthService.CheckDatabaseConnection(); err != nil {
 		c.JSON(http.StatusServiceUnavailable, gin.H{
-			"status": "not ready",
-			"reason": "database connection failed",
-			"error": err.Error(),
+			"status":    "not ready",
+			"reason":    "database connection failed",
+			"error":     err.Error(),
 			"timestamp": time.Now(),
 		})
 		return
 	}
-	
+
 	c.JSON(http.StatusOK, gin.H{
-		"status": "ready",
+		"status":    "ready",
 		"timestamp": time.Now(),
 	})
 }
 
 func (h *HealthHandler) GetVersion(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
-		"version": "1.0.0",
+		"version":    "1.0.0",
 		"build_time": "2024-01-01T00:00:00Z",
-		"commit": "abc123",
+		"commit":     "abc123",
 		"go_version": "go1.21",
 	})
 }
@@ -128,7 +128,7 @@ func (h *HealthHandler) RegisterRoutes(r *gin.Engine) {
 		health.GET("/live", h.GetLiveness)
 		health.GET("/ready", h.GetReadiness)
 	}
-	
+
 	// Version endpoint
 	r.GET("/version", h.GetVersion)
 }

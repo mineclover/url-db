@@ -35,7 +35,7 @@ func (a *CompositeKeyAdapter) Parse(compositeID string) (*CompositeKey, error) {
 	if err != nil {
 		return nil, err
 	}
-	
+
 	return &CompositeKey{
 		ToolName:   toolName,
 		DomainName: domainName,
@@ -70,11 +70,11 @@ func parseCompositeID(compositeID string) (string, string, int, error) {
 	if len(parts) != 3 {
 		return "", "", 0, NewInvalidCompositeKeyError(compositeID)
 	}
-	
+
 	id, err := strconv.Atoi(parts[2])
 	if err != nil {
 		return "", "", 0, NewInvalidCompositeKeyError(compositeID)
 	}
-	
+
 	return parts[0], parts[1], id, nil
 }

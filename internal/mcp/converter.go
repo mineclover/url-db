@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/url-db/internal/models"
+	"url-db/internal/models"
 )
 
 type Converter struct {
@@ -35,7 +35,7 @@ func (c *Converter) NodeToMCPNode(node *models.Node, domain *models.Domain) (*mo
 	}
 
 	compositeID := c.compositeKeyService.Create(domain.Name, node.ID)
-	
+
 	return &models.MCPNode{
 		CompositeID: compositeID,
 		URL:         node.Content,

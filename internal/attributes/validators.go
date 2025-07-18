@@ -49,13 +49,13 @@ func (v *NumberValidator) Validate(value string, orderIndex *int) error {
 	if len(value) == 0 {
 		return ErrValueRequired
 	}
-	
+
 	// Try to parse as float64 to validate it's a number
 	_, err := strconv.ParseFloat(value, 64)
 	if err != nil {
 		return ErrInvalidNumber
 	}
-	
+
 	return nil
 }
 
@@ -91,7 +91,7 @@ func (v *MarkdownValidator) Validate(value string, orderIndex *int) error {
 	if len(value) > 10000 { // Larger limit for markdown
 		return ErrValueTooLong
 	}
-	
+
 	// Basic markdown syntax validation
 	lines := strings.Split(value, "\n")
 	for _, line := range lines {
@@ -99,7 +99,7 @@ func (v *MarkdownValidator) Validate(value string, orderIndex *int) error {
 		if line == "" {
 			continue
 		}
-		
+
 		// Check for malformed markdown links
 		if strings.Contains(line, "](") {
 			matches := markdownLinkPattern.FindAllString(line, -1)
@@ -110,7 +110,7 @@ func (v *MarkdownValidator) Validate(value string, orderIndex *int) error {
 			}
 		}
 	}
-	
+
 	return nil
 }
 
@@ -121,14 +121,14 @@ func isValidMarkdownLink(link string) bool {
 	if len(matches) < 3 {
 		return false
 	}
-	
+
 	urlStr := matches[2]
-	
+
 	// Allow relative URLs and anchors
 	if strings.HasPrefix(urlStr, "#") || strings.HasPrefix(urlStr, "/") || strings.HasPrefix(urlStr, "./") || strings.HasPrefix(urlStr, "../") {
 		return true
 	}
-	
+
 	// Validate absolute URLs
 	_, err := url.Parse(urlStr)
 	return err == nil
@@ -149,41 +149,41 @@ func (v *ImageValidator) Validate(value string, orderIndex *int) error {
 	if len(value) > 2048 {
 		return ErrValueTooLong
 	}
-	
+
 	// Parse URL
 	parsedURL, err := url.Parse(value)
 	if err != nil {
 		return ErrInvalidURL
 	}
-	
+
 	// Must be absolute URL for images
 	if !parsedURL.IsAbs() {
 		return ErrInvalidURL
 	}
-	
+
 	// Check scheme
 	if parsedURL.Scheme != "http" && parsedURL.Scheme != "https" {
 		return ErrInvalidURL
 	}
-	
+
 	// Check if it looks like an image (has image extension or is from known image hosting)
 	if !isValidImageURL(parsedURL) {
 		return ErrInvalidURL
 	}
-	
+
 	return nil
 }
 
 func isValidImageURL(parsedURL *url.URL) bool {
 	path := strings.ToLower(parsedURL.Path)
-	
+
 	// Check file extension
 	for _, ext := range imageExtensions {
 		if strings.HasSuffix(path, ext) {
 			return true
 		}
 	}
-	
+
 	// Check for known image hosting services
 	host := strings.ToLower(parsedURL.Host)
 	imageHosts := []string{
@@ -198,13 +198,13 @@ func isValidImageURL(parsedURL *url.URL) bool {
 		"amazonaws.com", // S3 buckets
 		"cloudfront.net",
 	}
-	
+
 	for _, imageHost := range imageHosts {
 		if strings.Contains(host, imageHost) {
 			return true
 		}
 	}
-	
+
 	return false
 }
 
@@ -241,6 +241,6 @@ func ValidateAttributeValue(attrType AttributeType, value string, orderIndex *in
 	if err != nil {
 		return err
 	}
-	
+
 	return validator.Validate(value, orderIndex)
 }

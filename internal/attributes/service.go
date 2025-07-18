@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/url-db/internal/models"
+	"url-db/internal/models"
 )
 
 // AttributeService defines the interface for attribute business logic
@@ -72,11 +72,11 @@ func (s *attributeService) CreateAttribute(ctx context.Context, domainID int, re
 	if err := s.validateAttributeName(req.Name); err != nil {
 		return nil, fmt.Errorf("validation error: %w", err)
 	}
-	
+
 	if err := s.validateAttributeType(req.Type); err != nil {
 		return nil, fmt.Errorf("validation error: %w", err)
 	}
-	
+
 	if err := s.validateDescription(req.Description); err != nil {
 		return nil, fmt.Errorf("validation error: %w", err)
 	}

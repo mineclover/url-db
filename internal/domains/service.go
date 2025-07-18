@@ -7,7 +7,7 @@ import (
 	"regexp"
 	"time"
 
-	"github.com/url-db/internal/models"
+	"url-db/internal/models"
 )
 
 type DomainService interface {
@@ -52,11 +52,11 @@ func (s *domainService) CreateDomain(ctx context.Context, req *models.CreateDoma
 	if err := s.validateDomainName(req.Name); err != nil {
 		return nil, fmt.Errorf("validation_error: %w", err)
 	}
-	
+
 	if err := s.validateDescription(req.Description); err != nil {
 		return nil, fmt.Errorf("validation_error: %w", err)
 	}
-	
+
 	// Check if domain already exists
 	exists, err := s.repo.ExistsByName(ctx, req.Name)
 	if err != nil {
@@ -65,19 +65,19 @@ func (s *domainService) CreateDomain(ctx context.Context, req *models.CreateDoma
 	if exists {
 		return nil, fmt.Errorf("conflict: domain with name '%s' already exists", req.Name)
 	}
-	
+
 	domain := &models.Domain{
 		Name:        req.Name,
 		Description: req.Description,
 		CreatedAt:   time.Now(),
 		UpdatedAt:   time.Now(),
 	}
-	
+
 	err = s.repo.Create(ctx, domain)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create domain: %w", err)
 	}
-	
+
 	return domain, nil
 }
 
@@ -89,7 +89,7 @@ func (s *domainService) GetDomain(ctx context.Context, id int) (*models.Domain, 
 		}
 		return nil, fmt.Errorf("failed to get domain: %w", err)
 	}
-	
+
 	return domain, nil
 }
 
@@ -104,20 +104,20 @@ func (s *domainService) ListDomains(ctx context.Context, page, size int) (*model
 	if size > 100 {
 		size = 100
 	}
-	
+
 	domains, totalCount, err := s.repo.List(ctx, page, size)
 	if err != nil {
 		return nil, fmt.Errorf("failed to list domains: %w", err)
 	}
-	
+
 	// Convert to response format
 	domainList := make([]models.Domain, len(domains))
 	for i, domain := range domains {
 		domainList[i] = *domain
 	}
-	
+
 	totalPages := (totalCount + size - 1) / size
-	
+
 	return &models.DomainListResponse{
 		Domains:    domainList,
 		TotalCount: totalCount,
@@ -131,7 +131,7 @@ func (s *domainService) UpdateDomain(ctx context.Context, id int, req *models.Up
 	if err := s.validateDescription(req.Description); err != nil {
 		return nil, fmt.Errorf("validation_error: %w", err)
 	}
-	
+
 	// Check if domain exists
 	domain, err := s.repo.GetByID(ctx, id)
 	if err != nil {
@@ -140,16 +140,16 @@ func (s *domainService) UpdateDomain(ctx context.Context, id int, req *models.Up
 		}
 		return nil, fmt.Errorf("failed to get domain: %w", err)
 	}
-	
+
 	// Update only description
 	domain.Description = req.Description
 	domain.UpdatedAt = time.Now()
-	
+
 	err = s.repo.Update(ctx, domain)
 	if err != nil {
 		return nil, fmt.Errorf("failed to update domain: %w", err)
 	}
-	
+
 	return domain, nil
 }
 
@@ -161,6 +161,6 @@ func (s *domainService) DeleteDomain(ctx context.Context, id int) error {
 		}
 		return fmt.Errorf("failed to delete domain: %w", err)
 	}
-	
+
 	return nil
 }

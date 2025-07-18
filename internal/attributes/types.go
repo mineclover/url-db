@@ -1,6 +1,6 @@
 package attributes
 
-import "github.com/url-db/internal/models"
+import "url-db/internal/models"
 
 // AttributeType aliases for internal use
 type AttributeType = models.AttributeType

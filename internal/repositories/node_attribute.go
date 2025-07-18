@@ -24,16 +24,16 @@ func (r *sqliteNodeAttributeRepository) Create(nodeAttribute *models.NodeAttribu
 		VALUES (?, ?, ?, ?, datetime('now'))
 		RETURNING id, created_at
 	`
-	
-	err := r.QueryRow(query, nodeAttribute.NodeID, nodeAttribute.AttributeID, 
+
+	err := r.QueryRow(query, nodeAttribute.NodeID, nodeAttribute.AttributeID,
 		nodeAttribute.Value, nodeAttribute.OrderIndex).Scan(
 		&nodeAttribute.ID, &nodeAttribute.CreatedAt,
 	)
-	
+
 	if err != nil {
 		return MapSQLiteError(err)
 	}
-	
+
 	return nil
 }
 
@@ -44,21 +44,21 @@ func (r *sqliteNodeAttributeRepository) GetByID(id int) (*models.NodeAttribute, 
 		FROM node_attributes
 		WHERE id = ?
 	`
-	
+
 	nodeAttribute := &models.NodeAttribute{}
 	err := r.QueryRow(query, id).Scan(
 		&nodeAttribute.ID, &nodeAttribute.NodeID, &nodeAttribute.AttributeID,
 		&nodeAttribute.Value, &nodeAttribute.OrderIndex, &nodeAttribute.CreatedAt,
 	)
-	
+
 	if err == sql.ErrNoRows {
 		return nil, ErrNodeAttributeNotFound
 	}
-	
+
 	if err != nil {
 		return nil, MapSQLiteError(err)
 	}
-	
+
 	return nodeAttribute, nil
 }
 
@@ -69,21 +69,21 @@ func (r *sqliteNodeAttributeRepository) GetByNodeAndAttribute(nodeID, attributeI
 		FROM node_attributes
 		WHERE node_id = ? AND attribute_id = ?
 	`
-	
+
 	nodeAttribute := &models.NodeAttribute{}
 	err := r.QueryRow(query, nodeID, attributeID).Scan(
 		&nodeAttribute.ID, &nodeAttribute.NodeID, &nodeAttribute.AttributeID,
 		&nodeAttribute.Value, &nodeAttribute.OrderIndex, &nodeAttribute.CreatedAt,
 	)
-	
+
 	if err == sql.ErrNoRows {
 		return nil, ErrNodeAttributeNotFound
 	}
-	
+
 	if err != nil {
 		return nil, MapSQLiteError(err)
 	}
-	
+
 	return nodeAttribute, nil
 }
 
@@ -97,13 +97,13 @@ func (r *sqliteNodeAttributeRepository) ListByNode(nodeID int) ([]models.NodeAtt
 		WHERE na.node_id = ?
 		ORDER BY a.name, na.order_index
 	`
-	
+
 	rows, err := r.Query(query, nodeID)
 	if err != nil {
 		return nil, MapSQLiteError(err)
 	}
 	defer rows.Close()
-	
+
 	var attributes []models.NodeAttributeWithInfo
 	for rows.Next() {
 		var attr models.NodeAttributeWithInfo
@@ -115,11 +115,11 @@ func (r *sqliteNodeAttributeRepository) ListByNode(nodeID int) ([]models.NodeAtt
 		}
 		attributes = append(attributes, attr)
 	}
-	
+
 	if err := rows.Err(); err != nil {
 		return nil, MapSQLiteError(err)
 	}
-	
+
 	return attributes, nil
 }
 
@@ -131,13 +131,13 @@ func (r *sqliteNodeAttributeRepository) ListByAttribute(attributeID int) ([]mode
 		WHERE attribute_id = ?
 		ORDER BY order_index
 	`
-	
+
 	rows, err := r.Query(query, attributeID)
 	if err != nil {
 		return nil, MapSQLiteError(err)
 	}
 	defer rows.Close()
-	
+
 	var nodeAttributes []models.NodeAttribute
 	for rows.Next() {
 		var nodeAttribute models.NodeAttribute
@@ -148,11 +148,11 @@ func (r *sqliteNodeAttributeRepository) ListByAttribute(attributeID int) ([]mode
 		}
 		nodeAttributes = append(nodeAttributes, nodeAttribute)
 	}
-	
+
 	if err := rows.Err(); err != nil {
 		return nil, MapSQLiteError(err)
 	}
-	
+
 	return nodeAttributes, nil
 }
 
@@ -163,79 +163,79 @@ func (r *sqliteNodeAttributeRepository) Update(nodeAttribute *models.NodeAttribu
 		SET value = ?, order_index = ?
 		WHERE id = ?
 	`
-	
+
 	result, err := r.Execute(query, nodeAttribute.Value, nodeAttribute.OrderIndex, nodeAttribute.ID)
 	if err != nil {
 		return MapSQLiteError(err)
 	}
-	
+
 	rowsAffected, err := result.RowsAffected()
 	if err != nil {
 		return MapSQLiteError(err)
 	}
-	
+
 	if rowsAffected == 0 {
 		return ErrNodeAttributeNotFound
 	}
-	
+
 	return nil
 }
 
 // Delete 는 노드 속성을 삭제합니다.
 func (r *sqliteNodeAttributeRepository) Delete(id int) error {
 	query := `DELETE FROM node_attributes WHERE id = ?`
-	
+
 	result, err := r.Execute(query, id)
 	if err != nil {
 		return MapSQLiteError(err)
 	}
-	
+
 	rowsAffected, err := result.RowsAffected()
 	if err != nil {
 		return MapSQLiteError(err)
 	}
-	
+
 	if rowsAffected == 0 {
 		return ErrNodeAttributeNotFound
 	}
-	
+
 	return nil
 }
 
 // DeleteByNode 는 노드 ID로 모든 노드 속성을 삭제합니다.
 func (r *sqliteNodeAttributeRepository) DeleteByNode(nodeID int) error {
 	query := `DELETE FROM node_attributes WHERE node_id = ?`
-	
+
 	_, err := r.Execute(query, nodeID)
 	if err != nil {
 		return MapSQLiteError(err)
 	}
-	
+
 	return nil
 }
 
 // DeleteByAttribute 는 속성 ID로 모든 노드 속성을 삭제합니다.
 func (r *sqliteNodeAttributeRepository) DeleteByAttribute(attributeID int) error {
 	query := `DELETE FROM node_attributes WHERE attribute_id = ?`
-	
+
 	_, err := r.Execute(query, attributeID)
 	if err != nil {
 		return MapSQLiteError(err)
 	}
-	
+
 	return nil
 }
 
 // ExistsByNodeAndAttribute 는 노드 ID와 속성 ID로 노드 속성 존재 여부를 확인합니다.
 func (r *sqliteNodeAttributeRepository) ExistsByNodeAndAttribute(nodeID, attributeID int) (bool, error) {
 	query := `SELECT EXISTS(SELECT 1 FROM node_attributes WHERE node_id = ? AND attribute_id = ?)`
-	
+
 	var exists bool
 	err := r.QueryRow(query, nodeID, attributeID).Scan(&exists)
 	if err != nil {
 		return false, MapSQLiteError(err)
 	}
-	
+
 	return exists, nil
 }
 
@@ -244,7 +244,7 @@ func (r *sqliteNodeAttributeRepository) BatchCreate(nodeAttributes []models.Node
 	if len(nodeAttributes) == 0 {
 		return nil
 	}
-	
+
 	return r.WithTransaction(func(tx *sql.Tx) error {
 		stmt, err := r.PrepareStatementInTransaction(tx, `
 			INSERT INTO node_attributes (node_id, attribute_id, value, order_index, created_at)
@@ -254,15 +254,15 @@ func (r *sqliteNodeAttributeRepository) BatchCreate(nodeAttributes []models.Node
 			return err
 		}
 		defer stmt.Close()
-		
+
 		for _, nodeAttribute := range nodeAttributes {
-			_, err := stmt.Exec(nodeAttribute.NodeID, nodeAttribute.AttributeID, 
+			_, err := stmt.Exec(nodeAttribute.NodeID, nodeAttribute.AttributeID,
 				nodeAttribute.Value, nodeAttribute.OrderIndex)
 			if err != nil {
 				return MapSQLiteError(err)
 			}
 		}
-		
+
 		return nil
 	})
 }
@@ -272,7 +272,7 @@ func (r *sqliteNodeAttributeRepository) BatchUpdate(nodeAttributes []models.Node
 	if len(nodeAttributes) == 0 {
 		return nil
 	}
-	
+
 	return r.WithTransaction(func(tx *sql.Tx) error {
 		stmt, err := r.PrepareStatementInTransaction(tx, `
 			UPDATE node_attributes
@@ -283,14 +283,14 @@ func (r *sqliteNodeAttributeRepository) BatchUpdate(nodeAttributes []models.Node
 			return err
 		}
 		defer stmt.Close()
-		
+
 		for _, nodeAttribute := range nodeAttributes {
 			_, err := stmt.Exec(nodeAttribute.Value, nodeAttribute.OrderIndex, nodeAttribute.ID)
 			if err != nil {
 				return MapSQLiteError(err)
 			}
 		}
-		
+
 		return nil
 	})
 }
@@ -298,24 +298,24 @@ func (r *sqliteNodeAttributeRepository) BatchUpdate(nodeAttributes []models.Node
 // BatchDeleteByNode 는 노드 ID로 모든 노드 속성을 삭제합니다.
 func (r *sqliteNodeAttributeRepository) BatchDeleteByNode(nodeID int) error {
 	query := `DELETE FROM node_attributes WHERE node_id = ?`
-	
+
 	_, err := r.Execute(query, nodeID)
 	if err != nil {
 		return MapSQLiteError(err)
 	}
-	
+
 	return nil
 }
 
 // BatchDeleteByAttribute 는 속성 ID로 모든 노드 속성을 삭제합니다.
 func (r *sqliteNodeAttributeRepository) BatchDeleteByAttribute(attributeID int) error {
 	query := `DELETE FROM node_attributes WHERE attribute_id = ?`
-	
+
 	_, err := r.Execute(query, attributeID)
 	if err != nil {
 		return MapSQLiteError(err)
 	}
-	
+
 	return nil
 }
 
@@ -328,16 +328,16 @@ func (r *sqliteNodeAttributeRepository) CreateTx(tx *sql.Tx, nodeAttribute *mode
 		VALUES (?, ?, ?, ?, datetime('now'))
 		RETURNING id, created_at
 	`
-	
+
 	err := r.QueryRowInTransaction(tx, query, nodeAttribute.NodeID, nodeAttribute.AttributeID,
 		nodeAttribute.Value, nodeAttribute.OrderIndex).Scan(
 		&nodeAttribute.ID, &nodeAttribute.CreatedAt,
 	)
-	
+
 	if err != nil {
 		return MapSQLiteError(err)
 	}
-	
+
 	return nil
 }
 
@@ -348,41 +348,41 @@ func (r *sqliteNodeAttributeRepository) UpdateTx(tx *sql.Tx, nodeAttribute *mode
 		SET value = ?, order_index = ?
 		WHERE id = ?
 	`
-	
+
 	result, err := r.ExecuteInTransaction(tx, query, nodeAttribute.Value, nodeAttribute.OrderIndex, nodeAttribute.ID)
 	if err != nil {
 		return MapSQLiteError(err)
 	}
-	
+
 	rowsAffected, err := result.RowsAffected()
 	if err != nil {
 		return MapSQLiteError(err)
 	}
-	
+
 	if rowsAffected == 0 {
 		return ErrNodeAttributeNotFound
 	}
-	
+
 	return nil
 }
 
 // DeleteTx 는 트랜잭션 내에서 노드 속성을 삭제합니다.
 func (r *sqliteNodeAttributeRepository) DeleteTx(tx *sql.Tx, id int) error {
 	query := `DELETE FROM node_attributes WHERE id = ?`
-	
+
 	result, err := r.ExecuteInTransaction(tx, query, id)
 	if err != nil {
 		return MapSQLiteError(err)
 	}
-	
+
 	rowsAffected, err := result.RowsAffected()
 	if err != nil {
 		return MapSQLiteError(err)
 	}
-	
+
 	if rowsAffected == 0 {
 		return ErrNodeAttributeNotFound
 	}
-	
+
 	return nil
 }

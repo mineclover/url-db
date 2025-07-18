@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/url-db/internal/models"
+	"url-db/internal/models"
 )
 
 type compositeKeyService struct {
@@ -33,36 +33,36 @@ func (s *compositeKeyService) Parse(compositeKey string) (*models.CompositeKey, 
 	if len(parts) != 3 {
 		return nil, NewInvalidCompositeKeyError(compositeKey, "invalid format, expected 'tool:domain:id'")
 	}
-	
+
 	toolName := parts[0]
 	domainName := parts[1]
 	idStr := parts[2]
-	
+
 	if toolName == "" {
 		return nil, NewInvalidCompositeKeyError(compositeKey, "tool name is empty")
 	}
-	
+
 	if toolName != s.toolName {
 		return nil, NewInvalidCompositeKeyError(compositeKey, fmt.Sprintf("invalid tool name, expected '%s'", s.toolName))
 	}
-	
+
 	if domainName == "" {
 		return nil, NewInvalidCompositeKeyError(compositeKey, "domain name is empty")
 	}
-	
+
 	if idStr == "" {
 		return nil, NewInvalidCompositeKeyError(compositeKey, "ID is empty")
 	}
-	
+
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
 		return nil, NewInvalidCompositeKeyError(compositeKey, "ID must be a valid integer")
 	}
-	
+
 	if id <= 0 {
 		return nil, NewInvalidCompositeKeyError(compositeKey, "ID must be positive")
 	}
-	
+
 	return &models.CompositeKey{
 		ToolName:   toolName,
 		DomainName: domainName,
@@ -81,19 +81,19 @@ func (s *compositeKeyService) GetToolName() string {
 
 func (s *compositeKeyService) normalizeName(name string) string {
 	normalized := strings.ToLower(name)
-	
+
 	reg := regexp.MustCompile(`[^a-z0-9\-_]`)
 	normalized = reg.ReplaceAllString(normalized, "-")
-	
+
 	reg = regexp.MustCompile(`-+`)
 	normalized = reg.ReplaceAllString(normalized, "-")
-	
+
 	normalized = strings.Trim(normalized, "-")
-	
+
 	if normalized == "" {
 		normalized = "default"
 	}
-	
+
 	return normalized
 }
 
@@ -106,7 +106,7 @@ func (s *compositeKeyService) ExtractComponents(compositeKey string) (toolName, 
 	if err != nil {
 		return "", "", 0, err
 	}
-	
+
 	return ck.ToolName, ck.DomainName, ck.ID, nil
 }
 

@@ -5,8 +5,9 @@ import (
 	"fmt"
 	"regexp"
 	"strings"
+	"time"
 
-	"github.com/url-db/internal/models"
+	"url-db/internal/models"
 )
 
 type DomainManager struct {
@@ -53,7 +54,7 @@ func (dm *DomainManager) CreateDomain(ctx context.Context, req *models.CreateDom
 	}
 
 	normalizedName := dm.normalizeDomainName(req.Name)
-	
+
 	normalizedReq := &models.CreateDomainRequest{
 		Name:        normalizedName,
 		Description: req.Description,
@@ -174,15 +175,15 @@ func (dm *DomainManager) validateDomainName(name string) error {
 func (dm *DomainManager) normalizeDomainName(name string) string {
 	name = strings.ToLower(name)
 	name = strings.TrimSpace(name)
-	
+
 	re := regexp.MustCompile(`[^a-z0-9-]`)
 	name = re.ReplaceAllString(name, "-")
-	
+
 	re = regexp.MustCompile(`-+`)
 	name = re.ReplaceAllString(name, "-")
-	
+
 	name = strings.Trim(name, "-")
-	
+
 	return name
 }
 
@@ -206,7 +207,7 @@ func (dm *DomainManager) GetDomainByPartialName(ctx context.Context, partialName
 	for _, domain := range response.Domains {
 		if strings.Contains(strings.ToLower(domain.Name), partialNameLower) ||
 			strings.Contains(strings.ToLower(domain.Description), partialNameLower) {
-			
+
 			nodeCount, err := dm.nodeCountService.GetNodeCountByDomain(ctx, domain.ID)
 			if err != nil {
 				nodeCount = 0
@@ -277,5 +278,3 @@ type DomainStats struct {
 	CreatedAt   time.Time `json:"created_at"`
 	UpdatedAt   time.Time `json:"updated_at"`
 }
-
-import "time"

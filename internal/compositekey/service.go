@@ -20,7 +20,7 @@ func (s *Service) Create(domainName string, id int) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	
+
 	return compositeKey.String(), nil
 }
 
@@ -30,7 +30,7 @@ func (s *Service) CreateWithTool(toolName, domainName string, id int) (string, e
 	if err != nil {
 		return "", err
 	}
-	
+
 	return compositeKey.String(), nil
 }
 
@@ -40,7 +40,7 @@ func (s *Service) Parse(compositeKey string) (CompositeKey, error) {
 	if err := ValidateCompositeKey(compositeKey); err != nil {
 		return CompositeKey{}, err
 	}
-	
+
 	// 파싱
 	return Parse(compositeKey)
 }
@@ -56,7 +56,7 @@ func (s *Service) ParseComponents(compositeKey string) (toolName, domainName str
 	if err != nil {
 		return "", "", 0, err
 	}
-	
+
 	return ck.ToolName, ck.DomainName, ck.ID, nil
 }
 
@@ -66,7 +66,7 @@ func (s *Service) GetToolName(compositeKey string) (string, error) {
 	if len(parts) != 3 {
 		return "", NewInvalidFormatError("합성키 형식이 올바르지 않습니다")
 	}
-	
+
 	return parts[0], nil
 }
 
@@ -76,7 +76,7 @@ func (s *Service) GetDomainName(compositeKey string) (string, error) {
 	if len(parts) != 3 {
 		return "", NewInvalidFormatError("합성키 형식이 올바르지 않습니다")
 	}
-	
+
 	return parts[1], nil
 }
 
@@ -86,7 +86,7 @@ func (s *Service) GetID(compositeKey string) (int, error) {
 	if err != nil {
 		return 0, err
 	}
-	
+
 	return ck.ID, nil
 }
 
@@ -101,12 +101,12 @@ func (s *Service) NormalizeComponents(toolName, domainName string) (string, stri
 	if err != nil {
 		return "", "", err
 	}
-	
+
 	normalizedDomainName, err := NormalizeDomainName(domainName)
 	if err != nil {
 		return "", "", err
 	}
-	
+
 	return normalizedToolName, normalizedDomainName, nil
 }
 
@@ -115,14 +115,14 @@ func (s *Service) ValidateComponents(toolName, domainName string, id int) error 
 	if err := ValidateToolName(toolName); err != nil {
 		return err
 	}
-	
+
 	if err := ValidateDomainName(domainName); err != nil {
 		return err
 	}
-	
+
 	if id <= 0 {
 		return NewInvalidIDError("ID는 양의 정수여야 합니다")
 	}
-	
+
 	return nil
 }

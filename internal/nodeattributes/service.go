@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"internal/models"
+	"url-db/internal/models"
 )
 
 type Service interface {
@@ -36,18 +36,18 @@ func (s *service) CreateNodeAttribute(nodeID int, req *models.CreateNodeAttribut
 	if err := s.ValidateNodeAttribute(nodeID, req); err != nil {
 		return nil, err
 	}
-	
+
 	// Check if node and attribute belong to the same domain
 	if err := s.repo.ValidateNodeAndAttributeDomain(nodeID, req.AttributeID); err != nil {
 		return nil, ErrNodeAttributeDomainMismatch
 	}
-	
+
 	// Get attribute type for validation
 	attrInfo, err := s.repo.GetByNodeIDAndAttributeID(nodeID, req.AttributeID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get attribute info: %w", err)
 	}
-	
+
 	// For non-ordered attributes, check if attribute already exists for this node
 	if attrInfo != nil {
 		// If it's not an ordered tag, we don't allow duplicates
@@ -55,18 +55,18 @@ func (s *service) CreateNodeAttribute(nodeID int, req *models.CreateNodeAttribut
 			return nil, ErrNodeAttributeExists
 		}
 	}
-	
+
 	// Get attribute type from database (we need to query attributes table)
 	attributeType, err := s.getAttributeType(req.AttributeID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get attribute type: %w", err)
 	}
-	
+
 	// Validate attribute value and order index
 	if err := s.validator.Validate(attributeType, req.Value, req.OrderIndex); err != nil {
 		return nil, fmt.Errorf("validation failed: %w", err)
 	}
-	
+
 	// Handle order index for ordered tags
 	var finalOrderIndex *int
 	if attributeType == models.AttributeTypeOrderedTag {
@@ -75,7 +75,7 @@ func (s *service) CreateNodeAttribute(nodeID int, req *models.CreateNodeAttribut
 			return nil, fmt.Errorf("failed to assign order index: %w", err)
 		}
 	}
-	
+
 	// Create node attribute
 	nodeAttribute := &models.NodeAttribute{
 		NodeID:      nodeID,
@@ -84,11 +84,11 @@ func (s *service) CreateNodeAttribute(nodeID int, req *models.CreateNodeAttribut
 		OrderIndex:  finalOrderIndex,
 		CreatedAt:   time.Now(),
 	}
-	
+
 	if err := s.repo.Create(nodeAttribute); err != nil {
 		return nil, fmt.Errorf("failed to create node attribute: %w", err)
 	}
-	
+
 	return nodeAttribute, nil
 }
 
@@ -97,11 +97,11 @@ func (s *service) GetNodeAttributeByID(id int) (*models.NodeAttributeWithInfo, e
 	if err != nil {
 		return nil, fmt.Errorf("failed to get node attribute: %w", err)
 	}
-	
+
 	if nodeAttr == nil {
 		return nil, ErrNodeAttributeNotFound
 	}
-	
+
 	return nodeAttr, nil
 }
 
@@ -110,7 +110,7 @@ func (s *service) GetNodeAttributesByNodeID(nodeID int) (*models.NodeAttributeLi
 	if err != nil {
 		return nil, fmt.Errorf("failed to get node attributes: %w", err)
 	}
-	
+
 	return &models.NodeAttributeListResponse{
 		Attributes: nodeAttrs,
 	}, nil
@@ -122,16 +122,16 @@ func (s *service) UpdateNodeAttribute(id int, req *models.UpdateNodeAttributeReq
 	if err != nil {
 		return nil, fmt.Errorf("failed to get existing node attribute: %w", err)
 	}
-	
+
 	if existing == nil {
 		return nil, ErrNodeAttributeNotFound
 	}
-	
+
 	// Validate attribute value and order index
 	if err := s.validator.Validate(existing.Type, req.Value, req.OrderIndex); err != nil {
 		return nil, fmt.Errorf("validation failed: %w", err)
 	}
-	
+
 	// Handle order index for ordered tags
 	var finalOrderIndex *int = req.OrderIndex
 	if existing.Type == models.AttributeTypeOrderedTag {
@@ -140,7 +140,7 @@ func (s *service) UpdateNodeAttribute(id int, req *models.UpdateNodeAttributeReq
 			if err := s.orderManager.ValidateOrderIndex(existing.NodeID, existing.AttributeID, req.OrderIndex, &id); err != nil {
 				return nil, fmt.Errorf("order index validation failed: %w", err)
 			}
-			
+
 			// If order index changed, need to reorder
 			if existing.OrderIndex == nil || *existing.OrderIndex != *req.OrderIndex {
 				// Move other items to make space
@@ -150,18 +150,18 @@ func (s *service) UpdateNodeAttribute(id int, req *models.UpdateNodeAttributeReq
 			}
 		}
 	}
-	
+
 	// Update node attribute
 	updateReq := &models.UpdateNodeAttributeRequest{
 		Value:      req.Value,
 		OrderIndex: finalOrderIndex,
 	}
-	
+
 	updatedAttr, err := s.repo.Update(id, updateReq)
 	if err != nil {
 		return nil, fmt.Errorf("failed to update node attribute: %w", err)
 	}
-	
+
 	return updatedAttr, nil
 }
 
@@ -171,23 +171,23 @@ func (s *service) DeleteNodeAttribute(id int) error {
 	if err != nil {
 		return fmt.Errorf("failed to get existing node attribute: %w", err)
 	}
-	
+
 	if existing == nil {
 		return ErrNodeAttributeNotFound
 	}
-	
+
 	// Delete the node attribute
 	if err := s.repo.Delete(id); err != nil {
 		return fmt.Errorf("failed to delete node attribute: %w", err)
 	}
-	
+
 	// Handle order reordering for ordered tags
 	if existing.Type == models.AttributeTypeOrderedTag && existing.OrderIndex != nil {
 		if err := s.orderManager.ReorderAfterDeletion(existing.NodeID, existing.AttributeID, *existing.OrderIndex); err != nil {
 			return fmt.Errorf("failed to reorder after deletion: %w", err)
 		}
 	}
-	
+
 	return nil
 }
 
@@ -197,23 +197,23 @@ func (s *service) DeleteNodeAttributeByNodeIDAndAttributeID(nodeID, attributeID 
 	if err != nil {
 		return fmt.Errorf("failed to get existing node attribute: %w", err)
 	}
-	
+
 	if existing == nil {
 		return ErrNodeAttributeNotFound
 	}
-	
+
 	// Delete the node attribute
 	if err := s.repo.DeleteByNodeIDAndAttributeID(nodeID, attributeID); err != nil {
 		return fmt.Errorf("failed to delete node attribute: %w", err)
 	}
-	
+
 	// Handle order reordering for ordered tags
 	if existing.Type == models.AttributeTypeOrderedTag && existing.OrderIndex != nil {
 		if err := s.orderManager.ReorderAfterDeletion(existing.NodeID, existing.AttributeID, *existing.OrderIndex); err != nil {
 			return fmt.Errorf("failed to reorder after deletion: %w", err)
 		}
 	}
-	
+
 	return nil
 }
 
@@ -221,15 +221,15 @@ func (s *service) ValidateNodeAttribute(nodeID int, req *models.CreateNodeAttrib
 	if req.AttributeID <= 0 {
 		return fmt.Errorf("attribute_id must be a positive integer")
 	}
-	
+
 	if req.Value == "" {
 		return fmt.Errorf("value cannot be empty")
 	}
-	
+
 	if len(req.Value) > 2048 {
 		return fmt.Errorf("value must be 2048 characters or less")
 	}
-	
+
 	return nil
 }
 

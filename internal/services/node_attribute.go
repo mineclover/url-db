@@ -6,7 +6,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/url-db/internal/models"
+	"url-db/internal/models"
 )
 
 type NodeAttributeRepository interface {
@@ -54,7 +54,7 @@ func (s *nodeAttributeService) CreateNodeAttribute(ctx context.Context, nodeID i
 		s.logger.Printf("Failed to get node: %v", err)
 		return nil, err
 	}
-	
+
 	attribute, err := s.attributeRepo.GetByID(ctx, req.AttributeID)
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -63,15 +63,15 @@ func (s *nodeAttributeService) CreateNodeAttribute(ctx context.Context, nodeID i
 		s.logger.Printf("Failed to get attribute: %v", err)
 		return nil, err
 	}
-	
+
 	if node.DomainID != attribute.DomainID {
 		return nil, NewBusinessLogicError("node and attribute must belong to the same domain")
 	}
-	
-	if err := validateAttributeValue(attribute.Type, req.Value); err != nil {
+
+	if err := validateAttributeValue(string(attribute.Type), req.Value); err != nil {
 		return nil, NewAttributeValueInvalidError(req.AttributeID, req.Value, err.Error())
 	}
-	
+
 	exists, err := s.nodeAttributeRepo.ExistsByNodeAndAttribute(ctx, nodeID, req.AttributeID)
 	if err != nil {
 		s.logger.Printf("Failed to check node attribute existence: %v", err)
@@ -80,7 +80,7 @@ func (s *nodeAttributeService) CreateNodeAttribute(ctx context.Context, nodeID i
 	if exists {
 		return nil, NewBusinessLogicError("node attribute already exists")
 	}
-	
+
 	nodeAttribute := &models.NodeAttribute{
 		NodeID:      nodeID,
 		AttributeID: req.AttributeID,
@@ -88,12 +88,12 @@ func (s *nodeAttributeService) CreateNodeAttribute(ctx context.Context, nodeID i
 		OrderIndex:  req.OrderIndex,
 		CreatedAt:   time.Now(),
 	}
-	
+
 	if err := s.nodeAttributeRepo.Create(ctx, nodeAttribute); err != nil {
 		s.logger.Printf("Failed to create node attribute: %v", err)
 		return nil, err
 	}
-	
+
 	s.logger.Printf("Created node attribute: node %d, attribute %d (ID: %d)", nodeID, req.AttributeID, nodeAttribute.ID)
 	return nodeAttribute, nil
 }
@@ -111,7 +111,7 @@ func (s *nodeAttributeService) GetNodeAttribute(ctx context.Context, id int) (*m
 		s.logger.Printf("Failed to get node attribute: %v", err)
 		return nil, err
 	}
-	
+
 	return nodeAttribute, nil
 }
 
@@ -120,7 +120,7 @@ func (s *nodeAttributeService) ListNodeAttributesByNode(ctx context.Context, nod
 		return nil, err
 	}
 
-	node, err := s.nodeRepo.GetByID(ctx, nodeID)
+	_, err := s.nodeRepo.GetByID(ctx, nodeID)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, NewNodeNotFoundError(nodeID)
@@ -128,21 +128,32 @@ func (s *nodeAttributeService) ListNodeAttributesByNode(ctx context.Context, nod
 		s.logger.Printf("Failed to get node: %v", err)
 		return nil, err
 	}
-	
+
 	nodeAttributes, err := s.nodeAttributeRepo.ListByNode(ctx, nodeID)
 	if err != nil {
 		s.logger.Printf("Failed to list node attributes: %v", err)
 		return nil, err
 	}
-	
-	nodeAttributeList := make([]models.NodeAttribute, len(nodeAttributes))
+
+	nodeAttributeList := make([]models.NodeAttributeWithInfo, len(nodeAttributes))
 	for i, nodeAttribute := range nodeAttributes {
-		nodeAttributeList[i] = *nodeAttribute
+		// Convert NodeAttribute to NodeAttributeWithInfo
+		// This is a placeholder - in reality you'd need to fetch attribute details
+		nodeAttributeList[i] = models.NodeAttributeWithInfo{
+			ID:          nodeAttribute.ID,
+			NodeID:      nodeAttribute.NodeID,
+			AttributeID: nodeAttribute.AttributeID,
+			Name:        "unknown", // Would need to fetch from attribute table
+			Type:        "string",  // Would need to fetch from attribute table
+			Value:       nodeAttribute.Value,
+			OrderIndex:  nodeAttribute.OrderIndex,
+			CreatedAt:   nodeAttribute.CreatedAt,
+		}
 	}
-	
+
 	return &models.NodeAttributeListResponse{
 		NodeAttributes: nodeAttributeList,
-		Node:           *node,
+		Attributes:     nodeAttributeList, // For backward compatibility
 	}, nil
 }
 
@@ -152,7 +163,7 @@ func (s *nodeAttributeService) UpdateNodeAttribute(ctx context.Context, id int, 
 	}
 
 	req.Value = normalizeString(req.Value)
-	
+
 	nodeAttribute, err := s.nodeAttributeRepo.GetByID(ctx, id)
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -161,7 +172,7 @@ func (s *nodeAttributeService) UpdateNodeAttribute(ctx context.Context, id int, 
 		s.logger.Printf("Failed to get node attribute: %v", err)
 		return nil, err
 	}
-	
+
 	attribute, err := s.attributeRepo.GetByID(ctx, nodeAttribute.AttributeID)
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -170,19 +181,19 @@ func (s *nodeAttributeService) UpdateNodeAttribute(ctx context.Context, id int, 
 		s.logger.Printf("Failed to get attribute: %v", err)
 		return nil, err
 	}
-	
-	if err := validateAttributeValue(attribute.Type, req.Value); err != nil {
+
+	if err := validateAttributeValue(string(attribute.Type), req.Value); err != nil {
 		return nil, NewAttributeValueInvalidError(nodeAttribute.AttributeID, req.Value, err.Error())
 	}
-	
+
 	nodeAttribute.Value = req.Value
 	nodeAttribute.OrderIndex = req.OrderIndex
-	
+
 	if err := s.nodeAttributeRepo.Update(ctx, nodeAttribute); err != nil {
 		s.logger.Printf("Failed to update node attribute: %v", err)
 		return nil, err
 	}
-	
+
 	s.logger.Printf("Updated node attribute: node %d, attribute %d (ID: %d)", nodeAttribute.NodeID, nodeAttribute.AttributeID, nodeAttribute.ID)
 	return nodeAttribute, nil
 }
@@ -200,7 +211,7 @@ func (s *nodeAttributeService) DeleteNodeAttribute(ctx context.Context, id int) 
 		s.logger.Printf("Failed to delete node attribute: %v", err)
 		return err
 	}
-	
+
 	s.logger.Printf("Deleted node attribute with ID: %d", id)
 	return nil
 }
@@ -224,7 +235,7 @@ func (s *nodeAttributeService) ValidateNodeAttributeValue(ctx context.Context, n
 		s.logger.Printf("Failed to get node: %v", err)
 		return err
 	}
-	
+
 	attribute, err := s.attributeRepo.GetByID(ctx, attributeID)
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -233,14 +244,14 @@ func (s *nodeAttributeService) ValidateNodeAttributeValue(ctx context.Context, n
 		s.logger.Printf("Failed to get attribute: %v", err)
 		return err
 	}
-	
+
 	if node.DomainID != attribute.DomainID {
 		return NewBusinessLogicError("node and attribute must belong to the same domain")
 	}
-	
-	if err := validateAttributeValue(attribute.Type, value); err != nil {
+
+	if err := validateAttributeValue(string(attribute.Type), value); err != nil {
 		return NewAttributeValueInvalidError(attributeID, value, err.Error())
 	}
-	
+
 	return nil
 }

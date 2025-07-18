@@ -48,12 +48,12 @@ func TestNodeRepository_Create(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			err := nodeRepo.Create(tt.node)
-			
+
 			if tt.wantErr {
 				assert.Error(t, err)
 				return
 			}
-			
+
 			require.NoError(t, err)
 			assert.NotZero(t, tt.node.ID)
 			assert.NotZero(t, tt.node.CreatedAt)
@@ -94,13 +94,13 @@ func TestNodeRepository_GetByID(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := nodeRepo.GetByID(tt.id)
-			
+
 			if tt.wantErr != nil {
 				assert.Error(t, err)
 				assert.Equal(t, tt.wantErr, err)
 				return
 			}
-			
+
 			require.NoError(t, err)
 			AssertNodeEqual(t, tt.want, got)
 		})
@@ -142,13 +142,13 @@ func TestNodeRepository_GetByDomainAndContent(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := nodeRepo.GetByDomainAndContent(tt.domainID, tt.content)
-			
+
 			if tt.wantErr != nil {
 				assert.Error(t, err)
 				assert.Equal(t, tt.wantErr, err)
 				return
 			}
-			
+
 			require.NoError(t, err)
 			AssertNodeEqual(t, tt.want, got)
 		})
@@ -213,11 +213,11 @@ func TestNodeRepository_ListByDomain(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			nodes, total, err := nodeRepo.ListByDomain(tt.domainID, tt.offset, tt.limit)
-			
+
 			require.NoError(t, err)
 			assert.Len(t, nodes, tt.wantCount)
 			assert.Equal(t, tt.wantTotal, total)
-			
+
 			// 모든 노드가 해당 도메인의 것인지 확인
 			for _, node := range nodes {
 				assert.Equal(t, tt.domainID, node.DomainID)
@@ -303,7 +303,7 @@ func TestNodeRepository_Search(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			nodes, total, err := nodeRepo.Search(tt.domainID, tt.query, tt.offset, tt.limit)
-			
+
 			require.NoError(t, err)
 			assert.Len(t, nodes, tt.wantCount)
 			assert.Equal(t, tt.wantTotal, total)
@@ -351,16 +351,16 @@ func TestNodeRepository_Update(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			err := nodeRepo.Update(tt.node)
-			
+
 			if tt.wantErr != nil {
 				assert.Error(t, err)
 				assert.Equal(t, tt.wantErr, err)
 				return
 			}
-			
+
 			require.NoError(t, err)
 			assert.NotZero(t, tt.node.UpdatedAt)
-			
+
 			// 업데이트된 노드 조회하여 확인
 			updated, err := nodeRepo.GetByID(tt.node.ID)
 			require.NoError(t, err)
@@ -401,15 +401,15 @@ func TestNodeRepository_Delete(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			err := nodeRepo.Delete(tt.id)
-			
+
 			if tt.wantErr != nil {
 				assert.Error(t, err)
 				assert.Equal(t, tt.wantErr, err)
 				return
 			}
-			
+
 			require.NoError(t, err)
-			
+
 			// 삭제된 노드 조회 시 에러 확인
 			_, err = nodeRepo.GetByID(tt.id)
 			assert.Equal(t, ErrNodeNotFound, err)
@@ -451,7 +451,7 @@ func TestNodeRepository_ExistsByDomainAndContent(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			exists, err := nodeRepo.ExistsByDomainAndContent(tt.domainID, tt.content)
-			
+
 			require.NoError(t, err)
 			assert.Equal(t, tt.want, exists)
 		})

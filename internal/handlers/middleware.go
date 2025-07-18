@@ -32,12 +32,12 @@ func CORSMiddleware() gin.HandlerFunc {
 		c.Header("Access-Control-Allow-Headers", "Origin, Content-Type, Accept, Authorization, X-Requested-With")
 		c.Header("Access-Control-Expose-Headers", "Content-Length, Content-Type")
 		c.Header("Access-Control-Allow-Credentials", "true")
-		
+
 		if c.Request.Method == "OPTIONS" {
 			c.AbortWithStatus(204)
 			return
 		}
-		
+
 		c.Next()
 	}
 }
@@ -49,7 +49,7 @@ func RecoveryMiddleware() gin.HandlerFunc {
 		} else {
 			log.Printf("Panic recovered: %v", recovered)
 		}
-		
+
 		c.JSON(500, gin.H{
 			"error":   "internal_error",
 			"message": "An unexpected error occurred",
@@ -64,7 +64,7 @@ func SecurityHeadersMiddleware() gin.HandlerFunc {
 		c.Header("X-XSS-Protection", "1; mode=block")
 		c.Header("Referrer-Policy", "strict-origin-when-cross-origin")
 		c.Header("Content-Security-Policy", "default-src 'self'")
-		
+
 		c.Next()
 	}
 }
@@ -79,7 +79,7 @@ func RequestSizeMiddleware(maxSize int64) gin.HandlerFunc {
 			c.Abort()
 			return
 		}
-		
+
 		c.Next()
 	}
 }
@@ -104,7 +104,7 @@ func JSONOnlyMiddleware() gin.HandlerFunc {
 				return
 			}
 		}
-		
+
 		c.Next()
 	}
 }
@@ -115,10 +115,10 @@ func RequestIDMiddleware() gin.HandlerFunc {
 		if requestID == "" {
 			requestID = fmt.Sprintf("%d", time.Now().UnixNano())
 		}
-		
+
 		c.Header("X-Request-ID", requestID)
 		c.Set("request_id", requestID)
-		
+
 		c.Next()
 	}
 }
@@ -133,29 +133,29 @@ func APIVersionMiddleware() gin.HandlerFunc {
 func SetupMiddleware(r *gin.Engine) {
 	// Recovery middleware should be first
 	r.Use(RecoveryMiddleware())
-	
+
 	// Request ID for tracing
 	r.Use(RequestIDMiddleware())
-	
+
 	// Logging middleware
 	r.Use(LoggingMiddleware())
-	
+
 	// CORS middleware
 	r.Use(CORSMiddleware())
-	
+
 	// Security headers
 	r.Use(SecurityHeadersMiddleware())
-	
+
 	// Request size limit (10MB)
 	r.Use(RequestSizeMiddleware(10 * 1024 * 1024))
-	
+
 	// JSON content type enforcement for API routes
 	apiGroup := r.Group("/api")
 	apiGroup.Use(JSONOnlyMiddleware())
-	
+
 	// API version header
 	r.Use(APIVersionMiddleware())
-	
+
 	// Timeout middleware (30 seconds)
 	r.Use(TimeoutMiddleware(30 * time.Second))
 }

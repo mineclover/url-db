@@ -6,7 +6,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"internal/models"
+	"url-db/internal/models"
 )
 
 func TestRepository_Create(t *testing.T) {
@@ -23,7 +23,7 @@ func TestRepository_GetByID(t *testing.T) {
 		// TODO: Implement test with actual database connection
 		t.Skip("Database test setup required")
 	})
-	
+
 	t.Run("should return nil when node attribute not found", func(t *testing.T) {
 		// TODO: Implement test with actual database connection
 		t.Skip("Database test setup required")
@@ -49,7 +49,7 @@ func TestRepository_Delete(t *testing.T) {
 		// TODO: Implement test with actual database connection
 		t.Skip("Database test setup required")
 	})
-	
+
 	t.Run("should return error when node attribute not found", func(t *testing.T) {
 		// TODO: Implement test with actual database connection
 		t.Skip("Database test setup required")
@@ -61,7 +61,7 @@ func TestRepository_ValidateNodeAndAttributeDomain(t *testing.T) {
 		// TODO: Implement test with actual database connection
 		t.Skip("Database test setup required")
 	})
-	
+
 	t.Run("should return error for different domains", func(t *testing.T) {
 		// TODO: Implement test with actual database connection
 		t.Skip("Database test setup required")
@@ -73,7 +73,7 @@ func TestRepository_GetAttributeType(t *testing.T) {
 		// TODO: Implement test with actual database connection
 		t.Skip("Database test setup required")
 	})
-	
+
 	t.Run("should return error when attribute not found", func(t *testing.T) {
 		// TODO: Implement test with actual database connection
 		t.Skip("Database test setup required")

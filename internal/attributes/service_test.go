@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 
-	"github.com/url-db/internal/models"
+	"url-db/internal/models"
 )
 
 // Mock repository
@@ -92,10 +92,10 @@ func TestAttributeService_CreateAttribute(t *testing.T) {
 
 	// Mock domain exists
 	mockDomainService.On("GetDomain", ctx, 1).Return(domain, nil)
-	
+
 	// Mock attribute doesn't exist
 	mockRepo.On("GetByDomainIDAndName", ctx, 1, "test-attribute").Return(nil, ErrAttributeNotFound)
-	
+
 	// Mock create success
 	mockRepo.On("Create", ctx, mock.AnythingOfType("*models.Attribute")).Return(nil).Run(func(args mock.Arguments) {
 		attr := args.Get(1).(*models.Attribute)
@@ -103,7 +103,7 @@ func TestAttributeService_CreateAttribute(t *testing.T) {
 	})
 
 	result, err := service.CreateAttribute(ctx, 1, req)
-	
+
 	assert.NoError(t, err)
 	assert.NotNil(t, result)
 	assert.Equal(t, 1, result.ID)
@@ -241,7 +241,7 @@ func TestAttributeService_GetAttribute(t *testing.T) {
 	mockRepo.On("GetByID", ctx, 1).Return(expectedAttr, nil)
 
 	result, err := service.GetAttribute(ctx, 1)
-	
+
 	assert.NoError(t, err)
 	assert.Equal(t, expectedAttr, result)
 
@@ -274,7 +274,7 @@ func TestAttributeService_ListAttributes(t *testing.T) {
 	mockRepo.On("GetByDomainID", ctx, 1).Return(attributes, nil)
 
 	result, err := service.ListAttributes(ctx, 1)
-	
+
 	assert.NoError(t, err)
 	assert.NotNil(t, result)
 	assert.Len(t, result.Attributes, 2)
@@ -308,7 +308,7 @@ func TestAttributeService_UpdateAttribute(t *testing.T) {
 	mockRepo.On("Update", ctx, mock.AnythingOfType("*models.Attribute")).Return(nil)
 
 	result, err := service.UpdateAttribute(ctx, 1, req)
-	
+
 	assert.NoError(t, err)
 	assert.NotNil(t, result)
 	assert.Equal(t, "Updated description", result.Description)
@@ -334,7 +334,7 @@ func TestAttributeService_DeleteAttribute(t *testing.T) {
 	mockRepo.On("Delete", ctx, 1).Return(nil)
 
 	err := service.DeleteAttribute(ctx, 1)
-	
+
 	assert.NoError(t, err)
 
 	mockRepo.AssertExpectations(t)
@@ -357,7 +357,7 @@ func TestAttributeService_DeleteAttribute_HasValues(t *testing.T) {
 	mockRepo.On("HasValues", ctx, 1).Return(true, nil)
 
 	err := service.DeleteAttribute(ctx, 1)
-	
+
 	assert.ErrorIs(t, err, ErrAttributeHasValues)
 
 	mockRepo.AssertExpectations(t)

@@ -4,7 +4,7 @@ import (
 	"context"
 	"database/sql"
 
-	"github.com/url-db/internal/models"
+	"url-db/internal/models"
 )
 
 type DomainRepository interface {
@@ -31,7 +31,7 @@ func (r *domainRepository) Create(ctx context.Context, domain *models.Domain) er
 		VALUES (?, ?, datetime('now'), datetime('now'))
 		RETURNING id, created_at, updated_at
 	`
-	
+
 	row := r.db.QueryRowContext(ctx, query, domain.Name, domain.Description)
 	return row.Scan(&domain.ID, &domain.CreatedAt, &domain.UpdatedAt)
 }
@@ -42,7 +42,7 @@ func (r *domainRepository) GetByID(ctx context.Context, id int) (*models.Domain,
 		FROM domains
 		WHERE id = ?
 	`
-	
+
 	domain := &models.Domain{}
 	row := r.db.QueryRowContext(ctx, query, id)
 	err := row.Scan(&domain.ID, &domain.Name, &domain.Description, &domain.CreatedAt, &domain.UpdatedAt)
@@ -58,7 +58,7 @@ func (r *domainRepository) GetByName(ctx context.Context, name string) (*models.
 		FROM domains
 		WHERE name = ?
 	`
-	
+
 	domain := &models.Domain{}
 	row := r.db.QueryRowContext(ctx, query, name)
 	err := row.Scan(&domain.ID, &domain.Name, &domain.Description, &domain.CreatedAt, &domain.UpdatedAt)
@@ -70,7 +70,7 @@ func (r *domainRepository) GetByName(ctx context.Context, name string) (*models.
 
 func (r *domainRepository) List(ctx context.Context, page, size int) ([]*models.Domain, int, error) {
 	offset := (page - 1) * size
-	
+
 	// Get total count
 	countQuery := `SELECT COUNT(*) FROM domains`
 	var totalCount int
@@ -78,7 +78,7 @@ func (r *domainRepository) List(ctx context.Context, page, size int) ([]*models.
 	if err != nil {
 		return nil, 0, err
 	}
-	
+
 	// Get domains with pagination
 	query := `
 		SELECT id, name, description, created_at, updated_at
@@ -86,13 +86,13 @@ func (r *domainRepository) List(ctx context.Context, page, size int) ([]*models.
 		ORDER BY created_at DESC
 		LIMIT ? OFFSET ?
 	`
-	
+
 	rows, err := r.db.QueryContext(ctx, query, size, offset)
 	if err != nil {
 		return nil, 0, err
 	}
 	defer rows.Close()
-	
+
 	var domains []*models.Domain
 	for rows.Next() {
 		domain := &models.Domain{}
@@ -102,7 +102,7 @@ func (r *domainRepository) List(ctx context.Context, page, size int) ([]*models.
 		}
 		domains = append(domains, domain)
 	}
-	
+
 	return domains, totalCount, nil
 }
 
@@ -113,7 +113,7 @@ func (r *domainRepository) Update(ctx context.Context, domain *models.Domain) er
 		WHERE id = ?
 		RETURNING updated_at
 	`
-	
+
 	row := r.db.QueryRowContext(ctx, query, domain.Description, domain.ID)
 	return row.Scan(&domain.UpdatedAt)
 }
@@ -124,16 +124,16 @@ func (r *domainRepository) Delete(ctx context.Context, id int) error {
 	if err != nil {
 		return err
 	}
-	
+
 	rowsAffected, err := result.RowsAffected()
 	if err != nil {
 		return err
 	}
-	
+
 	if rowsAffected == 0 {
 		return sql.ErrNoRows
 	}
-	
+
 	return nil
 }
 

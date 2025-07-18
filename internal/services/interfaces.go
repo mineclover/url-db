@@ -3,7 +3,7 @@ package services
 import (
 	"context"
 
-	"github.com/url-db/internal/models"
+	"url-db/internal/models"
 )
 
 type DomainService interface {
@@ -58,15 +58,15 @@ type MCPService interface {
 	DeleteNode(ctx context.Context, compositeID string) error
 	FindNodeByURL(ctx context.Context, req *models.FindMCPNodeRequest) (*models.MCPNode, error)
 	BatchGetNodes(ctx context.Context, req *models.BatchMCPNodeRequest) (*models.BatchMCPNodeResponse, error)
-	
+
 	// 도메인 관리
 	ListDomains(ctx context.Context) (*models.MCPDomainListResponse, error)
 	CreateDomain(ctx context.Context, req *models.CreateMCPDomainRequest) (*models.MCPDomain, error)
-	
+
 	// 속성 관리
 	GetNodeAttributes(ctx context.Context, compositeID string) (*models.MCPNodeAttributeResponse, error)
 	SetNodeAttributes(ctx context.Context, compositeID string, req *models.SetMCPNodeAttributesRequest) error
-	
+
 	// 서버 정보
 	GetServerInfo(ctx context.Context) (*models.MCPServerInfo, error)
 }

@@ -25,15 +25,15 @@ func (r *sqliteNodeRepository) Create(node *models.Node) error {
 		VALUES (?, ?, ?, ?, datetime('now'), datetime('now'))
 		RETURNING id, created_at, updated_at
 	`
-	
+
 	err := r.QueryRow(query, node.Content, node.DomainID, node.Title, node.Description).Scan(
 		&node.ID, &node.CreatedAt, &node.UpdatedAt,
 	)
-	
+
 	if err != nil {
 		return MapSQLiteError(err)
 	}
-	
+
 	return nil
 }
 
@@ -44,21 +44,21 @@ func (r *sqliteNodeRepository) GetByID(id int) (*models.Node, error) {
 		FROM nodes
 		WHERE id = ?
 	`
-	
+
 	node := &models.Node{}
 	err := r.QueryRow(query, id).Scan(
 		&node.ID, &node.Content, &node.DomainID, &node.Title,
 		&node.Description, &node.CreatedAt, &node.UpdatedAt,
 	)
-	
+
 	if err == sql.ErrNoRows {
 		return nil, ErrNodeNotFound
 	}
-	
+
 	if err != nil {
 		return nil, MapSQLiteError(err)
 	}
-	
+
 	return node, nil
 }
 
@@ -69,21 +69,21 @@ func (r *sqliteNodeRepository) GetByDomainAndContent(domainID int, content strin
 		FROM nodes
 		WHERE domain_id = ? AND content = ?
 	`
-	
+
 	node := &models.Node{}
 	err := r.QueryRow(query, domainID, content).Scan(
 		&node.ID, &node.Content, &node.DomainID, &node.Title,
 		&node.Description, &node.CreatedAt, &node.UpdatedAt,
 	)
-	
+
 	if err == sql.ErrNoRows {
 		return nil, ErrNodeNotFound
 	}
-	
+
 	if err != nil {
 		return nil, MapSQLiteError(err)
 	}
-	
+
 	return node, nil
 }
 
@@ -97,13 +97,13 @@ func (r *sqliteNodeRepository) ListByDomain(domainID int, offset, limit int) ([]
 		ORDER BY created_at DESC
 		LIMIT ? OFFSET ?
 	`
-	
+
 	rows, err := r.Query(query, domainID, limit, offset)
 	if err != nil {
 		return nil, 0, MapSQLiteError(err)
 	}
 	defer rows.Close()
-	
+
 	var nodes []models.Node
 	for rows.Next() {
 		var node models.Node
@@ -114,11 +114,11 @@ func (r *sqliteNodeRepository) ListByDomain(domainID int, offset, limit int) ([]
 		}
 		nodes = append(nodes, node)
 	}
-	
+
 	if err := rows.Err(); err != nil {
 		return nil, 0, MapSQLiteError(err)
 	}
-	
+
 	// 총 개수 조회
 	countQuery := `SELECT COUNT(*) FROM nodes WHERE domain_id = ?`
 	var total int
@@ -126,7 +126,7 @@ func (r *sqliteNodeRepository) ListByDomain(domainID int, offset, limit int) ([]
 	if err != nil {
 		return nil, 0, MapSQLiteError(err)
 	}
-	
+
 	return nodes, total, nil
 }
 
@@ -140,14 +140,14 @@ func (r *sqliteNodeRepository) Search(domainID int, query string, offset, limit 
 		ORDER BY created_at DESC
 		LIMIT ? OFFSET ?
 	`
-	
+
 	searchPattern := "%" + query + "%"
 	rows, err := r.Query(searchQuery, domainID, searchPattern, searchPattern, searchPattern, limit, offset)
 	if err != nil {
 		return nil, 0, MapSQLiteError(err)
 	}
 	defer rows.Close()
-	
+
 	var nodes []models.Node
 	for rows.Next() {
 		var node models.Node
@@ -158,24 +158,24 @@ func (r *sqliteNodeRepository) Search(domainID int, query string, offset, limit 
 		}
 		nodes = append(nodes, node)
 	}
-	
+
 	if err := rows.Err(); err != nil {
 		return nil, 0, MapSQLiteError(err)
 	}
-	
+
 	// 총 개수 조회
 	countQuery := `
 		SELECT COUNT(*)
 		FROM nodes
 		WHERE domain_id = ? AND (title LIKE ? OR content LIKE ? OR description LIKE ?)
 	`
-	
+
 	var total int
 	err = r.QueryRow(countQuery, domainID, searchPattern, searchPattern, searchPattern).Scan(&total)
 	if err != nil {
 		return nil, 0, MapSQLiteError(err)
 	}
-	
+
 	return nodes, total, nil
 }
 
@@ -187,66 +187,66 @@ func (r *sqliteNodeRepository) Update(node *models.Node) error {
 		WHERE id = ?
 		RETURNING updated_at
 	`
-	
+
 	err := r.QueryRow(query, node.Content, node.Title, node.Description, node.ID).Scan(
 		&node.UpdatedAt,
 	)
-	
+
 	if err == sql.ErrNoRows {
 		return ErrNodeNotFound
 	}
-	
+
 	if err != nil {
 		return MapSQLiteError(err)
 	}
-	
+
 	return nil
 }
 
 // Delete 는 노드를 삭제합니다.
 func (r *sqliteNodeRepository) Delete(id int) error {
 	query := `DELETE FROM nodes WHERE id = ?`
-	
+
 	result, err := r.Execute(query, id)
 	if err != nil {
 		return MapSQLiteError(err)
 	}
-	
+
 	rowsAffected, err := result.RowsAffected()
 	if err != nil {
 		return MapSQLiteError(err)
 	}
-	
+
 	if rowsAffected == 0 {
 		return ErrNodeNotFound
 	}
-	
+
 	return nil
 }
 
 // ExistsByDomainAndContent 는 도메인 ID와 콘텐츠로 노드 존재 여부를 확인합니다.
 func (r *sqliteNodeRepository) ExistsByDomainAndContent(domainID int, content string) (bool, error) {
 	query := `SELECT EXISTS(SELECT 1 FROM nodes WHERE domain_id = ? AND content = ?)`
-	
+
 	var exists bool
 	err := r.QueryRow(query, domainID, content).Scan(&exists)
 	if err != nil {
 		return false, MapSQLiteError(err)
 	}
-	
+
 	return exists, nil
 }
 
 // CountNodesByDomain 는 도메인별 노드 수를 반환합니다.
 func (r *sqliteNodeRepository) CountNodesByDomain(ctx context.Context, domainID int) (int, error) {
 	query := `SELECT COUNT(*) FROM nodes WHERE domain_id = ?`
-	
+
 	var count int
 	err := r.QueryRow(query, domainID).Scan(&count)
 	if err != nil {
 		return 0, MapSQLiteError(err)
 	}
-	
+
 	return count, nil
 }
 
@@ -255,7 +255,7 @@ func (r *sqliteNodeRepository) BatchCreate(nodes []models.Node) error {
 	if len(nodes) == 0 {
 		return nil
 	}
-	
+
 	return r.WithTransaction(func(tx *sql.Tx) error {
 		stmt, err := r.PrepareStatementInTransaction(tx, `
 			INSERT INTO nodes (content, domain_id, title, description, created_at, updated_at)
@@ -265,14 +265,14 @@ func (r *sqliteNodeRepository) BatchCreate(nodes []models.Node) error {
 			return err
 		}
 		defer stmt.Close()
-		
+
 		for _, node := range nodes {
 			_, err := stmt.Exec(node.Content, node.DomainID, node.Title, node.Description)
 			if err != nil {
 				return MapSQLiteError(err)
 			}
 		}
-		
+
 		return nil
 	})
 }
@@ -282,7 +282,7 @@ func (r *sqliteNodeRepository) BatchUpdate(nodes []models.Node) error {
 	if len(nodes) == 0 {
 		return nil
 	}
-	
+
 	return r.WithTransaction(func(tx *sql.Tx) error {
 		stmt, err := r.PrepareStatementInTransaction(tx, `
 			UPDATE nodes
@@ -293,14 +293,14 @@ func (r *sqliteNodeRepository) BatchUpdate(nodes []models.Node) error {
 			return err
 		}
 		defer stmt.Close()
-		
+
 		for _, node := range nodes {
 			_, err := stmt.Exec(node.Content, node.Title, node.Description, node.ID)
 			if err != nil {
 				return MapSQLiteError(err)
 			}
 		}
-		
+
 		return nil
 	})
 }
@@ -310,21 +310,21 @@ func (r *sqliteNodeRepository) BatchDelete(ids []int) error {
 	if len(ids) == 0 {
 		return nil
 	}
-	
+
 	return r.WithTransaction(func(tx *sql.Tx) error {
 		stmt, err := r.PrepareStatementInTransaction(tx, `DELETE FROM nodes WHERE id = ?`)
 		if err != nil {
 			return err
 		}
 		defer stmt.Close()
-		
+
 		for _, id := range ids {
 			_, err := stmt.Exec(id)
 			if err != nil {
 				return MapSQLiteError(err)
 			}
 		}
-		
+
 		return nil
 	})
 }
@@ -338,15 +338,15 @@ func (r *sqliteNodeRepository) CreateTx(tx *sql.Tx, node *models.Node) error {
 		VALUES (?, ?, ?, ?, datetime('now'), datetime('now'))
 		RETURNING id, created_at, updated_at
 	`
-	
+
 	err := r.QueryRowInTransaction(tx, query, node.Content, node.DomainID, node.Title, node.Description).Scan(
 		&node.ID, &node.CreatedAt, &node.UpdatedAt,
 	)
-	
+
 	if err != nil {
 		return MapSQLiteError(err)
 	}
-	
+
 	return nil
 }
 
@@ -358,39 +358,39 @@ func (r *sqliteNodeRepository) UpdateTx(tx *sql.Tx, node *models.Node) error {
 		WHERE id = ?
 		RETURNING updated_at
 	`
-	
+
 	err := r.QueryRowInTransaction(tx, query, node.Content, node.Title, node.Description, node.ID).Scan(
 		&node.UpdatedAt,
 	)
-	
+
 	if err == sql.ErrNoRows {
 		return ErrNodeNotFound
 	}
-	
+
 	if err != nil {
 		return MapSQLiteError(err)
 	}
-	
+
 	return nil
 }
 
 // DeleteTx 는 트랜잭션 내에서 노드를 삭제합니다.
 func (r *sqliteNodeRepository) DeleteTx(tx *sql.Tx, id int) error {
 	query := `DELETE FROM nodes WHERE id = ?`
-	
+
 	result, err := r.ExecuteInTransaction(tx, query, id)
 	if err != nil {
 		return MapSQLiteError(err)
 	}
-	
+
 	rowsAffected, err := result.RowsAffected()
 	if err != nil {
 		return MapSQLiteError(err)
 	}
-	
+
 	if rowsAffected == 0 {
 		return ErrNodeNotFound
 	}
-	
+
 	return nil
 }

@@ -19,10 +19,10 @@ type TestDB struct {
 func SetupTestDB(t *testing.T) *TestDB {
 	db, err := sql.Open("sqlite3", ":memory:")
 	require.NoError(t, err)
-	
+
 	// 테스트용 스키마 생성
 	createTestSchema(t, db)
-	
+
 	return &TestDB{DB: db}
 }
 
@@ -84,7 +84,7 @@ func createTestSchema(t *testing.T, db *sql.DB) {
 		CREATE INDEX idx_node_attributes_node_id ON node_attributes(node_id);
 		CREATE INDEX idx_node_attributes_attribute_id ON node_attributes(attribute_id);
 	`
-	
+
 	_, err := db.Exec(schema)
 	require.NoError(t, err)
 }
@@ -215,7 +215,7 @@ func (b *TestAttributeBuilder) WithName(name string) *TestAttributeBuilder {
 
 // WithType 은 속성 타입을 설정합니다.
 func (b *TestAttributeBuilder) WithType(attrType string) *TestAttributeBuilder {
-	b.attribute.Type = attrType
+	b.attribute.Type = models.AttributeType(attrType)
 	return b
 }
 
@@ -248,7 +248,7 @@ func NewTestNodeAttributeBuilder() *TestNodeAttributeBuilder {
 			NodeID:      1,
 			AttributeID: 1,
 			Value:       "test-value",
-			OrderIndex:  0,
+			OrderIndex:  nil,
 			CreatedAt:   time.Now(),
 		},
 	}
@@ -274,7 +274,7 @@ func (b *TestNodeAttributeBuilder) WithValue(value string) *TestNodeAttributeBui
 
 // WithOrderIndex 는 순서 인덱스를 설정합니다.
 func (b *TestNodeAttributeBuilder) WithOrderIndex(orderIndex int) *TestNodeAttributeBuilder {
-	b.nodeAttribute.OrderIndex = orderIndex
+	b.nodeAttribute.OrderIndex = &orderIndex
 	return b
 }
 

@@ -1,0 +1,782 @@
+openapi: 3.0.0
+info:
+  title: URL Database API - MCP Enhanced
+  version: 1.0.0
+  description: |
+    A comprehensive URL management system optimized for Model Context Protocol (MCP) integration.
+    
+    ## Key Features
+    - **Domain-based Organization**: Group URLs by website or topic
+    - **Rich Metadata**: Add titles, descriptions, and custom attributes
+    - **Flexible Attributes**: Support for tags, numbers, text, markdown, and images
+    - **Powerful Search**: Find URLs by content, attributes, or metadata
+    - **Batch Operations**: Efficient bulk operations for large datasets
+    - **MCP Integration**: Native support for AI tool integration
+    
+    ## Composite Key Format
+    URLs are identified using composite keys: `domain_name::url_path`
+    
+    Examples:
+    - `example.com::https://example.com/page1`
+    - `github.com::https://github.com/user/repo`
+    
+    ## Common MCP Workflows
+    
+    ### Save and Categorize URL
+    1. Check domain exists: `GET /mcp/domains`
+    2. Create domain if needed: `POST /mcp/domains`
+    3. Save URL: `POST /mcp/nodes`
+    4. Add attributes: `PUT /mcp/nodes/{composite_id}/attributes`
+    
+    ### Research URLs
+    1. List domains: `GET /mcp/domains`
+    2. Search URLs: `GET /mcp/nodes?domain_name=example.com&search=keyword`
+    3. Get details: `GET /mcp/nodes/{composite_id}`
+    4. View attributes: `GET /mcp/nodes/{composite_id}/attributes`
+    
+  contact:
+    name: API Support
+    email: support@example.com
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+
+servers:
+  - url: http://localhost:8080/api
+    description: Development server
+
+tags:
+  - name: mcp-core
+    description: Essential MCP operations for URL management
+    externalDocs:
+      description: MCP Protocol Documentation
+      url: https://modelcontextprotocol.io
+  - name: mcp-domains
+    description: Domain management for organizing URLs
+  - name: mcp-nodes
+    description: URL (node) management with rich metadata
+  - name: mcp-attributes
+    description: Attribute and tagging system
+  - name: mcp-batch
+    description: Bulk operations for efficiency
+
+paths:
+  # Core MCP Endpoints
+  /mcp/server/info:
+    get:
+      tags: [mcp-core]
+      summary: Get server capabilities
+      description: |
+        Essential endpoint for MCP clients to understand server capabilities and configuration.
+        
+        **MCP Usage**: Always call this first to understand:
+        - Available capabilities
+        - Composite key format
+        - Server version and features
+        
+        **When to use**: During MCP client initialization
+      operationId: getMCPServerInfo
+      responses:
+        '200':
+          description: Server information and capabilities
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MCPServerInfo'
+              example:
+                name: "URL Database Server"
+                version: "1.0.0"
+                description: "MCP-enabled URL management system"
+                capabilities: ["domains", "nodes", "attributes", "search", "batch"]
+                composite_key_format: "domain_name::url_path"
+
+  /mcp/domains:
+    get:
+      tags: [mcp-domains]
+      summary: List all domains
+      description: |
+        Get all available domains with their metadata and URL counts.
+        
+        **MCP Usage**: Essential for understanding the organizational structure.
+        
+        **When to use**:
+        - Before creating URLs to see available domains
+        - To get domain statistics and metadata
+        - For domain selection in user interfaces
+        
+        **Natural language equivalent**: "Show me all the website domains I have URLs saved for"
+      operationId: getMCPDomains
+      responses:
+        '200':
+          description: List of domains with metadata
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  domains:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/MCPDomain'
+              example:
+                domains:
+                  - name: "example.com"
+                    description: "Example website URLs"
+                    node_count: 25
+                    created_at: "2024-01-01T00:00:00Z"
+                    updated_at: "2024-01-15T12:30:00Z"
+    
+    post:
+      tags: [mcp-domains]
+      summary: Create new domain
+      description: |
+        Create a new domain for organizing URLs. Domains act as namespaces.
+        
+        **MCP Usage**: Create logical groupings for URLs from the same website or topic.
+        
+        **When to use**:
+        - Adding URLs from a new website
+        - Creating topical collections
+        - Organizing by project or category
+        
+        **Natural language equivalent**: "Create a new domain called 'docs.python.org' for Python documentation"
+      operationId: createMCPDomain
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateMCPDomainRequest'
+            example:
+              name: "docs.python.org"
+              description: "Python official documentation"
+      responses:
+        '201':
+          description: Domain created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MCPDomain'
+
+  /mcp/nodes:
+    get:
+      tags: [mcp-nodes]
+      summary: List URLs with filtering
+      description: |
+        List URLs (nodes) with advanced filtering, search, and pagination.
+        
+        **MCP Usage**: Primary endpoint for discovering and browsing saved URLs.
+        
+        **When to use**:
+        - Browse URLs in a specific domain
+        - Search for URLs containing specific keywords
+        - Get recent additions or specific page ranges
+        
+        **Search capabilities**:
+        - Full-text search in titles and descriptions
+        - Domain filtering
+        - Pagination for large collections
+        
+        **Natural language equivalent**: "Show me all URLs from github.com that contain 'machine learning'"
+      operationId: getMCPNodes
+      parameters:
+        - name: domain_name
+          in: query
+          description: Filter by domain name
+          schema:
+            type: string
+          example: "github.com"
+        - name: search
+          in: query
+          description: Search term for URL content (title, description)
+          schema:
+            type: string
+          example: "machine learning"
+        - name: page
+          in: query
+          description: Page number for pagination
+          schema:
+            type: integer
+            default: 1
+        - name: size
+          in: query
+          description: Number of results per page (max 100)
+          schema:
+            type: integer
+            default: 20
+            maximum: 100
+      responses:
+        '200':
+          description: List of URLs matching criteria
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MCPNodeListResponse'
+    
+    post:
+      tags: [mcp-nodes]
+      summary: Save new URL
+      description: |
+        Add a new URL to the system with metadata.
+        
+        **MCP Usage**: Primary endpoint for saving URLs with rich metadata.
+        
+        **When to use**:
+        - Saving interesting URLs for later reference
+        - Building research collections
+        - Bookmarking with categorization
+        
+        **Best practices**:
+        - Include descriptive titles for better searchability
+        - Add meaningful descriptions
+        - Choose appropriate domain names
+        
+        **Natural language equivalent**: "Save https://example.com/article with title 'Great Article' in the example.com domain"
+      operationId: createMCPNode
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateMCPNodeRequest'
+            example:
+              domain_name: "example.com"
+              url: "https://example.com/great-article"
+              title: "A Great Article About AI"
+              description: "Comprehensive overview of AI developments in 2024"
+      responses:
+        '201':
+          description: URL saved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MCPNode'
+
+  /mcp/nodes/{composite_id}:
+    get:
+      tags: [mcp-nodes]
+      summary: Get URL details
+      description: |
+        Retrieve complete information about a specific URL.
+        
+        **MCP Usage**: Get full metadata for a saved URL.
+        
+        **When to use**:
+        - Get details about a specific URL
+        - Verify URL information before modification
+        - Display full URL metadata in interfaces
+        
+        **Composite ID format**: `domain_name::url_path`
+        
+        **Natural language equivalent**: "Show me details for the GitHub repo at example.com::https://github.com/user/repo"
+      operationId: getMCPNode
+      parameters:
+        - name: composite_id
+          in: path
+          required: true
+          description: Composite ID in format 'domain_name::url_path'
+          schema:
+            type: string
+          example: "example.com::https://example.com/page"
+      responses:
+        '200':
+          description: URL details retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MCPNode'
+        '404':
+          description: URL not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MCPError'
+    
+    put:
+      tags: [mcp-nodes]
+      summary: Update URL metadata
+      description: |
+        Update title and description of an existing URL.
+        
+        **MCP Usage**: Keep URL metadata current and accurate.
+        
+        **When to use**:
+        - Improve descriptions for better searchability
+        - Fix typos in titles
+        - Update information as content changes
+        
+        **Natural language equivalent**: "Update the title of example.com::https://example.com/page to 'Updated Title'"
+      operationId: updateMCPNode
+      parameters:
+        - name: composite_id
+          in: path
+          required: true
+          description: Composite ID in format 'domain_name::url_path'
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateMCPNodeRequest'
+      responses:
+        '200':
+          description: URL updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MCPNode'
+    
+    delete:
+      tags: [mcp-nodes]
+      summary: Delete URL
+      description: |
+        Permanently remove a URL and all its attributes.
+        
+        **MCP Usage**: Clean up outdated or unwanted URLs.
+        
+        **When to use**:
+        - Remove broken or outdated URLs
+        - Clean up duplicate entries
+        - Remove URLs no longer relevant
+        
+        **Warning**: This action cannot be undone. All attributes will also be deleted.
+        
+        **Natural language equivalent**: "Delete the URL example.com::https://example.com/old-page"
+      operationId: deleteMCPNode
+      parameters:
+        - name: composite_id
+          in: path
+          required: true
+          description: Composite ID in format 'domain_name::url_path'
+          schema:
+            type: string
+      responses:
+        '204':
+          description: URL deleted successfully
+        '404':
+          description: URL not found
+
+  /mcp/nodes/find:
+    post:
+      tags: [mcp-nodes]
+      summary: Find URL by exact match
+      description: |
+        Search for a URL within a domain to check if it exists.
+        
+        **MCP Usage**: Avoid duplicates and find existing URLs.
+        
+        **When to use**:
+        - Before saving a URL to avoid duplicates
+        - Verify if a URL is already in the system
+        - Get composite ID for a known URL
+        
+        **Natural language equivalent**: "Check if https://example.com/page is already saved in example.com domain"
+      operationId: findMCPNodeByURL
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FindMCPNodeRequest'
+            example:
+              domain_name: "example.com"
+              url: "https://example.com/page"
+      responses:
+        '200':
+          description: URL found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MCPNode'
+        '404':
+          description: URL not found in domain
+
+  /mcp/nodes/batch:
+    post:
+      tags: [mcp-batch]
+      summary: Get multiple URLs efficiently
+      description: |
+        Retrieve multiple URLs in a single request for bulk operations.
+        
+        **MCP Usage**: Efficient bulk data retrieval and analysis.
+        
+        **When to use**:
+        - Analyzing multiple URLs simultaneously
+        - Bulk export operations
+        - Dashboard or reporting needs
+        - Performance-critical batch processing
+        
+        **Performance**: Much faster than individual GET requests for multiple URLs.
+        
+        **Natural language equivalent**: "Get details for these 10 URLs: [list of composite IDs]"
+      operationId: batchGetMCPNodes
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BatchMCPNodeRequest'
+            example:
+              composite_ids:
+                - "example.com::https://example.com/page1"
+                - "github.com::https://github.com/user/repo"
+                - "docs.site::https://docs.site/api"
+      responses:
+        '200':
+          description: Batch operation completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchMCPNodeResponse'
+
+  /mcp/nodes/{composite_id}/attributes:
+    get:
+      tags: [mcp-attributes]
+      summary: Get URL attributes
+      description: |
+        Retrieve all attribute values (tags, metadata) for a URL.
+        
+        **MCP Usage**: Understand how a URL is categorized and tagged.
+        
+        **When to use**:
+        - See all tags and metadata for a URL
+        - Before adding new attributes
+        - For display in user interfaces
+        - Analysis of URL categorization
+        
+        **Natural language equivalent**: "Show me all the tags and metadata for example.com::https://example.com/page"
+      operationId: getMCPNodeAttributes
+      parameters:
+        - name: composite_id
+          in: path
+          required: true
+          description: Composite ID in format 'domain_name::url_path'
+          schema:
+            type: string
+      responses:
+        '200':
+          description: URL attributes retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MCPNodeAttributesResponse'
+    
+    put:
+      tags: [mcp-attributes]
+      summary: Set URL attributes
+      description: |
+        Add or update multiple attribute values for a URL.
+        
+        **MCP Usage**: Tag and categorize URLs with metadata.
+        
+        **When to use**:
+        - Adding tags for categorization
+        - Setting ratings or priorities
+        - Adding notes or descriptions
+        - Bulk attribute updates
+        
+        **Attribute types supported**:
+        - `tag`: Simple labels and categories
+        - `string`: Text notes and descriptions
+        - `number`: Ratings, scores, priorities
+        - `markdown`: Rich text content
+        - `image`: Image URLs or references
+        
+        **Natural language equivalent**: "Tag example.com::https://example.com/page with 'tutorial', 'python', and rating of 5"
+      operationId: setMCPNodeAttributes
+      parameters:
+        - name: composite_id
+          in: path
+          required: true
+          description: Composite ID in format 'domain_name::url_path'
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetMCPNodeAttributesRequest'
+            example:
+              attributes:
+                - name: "category"
+                  value: "tutorial"
+                - name: "language"
+                  value: "python"
+                - name: "rating"
+                  value: "5"
+      responses:
+        '200':
+          description: Attributes updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MCPNodeAttributesResponse'
+
+components:
+  schemas:
+    MCPServerInfo:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Server name
+          example: "URL Database Server"
+        version:
+          type: string
+          description: Server version
+          example: "1.0.0"
+        description:
+          type: string
+          description: Server description
+          example: "MCP-enabled URL management system"
+        capabilities:
+          type: array
+          items:
+            type: string
+          description: Available server capabilities
+          example: ["domains", "nodes", "attributes", "search", "batch"]
+        composite_key_format:
+          type: string
+          description: Format for composite keys
+          example: "domain_name::url_path"
+    
+    MCPDomain:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Domain name (usually website domain)
+          example: "example.com"
+        description:
+          type: string
+          description: Domain description
+          example: "Example website URLs"
+        node_count:
+          type: integer
+          description: Number of URLs in this domain
+          example: 25
+        created_at:
+          type: string
+          format: date-time
+          description: When domain was created
+        updated_at:
+          type: string
+          format: date-time
+          description: When domain was last updated
+    
+    MCPNode:
+      type: object
+      properties:
+        composite_id:
+          type: string
+          description: Unique identifier in format 'domain_name::url_path'
+          example: "example.com::https://example.com/page"
+        domain_name:
+          type: string
+          description: Domain this URL belongs to
+          example: "example.com"
+        url:
+          type: string
+          description: The actual URL
+          example: "https://example.com/page"
+        title:
+          type: string
+          description: Human-readable title
+          example: "Great Article About AI"
+        description:
+          type: string
+          description: Detailed description
+          example: "Comprehensive overview of AI developments"
+        created_at:
+          type: string
+          format: date-time
+          description: When URL was saved
+        updated_at:
+          type: string
+          format: date-time
+          description: When URL was last modified
+    
+    MCPNodeListResponse:
+      type: object
+      properties:
+        nodes:
+          type: array
+          items:
+            $ref: '#/components/schemas/MCPNode'
+        page:
+          type: integer
+          description: Current page number
+        size:
+          type: integer
+          description: Results per page
+        total_count:
+          type: integer
+          description: Total number of URLs matching criteria
+        total_pages:
+          type: integer
+          description: Total number of pages available
+    
+    MCPAttribute:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Attribute name
+          example: "category"
+        type:
+          type: string
+          description: Attribute type
+          enum: [tag, string, number, markdown, image]
+          example: "tag"
+        value:
+          type: string
+          description: Attribute value
+          example: "tutorial"
+    
+    MCPNodeAttributesResponse:
+      type: object
+      properties:
+        composite_id:
+          type: string
+          description: URL composite ID
+          example: "example.com::https://example.com/page"
+        attributes:
+          type: array
+          items:
+            $ref: '#/components/schemas/MCPAttribute'
+    
+    CreateMCPDomainRequest:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+          maxLength: 255
+          description: Domain name (usually website domain)
+          example: "example.com"
+        description:
+          type: string
+          maxLength: 1000
+          description: Optional domain description
+          example: "Example website URLs"
+    
+    CreateMCPNodeRequest:
+      type: object
+      required: [domain_name, url]
+      properties:
+        domain_name:
+          type: string
+          description: Domain to add URL to
+          example: "example.com"
+        url:
+          type: string
+          maxLength: 2048
+          description: The URL to save
+          example: "https://example.com/page"
+        title:
+          type: string
+          maxLength: 255
+          description: Optional human-readable title
+          example: "Great Article"
+        description:
+          type: string
+          maxLength: 1000
+          description: Optional detailed description
+          example: "Article about AI developments"
+    
+    UpdateMCPNodeRequest:
+      type: object
+      properties:
+        title:
+          type: string
+          maxLength: 255
+          description: Updated title
+        description:
+          type: string
+          maxLength: 1000
+          description: Updated description
+    
+    FindMCPNodeRequest:
+      type: object
+      required: [domain_name, url]
+      properties:
+        domain_name:
+          type: string
+          description: Domain to search in
+        url:
+          type: string
+          maxLength: 2048
+          description: URL to find
+    
+    BatchMCPNodeRequest:
+      type: object
+      required: [composite_ids]
+      properties:
+        composite_ids:
+          type: array
+          items:
+            type: string
+          description: List of composite IDs to retrieve
+          example: ["example.com::https://example.com/page1", "github.com::https://github.com/user/repo"]
+    
+    BatchMCPNodeResponse:
+      type: object
+      properties:
+        nodes:
+          type: array
+          items:
+            $ref: '#/components/schemas/MCPNode'
+          description: Successfully retrieved URLs
+        not_found:
+          type: array
+          items:
+            type: string
+          description: Composite IDs that were not found
+        errors:
+          type: array
+          items:
+            type: string
+          description: Error messages for failed retrievals
+    
+    SetMCPNodeAttributesRequest:
+      type: object
+      required: [attributes]
+      properties:
+        attributes:
+          type: array
+          items:
+            type: object
+            required: [name, value]
+            properties:
+              name:
+                type: string
+                description: Attribute name
+              value:
+                type: string
+                description: Attribute value
+          description: List of attributes to set
+          example:
+            - name: "category"
+              value: "tutorial"
+            - name: "rating"
+              value: "5"
+    
+    MCPError:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error code
+        message:
+          type: string
+          description: Error message
+        details:
+          type: object
+          description: Additional error details
+
+externalDocs:
+  description: Model Context Protocol Documentation
+  url: https://modelcontextprotocol.io

@@ -42,7 +42,7 @@ func TestValidateFormat(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			err := ValidateFormat(tt.compositeKey)
-			
+
 			if tt.expectError {
 				assert.Error(t, err)
 			} else {
@@ -108,7 +108,7 @@ func TestValidateToolName(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			err := ValidateToolName(tt.toolName)
-			
+
 			if tt.expectError {
 				assert.Error(t, err)
 			} else {
@@ -174,7 +174,7 @@ func TestValidateDomainName(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			err := ValidateDomainName(tt.domainName)
-			
+
 			if tt.expectError {
 				assert.Error(t, err)
 			} else {
@@ -235,7 +235,7 @@ func TestValidateID(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			err := ValidateID(tt.idStr)
-			
+
 			if tt.expectError {
 				assert.Error(t, err)
 			} else {
@@ -301,7 +301,7 @@ func TestValidateCompositeKey(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			err := ValidateCompositeKey(tt.compositeKey)
-			
+
 			if tt.expectError {
 				assert.Error(t, err)
 			} else {
@@ -367,7 +367,7 @@ func TestValidateCompositeKeyStruct(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			err := ValidateCompositeKeyStruct(tt.ck)
-			
+
 			if tt.expectError {
 				assert.Error(t, err)
 			} else {

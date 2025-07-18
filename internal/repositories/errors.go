@@ -4,8 +4,6 @@ import (
 	"database/sql"
 	"errors"
 	"strings"
-
-	"github.com/mattn/go-sqlite3"
 )
 
 // 리포지토리 에러 정의
@@ -24,7 +22,7 @@ var (
 
 // SQLiteError 는 SQLite 관련 에러를 처리하는 구조체입니다.
 type SQLiteError struct {
-	Code    sqlite3.ErrNoExtended
+	Code    int
 	Message string
 	Query   string
 }
@@ -44,34 +42,21 @@ func MapSQLiteError(err error) error {
 		return ErrDomainNotFound // 기본값, 각 리포지토리에서 적절히 변경
 	}
 
-	// SQLite 에러 처리
-	if sqliteErr, ok := err.(sqlite3.Error); ok {
-		switch sqliteErr.ExtendedCode {
-		case sqlite3.ErrConstraintUnique:
-			return ErrDuplicateEntry
-		case sqlite3.ErrConstraintForeignKey:
-			return ErrForeignKeyConstraint
-		case sqlite3.ErrConstraintCheck:
-			return ErrInvalidInput
-		case sqlite3.ErrConstraintNotNull:
-			return ErrInvalidInput
-		}
-
-		// 기본 에러 코드 처리
-		switch sqliteErr.Code {
-		case sqlite3.ErrConstraint:
-			if strings.Contains(sqliteErr.Error(), "UNIQUE") {
-				return ErrDuplicateEntry
-			}
-			if strings.Contains(sqliteErr.Error(), "FOREIGN KEY") {
-				return ErrForeignKeyConstraint
-			}
-			return ErrInvalidInput
-		case sqlite3.ErrBusy:
-			return ErrConnectionTimeout
-		case sqlite3.ErrLocked:
-			return ErrConnectionTimeout
-		}
+	// SQLite 에러 처리 (문자열 기반)
+	errStr := err.Error()
+	if strings.Contains(errStr, "UNIQUE constraint failed") {
+		return ErrDuplicateEntry
+	}
+	if strings.Contains(errStr, "FOREIGN KEY constraint failed") {
+		return ErrForeignKeyConstraint
+	}
+	if strings.Contains(errStr, "CHECK constraint failed") ||
+		strings.Contains(errStr, "NOT NULL constraint failed") {
+		return ErrInvalidInput
+	}
+	if strings.Contains(errStr, "database is locked") ||
+		strings.Contains(errStr, "database is busy") {
+		return ErrConnectionTimeout
 	}
 
 	return err

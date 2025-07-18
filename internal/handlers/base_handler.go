@@ -21,12 +21,12 @@ func (h *BaseHandler) ParseIntParam(c *gin.Context, param string) (int, error) {
 	if str == "" {
 		return 0, NewValidationError("Missing parameter: "+param, nil)
 	}
-	
+
 	value, err := strconv.Atoi(str)
 	if err != nil {
 		return 0, NewValidationError("Invalid parameter: "+param, nil)
 	}
-	
+
 	return value, nil
 }
 
@@ -35,12 +35,12 @@ func (h *BaseHandler) ParseIntQuery(c *gin.Context, query string, defaultValue i
 	if str == "" {
 		return defaultValue
 	}
-	
+
 	value, err := strconv.Atoi(str)
 	if err != nil {
 		return defaultValue
 	}
-	
+
 	return value
 }
 

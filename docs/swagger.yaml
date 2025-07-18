@@ -1,0 +1,1635 @@
+basePath: /api
+definitions:
+  models.Attribute:
+    properties:
+      created_at:
+        type: string
+      description:
+        type: string
+      domain_id:
+        type: integer
+      id:
+        type: integer
+      name:
+        type: string
+      type:
+        $ref: '#/definitions/models.AttributeType'
+    type: object
+  models.AttributeListResponse:
+    properties:
+      attributes:
+        items:
+          $ref: '#/definitions/models.Attribute'
+        type: array
+      domain:
+        $ref: '#/definitions/models.Domain'
+    type: object
+  models.AttributeType:
+    enum:
+    - tag
+    - ordered_tag
+    - number
+    - string
+    - markdown
+    - image
+    type: string
+    x-enum-varnames:
+    - AttributeTypeTag
+    - AttributeTypeOrderedTag
+    - AttributeTypeNumber
+    - AttributeTypeString
+    - AttributeTypeMarkdown
+    - AttributeTypeImage
+  models.BatchMCPNodeRequest:
+    properties:
+      composite_ids:
+        items:
+          type: string
+        type: array
+    required:
+    - composite_ids
+    type: object
+  models.BatchMCPNodeResponse:
+    properties:
+      errors:
+        items:
+          type: string
+        type: array
+      nodes:
+        items:
+          $ref: '#/definitions/models.MCPNode'
+        type: array
+      not_found:
+        items:
+          type: string
+        type: array
+    type: object
+  models.CreateAttributeRequest:
+    properties:
+      description:
+        maxLength: 1000
+        type: string
+      name:
+        maxLength: 255
+        type: string
+      type:
+        $ref: '#/definitions/models.AttributeType'
+    required:
+    - name
+    - type
+    type: object
+  models.CreateDomainRequest:
+    properties:
+      description:
+        maxLength: 1000
+        type: string
+      name:
+        maxLength: 255
+        type: string
+    required:
+    - name
+    type: object
+  models.CreateMCPDomainRequest:
+    properties:
+      description:
+        maxLength: 1000
+        type: string
+      name:
+        maxLength: 255
+        type: string
+    required:
+    - name
+    type: object
+  models.CreateMCPNodeRequest:
+    properties:
+      description:
+        maxLength: 1000
+        type: string
+      domain_name:
+        type: string
+      title:
+        maxLength: 255
+        type: string
+      url:
+        maxLength: 2048
+        type: string
+    required:
+    - domain_name
+    - url
+    type: object
+  models.CreateNodeAttributeRequest:
+    properties:
+      attribute_id:
+        type: integer
+      order_index:
+        type: integer
+      value:
+        maxLength: 2048
+        type: string
+    required:
+    - attribute_id
+    - value
+    type: object
+  models.CreateNodeRequest:
+    properties:
+      description:
+        maxLength: 1000
+        type: string
+      title:
+        maxLength: 255
+        type: string
+      url:
+        maxLength: 2048
+        type: string
+    required:
+    - url
+    type: object
+  models.Domain:
+    properties:
+      created_at:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  models.DomainListResponse:
+    properties:
+      domains:
+        items:
+          $ref: '#/definitions/models.Domain'
+        type: array
+      page:
+        type: integer
+      size:
+        type: integer
+      total_count:
+        type: integer
+      total_pages:
+        type: integer
+    type: object
+  models.FindMCPNodeRequest:
+    properties:
+      domain_name:
+        type: string
+      url:
+        maxLength: 2048
+        type: string
+    required:
+    - domain_name
+    - url
+    type: object
+  models.FindNodeByURLRequest:
+    properties:
+      url:
+        maxLength: 2048
+        type: string
+    required:
+    - url
+    type: object
+  models.MCPAttribute:
+    properties:
+      name:
+        type: string
+      type:
+        type: string
+      value:
+        type: string
+    type: object
+  models.MCPDomain:
+    properties:
+      created_at:
+        type: string
+      description:
+        type: string
+      name:
+        type: string
+      node_count:
+        type: integer
+      updated_at:
+        type: string
+    type: object
+  models.MCPNode:
+    properties:
+      composite_id:
+        type: string
+      created_at:
+        type: string
+      description:
+        type: string
+      domain_name:
+        type: string
+      title:
+        type: string
+      updated_at:
+        type: string
+      url:
+        type: string
+    type: object
+  models.MCPNodeAttributesResponse:
+    properties:
+      attributes:
+        items:
+          $ref: '#/definitions/models.MCPAttribute'
+        type: array
+      composite_id:
+        type: string
+    type: object
+  models.MCPNodeListResponse:
+    properties:
+      nodes:
+        items:
+          $ref: '#/definitions/models.MCPNode'
+        type: array
+      page:
+        type: integer
+      size:
+        type: integer
+      total_count:
+        type: integer
+      total_pages:
+        type: integer
+    type: object
+  models.MCPServerInfo:
+    properties:
+      capabilities:
+        items:
+          type: string
+        type: array
+      composite_key_format:
+        type: string
+      description:
+        type: string
+      name:
+        type: string
+      version:
+        type: string
+    type: object
+  models.Node:
+    properties:
+      content:
+        type: string
+      created_at:
+        type: string
+      description:
+        type: string
+      domain_id:
+        type: integer
+      id:
+        type: integer
+      title:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  models.NodeAttribute:
+    properties:
+      attribute_id:
+        type: integer
+      created_at:
+        type: string
+      id:
+        type: integer
+      node_id:
+        type: integer
+      order_index:
+        type: integer
+      value:
+        type: string
+    type: object
+  models.NodeAttributeListResponse:
+    properties:
+      attributes:
+        description: For backward compatibility
+        items:
+          $ref: '#/definitions/models.NodeAttributeWithInfo'
+        type: array
+      node_attributes:
+        items:
+          $ref: '#/definitions/models.NodeAttributeWithInfo'
+        type: array
+    type: object
+  models.NodeAttributeWithInfo:
+    properties:
+      attribute_id:
+        type: integer
+      created_at:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      node_id:
+        type: integer
+      order_index:
+        type: integer
+      type:
+        $ref: '#/definitions/models.AttributeType'
+      value:
+        type: string
+    type: object
+  models.NodeListResponse:
+    properties:
+      nodes:
+        items:
+          $ref: '#/definitions/models.Node'
+        type: array
+      page:
+        type: integer
+      size:
+        type: integer
+      total_count:
+        type: integer
+      total_pages:
+        type: integer
+    type: object
+  models.SetMCPNodeAttributesRequest:
+    properties:
+      attributes:
+        items:
+          properties:
+            name:
+              type: string
+            value:
+              type: string
+          required:
+          - name
+          - value
+          type: object
+        type: array
+    required:
+    - attributes
+    type: object
+  models.UpdateAttributeRequest:
+    properties:
+      description:
+        maxLength: 1000
+        type: string
+    type: object
+  models.UpdateDomainRequest:
+    properties:
+      description:
+        maxLength: 1000
+        type: string
+    type: object
+  models.UpdateMCPNodeRequest:
+    properties:
+      description:
+        maxLength: 1000
+        type: string
+      title:
+        maxLength: 255
+        type: string
+    type: object
+  models.UpdateNodeAttributeRequest:
+    properties:
+      order_index:
+        type: integer
+      value:
+        maxLength: 2048
+        type: string
+    required:
+    - value
+    type: object
+  models.UpdateNodeRequest:
+    properties:
+      description:
+        maxLength: 1000
+        type: string
+      title:
+        maxLength: 255
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: A URL management system with attribute support and MCP integration.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: URL Database API
+  version: "1.0"
+paths:
+  /attributes/{id}:
+    delete:
+      description: Delete attribute by ID (only if no associated values exist)
+      parameters:
+      - description: Attribute ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "409":
+          description: Conflict
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Delete an attribute
+      tags:
+      - attributes
+    get:
+      description: Get attribute by ID
+      parameters:
+      - description: Attribute ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Attribute'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get an attribute
+      tags:
+      - attributes
+    put:
+      consumes:
+      - application/json
+      description: Update attribute description by ID
+      parameters:
+      - description: Attribute ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Updated attribute data
+        in: body
+        name: attribute
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpdateAttributeRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Attribute'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Update an attribute
+      tags:
+      - attributes
+  /domains:
+    get:
+      description: Get all domains with pagination
+      parameters:
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 20
+        description: Page size
+        in: query
+        name: size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.DomainListResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: List domains
+      tags:
+      - domains
+    post:
+      consumes:
+      - application/json
+      description: Create a new domain with name and description
+      parameters:
+      - description: Domain data
+        in: body
+        name: domain
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreateDomainRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Domain'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "409":
+          description: Conflict
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Create a new domain
+      tags:
+      - domains
+  /domains/{domain_id}/attributes:
+    get:
+      description: Get all attributes for a domain
+      parameters:
+      - description: Domain ID
+        in: path
+        name: domain_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.AttributeListResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: List attributes
+      tags:
+      - attributes
+    post:
+      consumes:
+      - application/json
+      description: Create a new attribute for a domain
+      parameters:
+      - description: Domain ID
+        in: path
+        name: domain_id
+        required: true
+        type: integer
+      - description: Attribute data
+        in: body
+        name: attribute
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreateAttributeRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Attribute'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "409":
+          description: Conflict
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Create a new attribute
+      tags:
+      - attributes
+  /domains/{domain_id}/urls:
+    get:
+      description: Get all nodes in a domain with pagination and optional search
+      parameters:
+      - description: Domain ID
+        in: path
+        name: domain_id
+        required: true
+        type: integer
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 20
+        description: Page size
+        in: query
+        name: size
+        type: integer
+      - description: Search term for URL content
+        in: query
+        name: search
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.NodeListResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get nodes by domain
+      tags:
+      - nodes
+    post:
+      consumes:
+      - application/json
+      description: Create a new URL node in a domain
+      parameters:
+      - description: Domain ID
+        in: path
+        name: domain_id
+        required: true
+        type: integer
+      - description: Node data
+        in: body
+        name: node
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreateNodeRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Node'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "409":
+          description: Conflict
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Create a new URL node
+      tags:
+      - nodes
+  /domains/{domain_id}/urls/find:
+    post:
+      consumes:
+      - application/json
+      description: Find a node by its URL within a domain
+      parameters:
+      - description: Domain ID
+        in: path
+        name: domain_id
+        required: true
+        type: integer
+      - description: URL to search for
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.FindNodeByURLRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Node'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Find node by URL
+      tags:
+      - nodes
+  /domains/{id}:
+    delete:
+      description: Delete domain by ID
+      parameters:
+      - description: Domain ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Delete a domain
+      tags:
+      - domains
+    get:
+      description: Get domain by ID
+      parameters:
+      - description: Domain ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Domain'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get a domain
+      tags:
+      - domains
+    put:
+      consumes:
+      - application/json
+      description: Update domain description by ID
+      parameters:
+      - description: Domain ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Updated domain data
+        in: body
+        name: domain
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpdateDomainRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Domain'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Update a domain
+      tags:
+      - domains
+  /mcp/domains:
+    get:
+      description: Get all domains with their node counts in MCP format
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: List MCP domains
+      tags:
+      - mcp
+    post:
+      consumes:
+      - application/json
+      description: Create a new domain using MCP format
+      parameters:
+      - description: MCP domain data
+        in: body
+        name: domain
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreateMCPDomainRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.MCPDomain'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "409":
+          description: Conflict
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Create a new MCP domain
+      tags:
+      - mcp
+  /mcp/nodes:
+    get:
+      description: Get all MCP nodes with pagination, domain filtering, and search
+      parameters:
+      - description: Filter by domain name
+        in: query
+        name: domain_name
+        type: string
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 20
+        description: Page size (max 100)
+        in: query
+        name: size
+        type: integer
+      - description: Search term for URL content
+        in: query
+        name: search
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.MCPNodeListResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: List MCP nodes
+      tags:
+      - mcp
+    post:
+      consumes:
+      - application/json
+      description: Create a new URL node using MCP composite key format
+      parameters:
+      - description: MCP node data
+        in: body
+        name: node
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreateMCPNodeRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.MCPNode'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "409":
+          description: Conflict
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Create a new MCP node
+      tags:
+      - mcp
+  /mcp/nodes/{composite_id}:
+    delete:
+      description: Delete MCP node by composite ID
+      parameters:
+      - description: Composite ID (domain::url)
+        in: path
+        name: composite_id
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Delete an MCP node
+      tags:
+      - mcp
+    get:
+      description: Get MCP node by composite ID
+      parameters:
+      - description: Composite ID (domain::url)
+        in: path
+        name: composite_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.MCPNode'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get an MCP node
+      tags:
+      - mcp
+    put:
+      consumes:
+      - application/json
+      description: Update MCP node title and description by composite ID
+      parameters:
+      - description: Composite ID (domain::url)
+        in: path
+        name: composite_id
+        required: true
+        type: string
+      - description: Updated MCP node data
+        in: body
+        name: node
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpdateMCPNodeRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.MCPNode'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Update an MCP node
+      tags:
+      - mcp
+  /mcp/nodes/{composite_id}/attributes:
+    get:
+      description: Get all attribute values for an MCP node by composite ID
+      parameters:
+      - description: Composite ID (domain::url)
+        in: path
+        name: composite_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.MCPNodeAttributesResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get MCP node attributes
+      tags:
+      - mcp
+    put:
+      consumes:
+      - application/json
+      description: Set or update attribute values for an MCP node by composite ID
+      parameters:
+      - description: Composite ID (domain::url)
+        in: path
+        name: composite_id
+        required: true
+        type: string
+      - description: Attribute data to set
+        in: body
+        name: attributes
+        required: true
+        schema:
+          $ref: '#/definitions/models.SetMCPNodeAttributesRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.MCPNodeAttributesResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Set MCP node attributes
+      tags:
+      - mcp
+  /mcp/nodes/batch:
+    post:
+      consumes:
+      - application/json
+      description: Get multiple MCP nodes by their composite IDs in a single request
+      parameters:
+      - description: List of composite IDs
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.BatchMCPNodeRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.BatchMCPNodeResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Batch get MCP nodes
+      tags:
+      - mcp
+  /mcp/nodes/find:
+    post:
+      consumes:
+      - application/json
+      description: Find an MCP node by its URL within a domain
+      parameters:
+      - description: Domain and URL to search for
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.FindMCPNodeRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.MCPNode'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Find MCP node by URL
+      tags:
+      - mcp
+  /mcp/server/info:
+    get:
+      description: Get server capabilities and configuration information
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.MCPServerInfo'
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get MCP server information
+      tags:
+      - mcp
+  /url-attributes/{id}:
+    delete:
+      description: Delete a node attribute by ID
+      parameters:
+      - description: Node Attribute ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Delete a node attribute
+      tags:
+      - node-attributes
+    get:
+      description: Get a specific node attribute by ID
+      parameters:
+      - description: Node Attribute ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.NodeAttribute'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get a node attribute
+      tags:
+      - node-attributes
+    put:
+      consumes:
+      - application/json
+      description: Update a node attribute value and order index by ID
+      parameters:
+      - description: Node Attribute ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Updated node attribute data
+        in: body
+        name: attribute
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpdateNodeAttributeRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.NodeAttribute'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "409":
+          description: Conflict
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Update a node attribute
+      tags:
+      - node-attributes
+  /urls/{id}:
+    delete:
+      description: Delete node by ID
+      parameters:
+      - description: Node ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Delete a node
+      tags:
+      - nodes
+    get:
+      description: Get node by ID
+      parameters:
+      - description: Node ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Node'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get a node
+      tags:
+      - nodes
+    put:
+      consumes:
+      - application/json
+      description: Update node title and description by ID
+      parameters:
+      - description: Node ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Updated node data
+        in: body
+        name: node
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpdateNodeRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Node'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Update a node
+      tags:
+      - nodes
+  /urls/{url_id}/attributes:
+    get:
+      description: Get all attribute values for a URL node
+      parameters:
+      - description: URL Node ID
+        in: path
+        name: url_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.NodeAttributeListResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get node attributes
+      tags:
+      - node-attributes
+    post:
+      consumes:
+      - application/json
+      description: Create a new attribute value for a URL node
+      parameters:
+      - description: URL Node ID
+        in: path
+        name: url_id
+        required: true
+        type: integer
+      - description: Node attribute data
+        in: body
+        name: attribute
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreateNodeAttributeRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.NodeAttribute'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "409":
+          description: Conflict
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Create a node attribute
+      tags:
+      - node-attributes
+  /urls/{url_id}/attributes/{attribute_id}:
+    delete:
+      description: Delete a specific node attribute by URL node ID and attribute ID
+      parameters:
+      - description: URL Node ID
+        in: path
+        name: url_id
+        required: true
+        type: integer
+      - description: Attribute ID
+        in: path
+        name: attribute_id
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Delete a node attribute by node and attribute ID
+      tags:
+      - node-attributes
+securityDefinitions:
+  BasicAuth:
+    type: basic
+swagger: "2.0"

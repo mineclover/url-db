@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/url-db/internal/models"
+	"url-db/internal/models"
 )
 
 type MCPService interface {
@@ -15,13 +15,13 @@ type MCPService interface {
 	ListNodes(ctx context.Context, domainName string, page, size int, search string) (*models.MCPNodeListResponse, error)
 	FindNodeByURL(ctx context.Context, req *models.FindMCPNodeRequest) (*models.MCPNode, error)
 	BatchGetNodes(ctx context.Context, req *models.BatchMCPNodeRequest) (*models.BatchMCPNodeResponse, error)
-	
+
 	ListDomains(ctx context.Context) (*MCPDomainListResponse, error)
 	CreateDomain(ctx context.Context, req *models.CreateDomainRequest) (*MCPDomain, error)
-	
+
 	GetNodeAttributes(ctx context.Context, compositeID string) (*models.MCPNodeAttributeResponse, error)
 	SetNodeAttributes(ctx context.Context, compositeID string, req *models.SetMCPNodeAttributesRequest) (*models.MCPNodeAttributeResponse, error)
-	
+
 	GetServerInfo(ctx context.Context) (*MCPServerInfo, error)
 }
 
@@ -55,11 +55,11 @@ type NodeCountService interface {
 }
 
 type mcpService struct {
-	nodeService     NodeService
-	domainService   DomainService
+	nodeService      NodeService
+	domainService    DomainService
 	attributeService AttributeService
 	nodeCountService NodeCountService
-	converter       *Converter
+	converter        *Converter
 }
 
 func NewMCPService(
@@ -70,11 +70,11 @@ func NewMCPService(
 	converter *Converter,
 ) MCPService {
 	return &mcpService{
-		nodeService:     nodeService,
-		domainService:   domainService,
+		nodeService:      nodeService,
+		domainService:    domainService,
 		attributeService: attributeService,
 		nodeCountService: nodeCountService,
-		converter:       converter,
+		converter:        converter,
 	}
 }
 

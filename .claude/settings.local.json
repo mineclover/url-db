@@ -25,7 +25,22 @@
       "Bash(git branch:*)",
       "Bash(go mod:*)",
       "Bash(find:*)",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "Bash(go:*)",
+      "Bash(echo $GOPATH)",
+      "Bash(echo $GOROOT)",
+      "Bash(echo $PATH)",
+      "Bash(brew install:*)",
+      "Bash(make:*)",
+      "Bash(pkill:*)",
+      "Bash(timeout:*)",
+      "Bash(curl:*)",
+      "Bash(./url-db --version)",
+      "Bash(true)",
+      "Bash(air:*)",
+      "Bash(git commit:*)",
+      "Bash(./url-db:*)",
+      "Bash(killall:*)"
     ],
     "deny": []
   }

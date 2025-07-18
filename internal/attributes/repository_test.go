@@ -6,11 +6,11 @@ import (
 	"testing"
 	"time"
 
+	_ "github.com/mattn/go-sqlite3"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	_ "github.com/mattn/go-sqlite3"
 
-	"github.com/url-db/internal/models"
+	"url-db/internal/models"
 )
 
 func setupTestDB(t *testing.T) *sql.DB {

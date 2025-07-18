@@ -5,7 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 
-	"github.com/url-db/internal/models"
+	"url-db/internal/models"
 )
 
 // AttributeRepository defines the interface for attribute data access
@@ -35,7 +35,7 @@ func (r *SQLiteAttributeRepository) Create(ctx context.Context, attribute *model
 		INSERT INTO attributes (domain_id, name, type, description, created_at)
 		VALUES (?, ?, ?, ?, ?)
 	`
-	
+
 	result, err := r.db.ExecContext(ctx, query,
 		attribute.DomainID,
 		attribute.Name,
@@ -63,7 +63,7 @@ func (r *SQLiteAttributeRepository) GetByID(ctx context.Context, id int) (*model
 		FROM attributes
 		WHERE id = ?
 	`
-	
+
 	attribute := &models.Attribute{}
 	err := r.db.QueryRowContext(ctx, query, id).Scan(
 		&attribute.ID,
@@ -91,7 +91,7 @@ func (r *SQLiteAttributeRepository) GetByDomainID(ctx context.Context, domainID 
 		WHERE domain_id = ?
 		ORDER BY name
 	`
-	
+
 	rows, err := r.db.QueryContext(ctx, query, domainID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get attributes by domain id: %w", err)
@@ -129,7 +129,7 @@ func (r *SQLiteAttributeRepository) GetByDomainIDAndName(ctx context.Context, do
 		FROM attributes
 		WHERE domain_id = ? AND name = ?
 	`
-	
+
 	attribute := &models.Attribute{}
 	err := r.db.QueryRowContext(ctx, query, domainID, name).Scan(
 		&attribute.ID,
@@ -156,7 +156,7 @@ func (r *SQLiteAttributeRepository) Update(ctx context.Context, attribute *model
 		SET description = ?
 		WHERE id = ?
 	`
-	
+
 	result, err := r.db.ExecContext(ctx, query, attribute.Description, attribute.ID)
 	if err != nil {
 		return fmt.Errorf("failed to update attribute: %w", err)
@@ -177,7 +177,7 @@ func (r *SQLiteAttributeRepository) Update(ctx context.Context, attribute *model
 // Delete deletes an attribute
 func (r *SQLiteAttributeRepository) Delete(ctx context.Context, id int) error {
 	query := `DELETE FROM attributes WHERE id = ?`
-	
+
 	result, err := r.db.ExecContext(ctx, query, id)
 	if err != nil {
 		return fmt.Errorf("failed to delete attribute: %w", err)
@@ -198,7 +198,7 @@ func (r *SQLiteAttributeRepository) Delete(ctx context.Context, id int) error {
 // HasValues checks if an attribute has any values
 func (r *SQLiteAttributeRepository) HasValues(ctx context.Context, attributeID int) (bool, error) {
 	query := `SELECT COUNT(*) FROM node_attributes WHERE attribute_id = ?`
-	
+
 	var count int
 	err := r.db.QueryRowContext(ctx, query, attributeID).Scan(&count)
 	if err != nil {

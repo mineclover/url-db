@@ -81,12 +81,12 @@ func (mm *MetadataManager) GetDetailedServerInfo(ctx context.Context) (*Detailed
 			"set_node_attributes",
 		},
 		Limits: ServerLimits{
-			MaxBatchSize:        100,
-			MaxPageSize:         100,
-			MaxURLLength:        2048,
-			MaxTitleLength:      255,
-			MaxDescriptionLength: 1000,
-			MaxDomainNameLength: 50,
+			MaxBatchSize:            100,
+			MaxPageSize:             100,
+			MaxURLLength:            2048,
+			MaxTitleLength:          255,
+			MaxDescriptionLength:    1000,
+			MaxDomainNameLength:     50,
 			MaxAttributeValueLength: 2048,
 		},
 	}, nil
@@ -262,18 +262,18 @@ func getStartTime() time.Time {
 }
 
 type DetailedServerInfo struct {
-	Name                string           `json:"name"`
-	Version             string           `json:"version"`
-	Description         string           `json:"description"`
-	BuildTime           string           `json:"build_time"`
-	GitCommit           string           `json:"git_commit"`
-	Environment         string           `json:"environment"`
-	GoVersion           string           `json:"go_version"`
-	Platform            string           `json:"platform"`
-	CompositeKeyFormat  string           `json:"composite_key_format"`
-	Capabilities        []string         `json:"capabilities"`
-	SupportedOperations []string         `json:"supported_operations"`
-	Limits              ServerLimits     `json:"limits"`
+	Name                string       `json:"name"`
+	Version             string       `json:"version"`
+	Description         string       `json:"description"`
+	BuildTime           string       `json:"build_time"`
+	GitCommit           string       `json:"git_commit"`
+	Environment         string       `json:"environment"`
+	GoVersion           string       `json:"go_version"`
+	Platform            string       `json:"platform"`
+	CompositeKeyFormat  string       `json:"composite_key_format"`
+	Capabilities        []string     `json:"capabilities"`
+	SupportedOperations []string     `json:"supported_operations"`
+	Limits              ServerLimits `json:"limits"`
 }
 
 type ServerLimits struct {
@@ -331,9 +331,9 @@ type APIPath struct {
 }
 
 type APIOperation struct {
-	Summary     string         `json:"summary"`
-	Description string         `json:"description"`
-	Parameters  []APIParameter `json:"parameters,omitempty"`
+	Summary     string          `json:"summary"`
+	Description string          `json:"description"`
+	Parameters  []APIParameter  `json:"parameters,omitempty"`
 	RequestBody *APIRequestBody `json:"requestBody,omitempty"`
 }
 
@@ -355,11 +355,11 @@ type APIMediaType struct {
 }
 
 type APISchema struct {
-	Type        string                `json:"type"`
+	Type        string               `json:"type"`
 	Properties  map[string]APISchema `json:"properties,omitempty"`
-	Required    []string              `json:"required,omitempty"`
-	Description string                `json:"description,omitempty"`
-	Default     interface{}           `json:"default,omitempty"`
+	Required    []string             `json:"required,omitempty"`
+	Description string               `json:"description,omitempty"`
+	Default     interface{}          `json:"default,omitempty"`
 }
 
 type ServerStatistics struct {

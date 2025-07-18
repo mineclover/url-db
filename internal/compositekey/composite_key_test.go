@@ -104,12 +104,12 @@ func TestParse(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			result, err := Parse(tt.compositeKey)
-			
+
 			if tt.expectError {
 				assert.Error(t, err)
 				return
 			}
-			
+
 			require.NoError(t, err)
 			assert.Equal(t, tt.expectedResult, result)
 		})
@@ -158,7 +158,7 @@ func TestCompositeKeyString(t *testing.T) {
 		DomainName: "tech-articles",
 		ID:         123,
 	}
-	
+
 	expected := "url-db:tech-articles:123"
 	assert.Equal(t, expected, ck.String())
 }

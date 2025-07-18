@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/url-db/internal/models"
+	"url-db/internal/models"
 )
 
 type AttributeManager struct {
@@ -384,7 +384,7 @@ type AddAttributeRequest struct {
 }
 
 type BatchAttributeRequest struct {
-	CompositeID       string                                `json:"composite_id"`
+	CompositeID       string                             `json:"composite_id"`
 	AttributesRequest models.SetMCPNodeAttributesRequest `json:"attributes_request"`
 }
 
@@ -404,9 +404,9 @@ type BatchAttributeFailure struct {
 }
 
 type AttributeFilter struct {
-	Name  string                `json:"name,omitempty"`
+	Name  string               `json:"name,omitempty"`
 	Type  models.AttributeType `json:"type,omitempty"`
-	Value string                `json:"value,omitempty"`
+	Value string               `json:"value,omitempty"`
 }
 
 type AttributeStats struct {

@@ -28,3 +28,21 @@ type DomainListResponse struct {
 	Size       int      `json:"size"`
 	TotalPages int      `json:"total_pages"`
 }
+
+// MCP-specific domain models
+type MCPDomain struct {
+	Name        string    `json:"name"`
+	Description string    `json:"description"`
+	NodeCount   int       `json:"node_count"`
+	CreatedAt   time.Time `json:"created_at"`
+	UpdatedAt   time.Time `json:"updated_at"`
+}
+
+type CreateMCPDomainRequest struct {
+	Name        string `json:"name" binding:"required,max=255"`
+	Description string `json:"description" binding:"max=1000"`
+}
+
+type MCPDomainListResponse struct {
+	Domains []MCPDomain `json:"domains"`
+}

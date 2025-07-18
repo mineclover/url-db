@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"internal/models"
+	"url-db/internal/models"
 )
 
 func TestValidator_ValidateValue(t *testing.T) {
@@ -190,7 +190,7 @@ func TestValidator_ValidateOrderIndex(t *testing.T) {
 
 	t.Run("other types don't allow order index", func(t *testing.T) {
 		orderIndex := 1
-		
+
 		types := []models.AttributeType{
 			models.AttributeTypeTag,
 			models.AttributeTypeNumber,

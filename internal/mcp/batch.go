@@ -5,7 +5,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/url-db/internal/models"
+	"url-db/internal/models"
 )
 
 type BatchProcessor struct {
@@ -280,7 +280,7 @@ type BatchCreateResult struct {
 }
 
 type BatchCreateResponse struct {
-	Nodes  []models.MCPNode      `json:"nodes"`
+	Nodes  []models.MCPNode     `json:"nodes"`
 	Failed []BatchCreateFailure `json:"failed"`
 }
 
@@ -290,7 +290,7 @@ type BatchCreateFailure struct {
 }
 
 type BatchUpdateRequest struct {
-	CompositeID   string                    `json:"composite_id"`
+	CompositeID   string                   `json:"composite_id"`
 	UpdateRequest models.UpdateNodeRequest `json:"update_request"`
 }
 
@@ -301,7 +301,7 @@ type BatchUpdateResult struct {
 }
 
 type BatchUpdateResponse struct {
-	Nodes  []models.MCPNode      `json:"nodes"`
+	Nodes  []models.MCPNode     `json:"nodes"`
 	Failed []BatchUpdateFailure `json:"failed"`
 }
 
@@ -315,7 +315,7 @@ type BatchDeleteRequest struct {
 }
 
 type BatchDeleteResponse struct {
-	Deleted []string              `json:"deleted"`
+	Deleted []string             `json:"deleted"`
 	Failed  []BatchDeleteFailure `json:"failed"`
 }
 
