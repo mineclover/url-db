@@ -51,7 +51,29 @@ bin\url-db.exe -mcp-mode=sse
 
 ## Claude Desktop과의 연결
 
-### 1. Claude Desktop 설정 파일 위치
+### 1. Claude MCP 명령어 방식 (권장)
+
+가장 간단한 방법은 Claude MCP 명령어를 사용하는 것입니다:
+
+```bash
+# 기본 설정
+claude mcp add url-db /path/to/url-db/bin/url-db --args="-mcp-mode=stdio"
+
+# 환경변수 포함 설정
+claude mcp add url-db /path/to/url-db/bin/url-db \
+  --args="-mcp-mode=stdio" \
+  --env="DATABASE_URL=file:/path/to/url-db/url-db.db" \
+  --env="TOOL_NAME=url-db"
+
+# 현재 프로젝트 경로 예시
+claude mcp add url-db /Users/junwoobang/mcp/url-db/bin/url-db \
+  --args="-mcp-mode=stdio" \
+  --env="DATABASE_URL=file:/Users/junwoobang/mcp/url-db/url-db.db"
+```
+
+### 2. 수동 설정 파일 편집 방식
+
+#### 설정 파일 위치
 ```bash
 # macOS
 ~/Library/Application Support/Claude/claude_desktop_config.json
@@ -63,7 +85,7 @@ bin\url-db.exe -mcp-mode=sse
 ~/.config/Claude/claude_desktop_config.json
 ```
 
-### 2. stdio 모드 설정 (권장)
+#### stdio 모드 설정
 ```json
 {
   "mcpServers": {
@@ -79,7 +101,7 @@ bin\url-db.exe -mcp-mode=sse
 }
 ```
 
-### 3. SSE 모드 설정
+#### SSE 모드 설정
 ```json
 {
   "mcpServers": {
@@ -113,6 +135,23 @@ bin\url-db.exe -mcp-mode=sse
 ```
 
 ### 2. 다중 인스턴스 설정
+
+#### Claude MCP 명령어 방식
+```bash
+# 개인용 인스턴스
+claude mcp add url-db-personal /path/to/url-db/bin/url-db \
+  --args="-mcp-mode=stdio" \
+  --env="DATABASE_URL=file:/path/to/personal/url-db.db" \
+  --env="TOOL_NAME=personal-db"
+
+# 업무용 인스턴스
+claude mcp add url-db-work /path/to/url-db/bin/url-db \
+  --args="-mcp-mode=stdio" \
+  --env="DATABASE_URL=file:/path/to/work/url-db.db" \
+  --env="TOOL_NAME=work-db"
+```
+
+#### 수동 설정 파일 방식
 ```json
 {
   "mcpServers": {
@@ -234,6 +273,31 @@ if __name__ == "__main__":
 ```
 url-db:tech-articles:123
 my-db:bookmarks:456
+```
+
+## 빠른 시작 가이드
+
+### 1. 설정 명령어 (권장)
+```bash
+# 1단계: URL-DB 빌드
+cd /path/to/url-db
+./build.sh
+
+# 2단계: Claude MCP에 추가
+claude mcp add url-db /path/to/url-db/bin/url-db \
+  --args="-mcp-mode=stdio" \
+  --env="DATABASE_URL=file:/path/to/url-db/url-db.db"
+
+# 3단계: Claude Desktop 재시작
+```
+
+### 2. 확인 방법
+```bash
+# 등록된 MCP 서버 확인
+claude mcp list
+
+# 특정 서버 삭제 (필요시)
+claude mcp remove url-db
 ```
 
 ## 사용 예시
