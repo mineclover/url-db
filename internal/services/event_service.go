@@ -11,13 +11,13 @@ import (
 // EventService handles business logic for events
 type EventService struct {
 	eventRepo *repositories.EventRepository
-	nodeRepo  *repositories.NodeRepository
+	nodeRepo  repositories.NodeRepository
 }
 
 // NewEventService creates a new event service
 func NewEventService(
 	eventRepo *repositories.EventRepository,
-	nodeRepo *repositories.NodeRepository,
+	nodeRepo repositories.NodeRepository,
 ) *EventService {
 	return &EventService{
 		eventRepo: eventRepo,
@@ -28,7 +28,7 @@ func NewEventService(
 // GetNodeEvents retrieves events for a specific node
 func (s *EventService) GetNodeEvents(nodeID int64, limit int) ([]*models.NodeEvent, error) {
 	// Verify node exists
-	node, err := s.nodeRepo.GetByID(nodeID)
+	node, err := s.nodeRepo.GetByID(int(nodeID))
 	if err != nil {
 		return nil, fmt.Errorf("failed to get node: %w", err)
 	}
@@ -97,7 +97,7 @@ func (s *EventService) GetEventStats() (map[string]interface{}, error) {
 // CreateNodeEvent creates a new event for a node
 func (s *EventService) CreateNodeEvent(nodeID int64, eventType string, changes *models.EventChanges) error {
 	// Verify node exists
-	node, err := s.nodeRepo.GetByID(nodeID)
+	node, err := s.nodeRepo.GetByID(int(nodeID))
 	if err != nil {
 		return fmt.Errorf("failed to get node: %w", err)
 	}

@@ -10,14 +10,14 @@ import (
 // SubscriptionService handles business logic for subscriptions
 type SubscriptionService struct {
 	subscriptionRepo *repositories.SubscriptionRepository
-	nodeRepo         *repositories.NodeRepository
+	nodeRepo         repositories.NodeRepository
 	eventRepo        *repositories.EventRepository
 }
 
 // NewSubscriptionService creates a new subscription service
 func NewSubscriptionService(
 	subscriptionRepo *repositories.SubscriptionRepository,
-	nodeRepo *repositories.NodeRepository,
+	nodeRepo repositories.NodeRepository,
 	eventRepo *repositories.EventRepository,
 ) *SubscriptionService {
 	return &SubscriptionService{
@@ -30,7 +30,7 @@ func NewSubscriptionService(
 // CreateSubscription creates a new subscription
 func (s *SubscriptionService) CreateSubscription(nodeID int64, req *models.CreateNodeSubscriptionRequest) (*models.NodeSubscription, error) {
 	// Verify node exists
-	node, err := s.nodeRepo.GetByID(nodeID)
+	node, err := s.nodeRepo.GetByID(int(nodeID))
 	if err != nil {
 		return nil, fmt.Errorf("failed to get node: %w", err)
 	}
@@ -122,7 +122,7 @@ func (s *SubscriptionService) DeleteSubscription(id int64) error {
 // GetNodeSubscriptions retrieves all subscriptions for a node
 func (s *SubscriptionService) GetNodeSubscriptions(nodeID int64) ([]*models.NodeSubscription, error) {
 	// Verify node exists
-	node, err := s.nodeRepo.GetByID(nodeID)
+	node, err := s.nodeRepo.GetByID(int(nodeID))
 	if err != nil {
 		return nil, fmt.Errorf("failed to get node: %w", err)
 	}

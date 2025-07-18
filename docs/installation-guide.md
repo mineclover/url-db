@@ -3,6 +3,11 @@
 ## 개요
 URL-DB는 Go로 작성된 URL 관리 시스템으로, 속성 기반 태깅과 외부 종속성 관리를 지원합니다.
 
+## 최신 업데이트 (2025년 7월 18일)
+- 빌드 에러 수정: `internal/services` 패키지의 인터페이스 포인터 문제 해결
+- MCP 서버가 Claude Desktop에 등록 가능
+- JSON-RPC 프로토콜 지원은 아직 미구현 ([작업 문서](tasks/mcp-jsonrpc-implementation.md) 참조)
+
 ## 시스템 요구사항
 
 ### 최소 요구사항

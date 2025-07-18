@@ -10,14 +10,14 @@ import (
 // DependencyService handles business logic for dependencies
 type DependencyService struct {
 	dependencyRepo *repositories.DependencyRepository
-	nodeRepo       *repositories.NodeRepository
+	nodeRepo       repositories.NodeRepository
 	eventRepo      *repositories.EventRepository
 }
 
 // NewDependencyService creates a new dependency service
 func NewDependencyService(
 	dependencyRepo *repositories.DependencyRepository,
-	nodeRepo *repositories.NodeRepository,
+	nodeRepo repositories.NodeRepository,
 	eventRepo *repositories.EventRepository,
 ) *DependencyService {
 	return &DependencyService{
@@ -30,7 +30,7 @@ func NewDependencyService(
 // CreateDependency creates a new dependency
 func (s *DependencyService) CreateDependency(dependentNodeID int64, req *models.CreateNodeDependencyRequest) (*models.NodeDependency, error) {
 	// Verify both nodes exist
-	dependentNode, err := s.nodeRepo.GetByID(dependentNodeID)
+	dependentNode, err := s.nodeRepo.GetByID(int(dependentNodeID))
 	if err != nil {
 		return nil, fmt.Errorf("failed to get dependent node: %w", err)
 	}
@@ -38,7 +38,7 @@ func (s *DependencyService) CreateDependency(dependentNodeID int64, req *models.
 		return nil, fmt.Errorf("dependent node not found")
 	}
 	
-	dependencyNode, err := s.nodeRepo.GetByID(req.DependencyNodeID)
+	dependencyNode, err := s.nodeRepo.GetByID(int(req.DependencyNodeID))
 	if err != nil {
 		return nil, fmt.Errorf("failed to get dependency node: %w", err)
 	}
@@ -99,7 +99,7 @@ func (s *DependencyService) DeleteDependency(id int64) error {
 // GetNodeDependencies retrieves all dependencies for a node (as dependent)
 func (s *DependencyService) GetNodeDependencies(nodeID int64) ([]*models.NodeDependency, error) {
 	// Verify node exists
-	node, err := s.nodeRepo.GetByID(nodeID)
+	node, err := s.nodeRepo.GetByID(int(nodeID))
 	if err != nil {
 		return nil, fmt.Errorf("failed to get node: %w", err)
 	}
@@ -113,7 +113,7 @@ func (s *DependencyService) GetNodeDependencies(nodeID int64) ([]*models.NodeDep
 // GetNodeDependents retrieves all nodes that depend on a given node
 func (s *DependencyService) GetNodeDependents(nodeID int64) ([]*models.NodeDependency, error) {
 	// Verify node exists
-	node, err := s.nodeRepo.GetByID(nodeID)
+	node, err := s.nodeRepo.GetByID(int(nodeID))
 	if err != nil {
 		return nil, fmt.Errorf("failed to get node: %w", err)
 	}
@@ -134,7 +134,7 @@ func (s *DependencyService) HandleNodeDeletion(nodeID int64) error {
 	
 	// Delete each dependent node (this will trigger their own cascades)
 	for _, depID := range dependentIDs {
-		err = s.nodeRepo.Delete(depID)
+		err = s.nodeRepo.Delete(int(depID))
 		if err != nil {
 			return fmt.Errorf("failed to delete dependent node %d: %w", depID, err)
 		}

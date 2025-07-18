@@ -42,7 +42,16 @@
       "Bash(./url-db:*)",
       "Bash(killall:*)",
       "Bash(chmod:*)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "WebFetch(domain:docs.anthropic.com)",
+      "Bash(~/mcp/url-db/url-db --help)",
+      "Bash(~/mcp/url-db/url-db --mcp)",
+      "Bash(claude mcp add:*)",
+      "Bash(claude mcp:*)",
+      "Bash(/Users/junwoobang/mcp/url-db/url-db --help)",
+      "Bash(/Users/junwoobang/mcp/url-db/url-db:*)",
+      "Bash(kill:*)",
+      "Bash(./build.sh)"
     ],
     "deny": []
   }

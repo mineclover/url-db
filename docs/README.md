@@ -70,6 +70,9 @@ MCP (Model Context Protocol) 서버 지원으로 AI 모델과의 통합이 가�
 - [installation-guide.md](installation-guide.md) - **설치 가이드 (새로운 기능)**
 - [mcp-server-setup-guide.md](mcp-server-setup-guide.md) - **MCP 서버 설정 가이드 (새로운 기능)**
 
+## 개발 작업
+- [tasks/mcp-jsonrpc-implementation.md](tasks/mcp-jsonrpc-implementation.md) - **MCP JSON-RPC 구현 작업 (진행 중)**
+
 ## 시작하기
 
 ### 1. 기본 사용법

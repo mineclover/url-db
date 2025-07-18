@@ -292,15 +292,19 @@ cd /path/to/url-db
 
 # 2단계: Claude MCP에 추가 (다음 두 방법 중 하나 사용)
 # 방법 1: 환경변수 사용
-claude mcp add url-db /path/to/url-db/url-db \
+claude mcp add url-db /path/to/url-db/bin/url-db \
   --args="-mcp-mode=stdio" \
-  --env="DATABASE_URL=file:/path/to/url-db/url-db.db"
+  --env="DATABASE_URL=file:/path/to/url-db/url-db.sqlite"
 
 # 방법 2: CLI 인자로 직접 전달 (권장)
-claude mcp add url-db -- /path/to/url-db/url-db -mcp-mode=stdio DATABASE_URL=file:/path/to/url-db/url-db.db
+claude mcp add url-db -- /path/to/url-db/bin/url-db -mcp-mode=stdio DATABASE_URL=file:/path/to/url-db/url-db.sqlite
 
 # 3단계: Claude Desktop 재시작
 ```
+
+### 주의사항
+- **현재 상태**: MCP stdio 서버는 JSON-RPC 프로토콜을 아직 지원하지 않습니다.
+- **진행 중**: JSON-RPC 2.0 구현 작업이 진행 중입니다. ([작업 문서](tasks/mcp-jsonrpc-implementation.md) 참조)
 
 ### 2. 확인 방법
 ```bash
