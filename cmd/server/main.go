@@ -18,6 +18,7 @@ import (
 	"url-db/internal/nodeattributes"
 	"url-db/internal/nodes"
 	"url-db/internal/repositories"
+	"url-db/internal/services"
 
 	"github.com/gin-gonic/gin"
 	"github.com/jmoiron/sqlx"
@@ -101,6 +102,11 @@ func main() {
 
 	// Use the repositories package for MCP service dependencies
 	repos := repositories.NewRepositories(sqlDB)
+	
+	// Initialize external dependency repositories
+	subscriptionRepo := repositories.NewSubscriptionRepository(sqlxDB)
+	dependencyRepo := repositories.NewDependencyRepository(sqlxDB)
+	eventRepo := repositories.NewEventRepository(sqlxDB)
 
 	// Initialize services
 	domainService := domains.NewDomainService(domainRepo)
@@ -111,6 +117,11 @@ func main() {
 	nodeAttributeValidator := nodeattributes.NewValidator()
 	nodeAttributeOrderManager := nodeattributes.NewOrderManager(nodeAttributeRepo)
 	nodeAttributeService := nodeattributes.NewService(nodeAttributeRepo, nodeAttributeValidator, nodeAttributeOrderManager)
+	
+	// Initialize external dependency services
+	subscriptionService := services.NewSubscriptionService(subscriptionRepo, repos.Node, eventRepo)
+	dependencyService := services.NewDependencyService(dependencyRepo, repos.Node, eventRepo)
+	eventService := services.NewEventService(eventRepo, repos.Node)
 
 	// Create adapter services for MCP
 	mcpDomainService := &mcpDomainServiceAdapter{domainService: domainService, domainRepo: domainRepo}
@@ -133,6 +144,11 @@ func main() {
 	nodeHandler := nodes.NewNodeHandler(nodeService)
 	attributeHandler := attributes.NewAttributeHandler(attributeService)
 	nodeAttributeHandler := nodeattributes.NewHandler(nodeAttributeService)
+	
+	// Initialize external dependency handlers
+	subscriptionHandler := handlers.NewSubscriptionHandler(subscriptionService)
+	dependencyHandler := handlers.NewDependencyHandler(dependencyService)
+	eventHandler := handlers.NewEventHandler(eventService)
 
 	// Create MCP handler with service adapter
 	mcpHandlerService := &mcpHandlerServiceAdapter{mcpService: mcpService}
@@ -234,6 +250,30 @@ func main() {
 		}
 		nodeAttributeHandler.DeleteNodeAttributeByNodeIDAndAttributeID(c)
 	})
+
+	// External dependency routes
+	// Subscription routes
+	api.POST("/nodes/:nodeId/subscriptions", subscriptionHandler.CreateSubscription)
+	api.GET("/nodes/:nodeId/subscriptions", subscriptionHandler.GetNodeSubscriptions)
+	api.GET("/subscriptions", subscriptionHandler.GetServiceSubscriptions)
+	api.GET("/subscriptions/:id", subscriptionHandler.GetSubscription)
+	api.PUT("/subscriptions/:id", subscriptionHandler.UpdateSubscription)
+	api.DELETE("/subscriptions/:id", subscriptionHandler.DeleteSubscription)
+
+	// Dependency routes
+	api.POST("/nodes/:nodeId/dependencies", dependencyHandler.CreateDependency)
+	api.GET("/nodes/:nodeId/dependencies", dependencyHandler.GetNodeDependencies)
+	api.GET("/nodes/:nodeId/dependents", dependencyHandler.GetNodeDependents)
+	api.GET("/dependencies/:id", dependencyHandler.GetDependency)
+	api.DELETE("/dependencies/:id", dependencyHandler.DeleteDependency)
+
+	// Event routes
+	api.GET("/nodes/:nodeId/events", eventHandler.GetNodeEvents)
+	api.GET("/events/pending", eventHandler.GetPendingEvents)
+	api.GET("/events", eventHandler.GetEventsByType)
+	api.GET("/events/stats", eventHandler.GetEventStats)
+	api.POST("/events/:eventId/process", eventHandler.ProcessEvent)
+	api.POST("/events/cleanup", eventHandler.CleanupEvents)
 
 	// Handle different MCP modes
 	switch *mcpMode {

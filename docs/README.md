@@ -29,6 +29,12 @@ MCP (Model Context Protocol) 서버 지원으로 AI 모델과의 통합이 가�
 - 표준 MCP 프로토콜 준수
 - 배치 처리 및 메타데이터 API 제공
 
+### 🔗 외부 종속성 관리 *(새로운 기능)*
+- 노드 간 종속성 관계 추적
+- 이벤트 기반 구독 시스템
+- 계층적 종속성 및 순환 참조 방지
+- 자동 캐스케이딩 업데이트/삭제
+
 ## 문서 구조
 
 ### API 문서 (`api/`)
@@ -38,6 +44,7 @@ MCP (Model Context Protocol) 서버 지원으로 AI 모델과의 통합이 가�
 - [04-url-attribute-api.md](api/04-url-attribute-api.md) - 노드 속성 값 관리 API
 - [05-url-attribute-validation-api.md](api/05-url-attribute-validation-api.md) - 노드 속성 확인 API
 - [06-mcp-api.md](api/06-mcp-api.md) - **MCP 서버 API (새로운 기능)**
+- [07-external-dependency-api.md](api/07-external-dependency-api.md) - **외부 종속성 관리 API (새로운 기능)**
 
 ### 스펙 문서 (`spec/`)
 - [error-codes.md](spec/error-codes.md) - 에러 코드 정의
@@ -46,6 +53,7 @@ MCP (Model Context Protocol) 서버 지원으로 AI 모델과의 통합이 가�
 - [attribute-errors.md](spec/attribute-errors.md) - 속성 관련 에러
 - [node-errors.md](spec/node-errors.md) - 노드 관련 에러
 - [node-attribute-errors.md](spec/node-attribute-errors.md) - 노드 속성 관련 에러
+- [external-dependency.md](spec/external-dependency.md) - **외부 종속성 관리 스펙 (새로운 기능)**
 
 ### 속성 타입 스펙 (`spec/attribute-types/`)
 - [tag.md](spec/attribute-types/tag.md) - 일반 태그
@@ -57,6 +65,9 @@ MCP (Model Context Protocol) 서버 지원으로 AI 모델과의 통합이 가�
 
 ## 데이터베이스 스키마
 - [schema.sql](../schema.sql) - SQLite 데이터베이스 스키마
+
+## 설치 및 시작하기
+- [installation-guide.md](installation-guide.md) - **설치 가이드 (새로운 기능)**
 
 ## 시작하기
 

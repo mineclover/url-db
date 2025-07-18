@@ -41,7 +41,8 @@
       "Bash(git commit:*)",
       "Bash(./url-db:*)",
       "Bash(killall:*)",
-      "Bash(chmod:*)"
+      "Bash(chmod:*)",
+      "Bash(git push:*)"
     ],
     "deny": []
   }
