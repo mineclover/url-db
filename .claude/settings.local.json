@@ -68,7 +68,8 @@
       "Bash(python run_tests.py:*)",
       "Bash(python scripts/generate-tool-constants.py:*)",
       "Bash(python test:*)",
-      "Bash(python:*)"
+      "Bash(python:*)",
+      "Bash(git reset:*)"
     ],
     "deny": []
   }

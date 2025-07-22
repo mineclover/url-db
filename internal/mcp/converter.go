@@ -39,7 +39,7 @@ func (c *Converter) ParseCompositeID(compositeID string) (string, string, string
 	if err != nil {
 		return "", "", "", err
 	}
-	
+
 	return compositeKey.ToolName, compositeKey.DomainName, strconv.Itoa(compositeKey.ID), nil
 }
 

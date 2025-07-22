@@ -278,16 +278,15 @@ func (s *mcpService) SetNodeAttributes(ctx context.Context, compositeID string, 
 		return err
 	}
 
-	for _, attr := range req.Attributes {
-		// TODO: Need to implement logic to find or create attribute by name
-		// For now, this is a placeholder implementation
-		s.logger.Printf("Setting attribute %s=%s for node %d", attr.Name, attr.Value, ck.ID)
-		// The actual implementation would need to:
-		// 1. Find the attribute by name in the domain
-		// 2. Create a NodeAttribute with the found attribute ID
-	}
+	// SetNodeAttributes functionality is not yet implemented
+	// This would require:
+	// 1. Finding or creating attribute definitions in the domain
+	// 2. Creating node_attribute entries with the found attribute IDs
+	// 3. Handling validation and type checking
+	s.logger.Printf("SetNodeAttributes called for node %d with %d attributes (not implemented)",
+		ck.ID, len(req.Attributes))
 
-	return nil
+	return fmt.Errorf("SetNodeAttributes is not yet implemented")
 }
 
 func (s *mcpService) GetServerInfo(ctx context.Context) (*models.MCPServerInfo, error) {

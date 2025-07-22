@@ -38,7 +38,7 @@ func (a *DependencyImpactAnalyzer) AnalyzeImpact(
 	if err != nil {
 		return nil, fmt.Errorf("failed to get source node: %w", err)
 	}
-	
+
 	result := &models.ImpactAnalysisResult{
 		SourceNodeID:    sourceNodeID,
 		SourceComposite: a.buildCompositeID(sourceNode),
@@ -47,7 +47,7 @@ func (a *DependencyImpactAnalyzer) AnalyzeImpact(
 		Warnings:        make([]string, 0),
 		Recommendations: make([]string, 0),
 	}
-	
+
 	// Analyze based on impact type
 	switch impactType {
 	case "delete":
@@ -72,11 +72,11 @@ func (a *DependencyImpactAnalyzer) analyzeDeleteImpact(
 	if err != nil {
 		return nil, fmt.Errorf("failed to get dependents: %w", err)
 	}
-	
+
 	visited := make(map[int64]bool)
 	maxDepth := 0
 	totalImpactScore := 0
-	
+
 	for _, dep := range dependents {
 		impact, depth := a.analyzeNodeDeleteImpact(ctx, dep, []int64{nodeID}, visited)
 		if impact != nil {
@@ -87,15 +87,15 @@ func (a *DependencyImpactAnalyzer) analyzeDeleteImpact(
 			}
 		}
 	}
-	
+
 	// Calculate overall impact score and metadata
 	result.ImpactScore = a.normalizeImpactScore(totalImpactScore, len(result.AffectedNodes))
 	result.CascadeDepth = maxDepth
 	result.EstimatedTime = a.estimateDeleteTime(len(result.AffectedNodes), maxDepth)
-	
+
 	// Add recommendations
 	a.addDeleteRecommendations(result)
-	
+
 	return result, nil
 }
 
@@ -110,11 +110,11 @@ func (a *DependencyImpactAnalyzer) analyzeUpdateImpact(
 	if err != nil {
 		return nil, fmt.Errorf("failed to get dependents: %w", err)
 	}
-	
+
 	visited := make(map[int64]bool)
 	maxDepth := 0
 	totalImpactScore := 0
-	
+
 	for _, dep := range dependents {
 		if dep.CascadeUpdate {
 			impact, depth := a.analyzeNodeUpdateImpact(ctx, dep, []int64{nodeID}, visited)
@@ -127,13 +127,13 @@ func (a *DependencyImpactAnalyzer) analyzeUpdateImpact(
 			}
 		}
 	}
-	
+
 	result.ImpactScore = a.normalizeImpactScore(totalImpactScore, len(result.AffectedNodes))
 	result.CascadeDepth = maxDepth
 	result.EstimatedTime = a.estimateUpdateTime(len(result.AffectedNodes), maxDepth)
-	
+
 	a.addUpdateRecommendations(result)
-	
+
 	return result, nil
 }
 
@@ -148,11 +148,11 @@ func (a *DependencyImpactAnalyzer) analyzeVersionChangeImpact(
 	if err != nil {
 		return nil, fmt.Errorf("failed to get dependents: %w", err)
 	}
-	
+
 	visited := make(map[int64]bool)
 	maxDepth := 0
 	totalImpactScore := 0
-	
+
 	for _, dep := range dependents {
 		impact, depth := a.analyzeNodeVersionImpact(ctx, dep, []int64{nodeID}, visited)
 		if impact != nil {
@@ -163,13 +163,13 @@ func (a *DependencyImpactAnalyzer) analyzeVersionChangeImpact(
 			}
 		}
 	}
-	
+
 	result.ImpactScore = a.normalizeImpactScore(totalImpactScore, len(result.AffectedNodes))
 	result.CascadeDepth = maxDepth
 	result.EstimatedTime = a.estimateVersionChangeTime(len(result.AffectedNodes))
-	
+
 	a.addVersionChangeRecommendations(result)
-	
+
 	return result, nil
 }
 
@@ -181,20 +181,20 @@ func (a *DependencyImpactAnalyzer) analyzeNodeDeleteImpact(
 	visited map[int64]bool,
 ) (*models.AffectedNode, int) {
 	nodeID := dependency.DependentNodeID
-	
+
 	if visited[nodeID] {
 		return nil, 0
 	}
 	visited[nodeID] = true
-	
+
 	node, err := a.nodeRepo.GetByID(ctx, int(nodeID))
 	if err != nil {
 		return nil, 0
 	}
-	
+
 	impactLevel := a.calculateDeleteImpactLevel(dependency)
 	actionNeeded := a.determineDeleteAction(dependency, impactLevel)
-	
+
 	affected := &models.AffectedNode{
 		NodeID:       nodeID,
 		CompositeID:  a.buildCompositeID(node),
@@ -204,7 +204,7 @@ func (a *DependencyImpactAnalyzer) analyzeNodeDeleteImpact(
 		ActionNeeded: actionNeeded,
 		Path:         append([]int64(nil), path...),
 	}
-	
+
 	// Recursively analyze cascade effects if cascade_delete is enabled
 	depth := 1
 	if dependency.CascadeDelete {
@@ -217,7 +217,7 @@ func (a *DependencyImpactAnalyzer) analyzeNodeDeleteImpact(
 			}
 		}
 	}
-	
+
 	return affected, depth
 }
 
@@ -229,20 +229,20 @@ func (a *DependencyImpactAnalyzer) analyzeNodeUpdateImpact(
 	visited map[int64]bool,
 ) (*models.AffectedNode, int) {
 	nodeID := dependency.DependentNodeID
-	
+
 	if visited[nodeID] {
 		return nil, 0
 	}
 	visited[nodeID] = true
-	
+
 	node, err := a.nodeRepo.GetByID(ctx, int(nodeID))
 	if err != nil {
 		return nil, 0
 	}
-	
+
 	impactLevel := a.calculateUpdateImpactLevel(dependency)
 	actionNeeded := a.determineUpdateAction(dependency, impactLevel)
-	
+
 	affected := &models.AffectedNode{
 		NodeID:       nodeID,
 		CompositeID:  a.buildCompositeID(node),
@@ -252,7 +252,7 @@ func (a *DependencyImpactAnalyzer) analyzeNodeUpdateImpact(
 		ActionNeeded: actionNeeded,
 		Path:         append([]int64(nil), path...),
 	}
-	
+
 	// Recursively analyze cascade effects
 	depth := 1
 	if dependency.CascadeUpdate {
@@ -267,7 +267,7 @@ func (a *DependencyImpactAnalyzer) analyzeNodeUpdateImpact(
 			}
 		}
 	}
-	
+
 	return affected, depth
 }
 
@@ -279,17 +279,17 @@ func (a *DependencyImpactAnalyzer) analyzeNodeVersionImpact(
 	visited map[int64]bool,
 ) (*models.AffectedNode, int) {
 	nodeID := dependency.DependentNodeID
-	
+
 	if visited[nodeID] {
 		return nil, 0
 	}
 	visited[nodeID] = true
-	
+
 	node, err := a.nodeRepo.GetByID(ctx, int(nodeID))
 	if err != nil {
 		return nil, 0
 	}
-	
+
 	// Check if this dependency has version constraints
 	hasVersionConstraint := false
 	if metadata, err := dependency.ParseMetadata(); err == nil && metadata != nil {
@@ -297,14 +297,14 @@ func (a *DependencyImpactAnalyzer) analyzeNodeVersionImpact(
 			hasVersionConstraint = true
 		}
 	}
-	
+
 	if !hasVersionConstraint {
 		return nil, 0
 	}
-	
+
 	impactLevel := a.calculateVersionImpactLevel(dependency)
 	actionNeeded := a.determineVersionAction(dependency, impactLevel)
-	
+
 	affected := &models.AffectedNode{
 		NodeID:       nodeID,
 		CompositeID:  a.buildCompositeID(node),
@@ -314,7 +314,7 @@ func (a *DependencyImpactAnalyzer) analyzeNodeVersionImpact(
 		ActionNeeded: actionNeeded,
 		Path:         append([]int64(nil), path...),
 	}
-	
+
 	return affected, 1
 }
 
@@ -324,7 +324,7 @@ func (a *DependencyImpactAnalyzer) calculateDeleteImpactLevel(dep *models.NodeDe
 	if dep.CascadeDelete {
 		return models.ImpactLevelCritical
 	}
-	
+
 	switch dep.DependencyType {
 	case models.DependencyTypeHard:
 		return models.ImpactLevelHigh
@@ -341,7 +341,7 @@ func (a *DependencyImpactAnalyzer) calculateUpdateImpactLevel(dep *models.NodeDe
 	if dep.CascadeUpdate {
 		return models.ImpactLevelHigh
 	}
-	
+
 	switch dep.DependencyType {
 	case models.DependencyTypeHard:
 		return models.ImpactLevelMedium
@@ -369,7 +369,7 @@ func (a *DependencyImpactAnalyzer) determineDeleteAction(dep *models.NodeDepende
 	if dep.CascadeDelete {
 		return "Will be automatically deleted"
 	}
-	
+
 	switch impactLevel {
 	case models.ImpactLevelCritical, models.ImpactLevelHigh:
 		return "Review and update or remove dependency"
@@ -386,7 +386,7 @@ func (a *DependencyImpactAnalyzer) determineUpdateAction(dep *models.NodeDepende
 	if dep.CascadeUpdate {
 		return "Will be automatically updated"
 	}
-	
+
 	switch impactLevel {
 	case models.ImpactLevelHigh:
 		return "Review and test changes"
@@ -431,16 +431,16 @@ func (a *DependencyImpactAnalyzer) normalizeImpactScore(total, count int) int {
 	if count == 0 {
 		return 0
 	}
-	
+
 	avg := total / count
-	
+
 	// Apply curve based on count of affected nodes
 	if count > 10 {
 		avg = int(float64(avg) * 1.2) // Amplify for many affected nodes
 	} else if count > 5 {
 		avg = int(float64(avg) * 1.1)
 	}
-	
+
 	if avg > 100 {
 		return 100
 	}
@@ -448,10 +448,10 @@ func (a *DependencyImpactAnalyzer) normalizeImpactScore(total, count int) int {
 }
 
 func (a *DependencyImpactAnalyzer) estimateDeleteTime(affectedCount, depth int) string {
-	base := time.Duration(affectedCount) * 5 * time.Minute  // 5 minutes per affected node
-	cascade := time.Duration(depth) * 10 * time.Minute      // 10 minutes per depth level
+	base := time.Duration(affectedCount) * 5 * time.Minute // 5 minutes per affected node
+	cascade := time.Duration(depth) * 10 * time.Minute     // 10 minutes per depth level
 	total := base + cascade
-	
+
 	if total < time.Hour {
 		return fmt.Sprintf("%d minutes", int(total.Minutes()))
 	}
@@ -459,10 +459,10 @@ func (a *DependencyImpactAnalyzer) estimateDeleteTime(affectedCount, depth int) 
 }
 
 func (a *DependencyImpactAnalyzer) estimateUpdateTime(affectedCount, depth int) string {
-	base := time.Duration(affectedCount) * 2 * time.Minute  // 2 minutes per affected node
+	base := time.Duration(affectedCount) * 2 * time.Minute // 2 minutes per affected node
 	cascade := time.Duration(depth) * 5 * time.Minute      // 5 minutes per depth level
 	total := base + cascade
-	
+
 	if total < time.Hour {
 		return fmt.Sprintf("%d minutes", int(total.Minutes()))
 	}
@@ -471,7 +471,7 @@ func (a *DependencyImpactAnalyzer) estimateUpdateTime(affectedCount, depth int) 
 
 func (a *DependencyImpactAnalyzer) estimateVersionChangeTime(affectedCount int) string {
 	total := time.Duration(affectedCount) * 3 * time.Minute // 3 minutes per affected node
-	
+
 	if total < time.Hour {
 		return fmt.Sprintf("%d minutes", int(total.Minutes()))
 	}
@@ -481,7 +481,7 @@ func (a *DependencyImpactAnalyzer) estimateVersionChangeTime(affectedCount int) 
 func (a *DependencyImpactAnalyzer) addDeleteRecommendations(result *models.ImpactAnalysisResult) {
 	criticalCount := 0
 	highCount := 0
-	
+
 	for _, node := range result.AffectedNodes {
 		switch node.ImpactLevel {
 		case models.ImpactLevelCritical:
@@ -490,42 +490,42 @@ func (a *DependencyImpactAnalyzer) addDeleteRecommendations(result *models.Impac
 			highCount++
 		}
 	}
-	
+
 	if criticalCount > 0 {
-		result.Recommendations = append(result.Recommendations, 
+		result.Recommendations = append(result.Recommendations,
 			fmt.Sprintf("⚠️  %d nodes will be automatically deleted due to cascade delete", criticalCount))
-		result.Recommendations = append(result.Recommendations, 
+		result.Recommendations = append(result.Recommendations,
 			"Consider backing up data before proceeding")
 	}
-	
+
 	if highCount > 0 {
-		result.Recommendations = append(result.Recommendations, 
+		result.Recommendations = append(result.Recommendations,
 			fmt.Sprintf("🔍 Review %d nodes with high impact dependencies", highCount))
 	}
-	
+
 	if len(result.AffectedNodes) > 5 {
-		result.Recommendations = append(result.Recommendations, 
+		result.Recommendations = append(result.Recommendations,
 			"Consider phased deletion approach to minimize disruption")
 	}
 }
 
 func (a *DependencyImpactAnalyzer) addUpdateRecommendations(result *models.ImpactAnalysisResult) {
 	if len(result.AffectedNodes) > 0 {
-		result.Recommendations = append(result.Recommendations, 
+		result.Recommendations = append(result.Recommendations,
 			"Test in staging environment before production deployment")
 	}
-	
+
 	if result.CascadeDepth > 3 {
-		result.Recommendations = append(result.Recommendations, 
+		result.Recommendations = append(result.Recommendations,
 			"Deep cascade detected - consider gradual rollout")
 	}
 }
 
 func (a *DependencyImpactAnalyzer) addVersionChangeRecommendations(result *models.ImpactAnalysisResult) {
 	if len(result.AffectedNodes) > 0 {
-		result.Recommendations = append(result.Recommendations, 
+		result.Recommendations = append(result.Recommendations,
 			"Verify version constraints are compatible")
-		result.Recommendations = append(result.Recommendations, 
+		result.Recommendations = append(result.Recommendations,
 			"Run compatibility tests before deployment")
 	}
 }
@@ -533,4 +533,3 @@ func (a *DependencyImpactAnalyzer) addVersionChangeRecommendations(result *model
 func (a *DependencyImpactAnalyzer) buildCompositeID(node *models.Node) string {
 	return fmt.Sprintf("url-db:%d", node.ID)
 }
-

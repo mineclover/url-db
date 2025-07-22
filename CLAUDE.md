@@ -37,10 +37,12 @@ python scripts/generate-tool-constants.py  # Generate tool constants from YAML s
 
 The codebase follows a clean layered architecture:
 
-1. **Database Layer** (`/internal/database/`)
+1. **Database Layer** (`/internal/database/` & `/schema.sql`)
    - SQLite with sqlx for enhanced operations
-   - Schema: domains, nodes, attributes, node_attributes, node_connections, node_subscriptions, node_dependencies
-   - Database initialization and schema setup in `/internal/database/database.go`
+   - **Single Source of Truth**: Schema managed via `/schema.sql` file
+   - Enhanced dependency system with 8 built-in types and advanced features
+   - Automatic schema loading with fallback strategy in `/internal/database/database.go`
+   - Tables: domains, nodes, attributes, node_attributes, node_connections, node_subscriptions, node_dependencies, node_dependencies_v2, dependency_types, dependency_history, dependency_graph_cache, dependency_rules, dependency_impact_analysis, node_events
 
 2. **Repository Layer** (`/internal/repositories/`)
    - Data access patterns with transaction support
@@ -66,6 +68,12 @@ The codebase follows a clean layered architecture:
    - Server metadata, network settings, database paths
    - Error messages and validation patterns
    - Single source of truth for all hardcoded values
+
+7. **Advanced Services Layer** (`/internal/services/advanced/`)
+   - Enterprise-grade dependency management services
+   - Circular dependency detection using Tarjan's algorithm
+   - Impact analysis with scoring and recommendations
+   - Graph caching and performance optimization
 
 ## Domain Schema System
 
@@ -108,6 +116,57 @@ set_node_attributes(composite_id="url-db:products:1", attributes=[
   {name: "invalid_attr", value: "fail"}  # Error: attribute not in schema
 ])
 ```
+
+## Enhanced Dependency System
+
+URL-DB features an enterprise-grade dependency management system with advanced capabilities:
+
+### Database Schema Management
+- **Single Source of Truth**: All schema managed in `/schema.sql`
+- **Automatic Loading**: `database.go` loads schema from external file with fallback
+- **Project Root Detection**: Automatic `go.mod` search for flexible deployment
+
+### Dependency Types (8 Built-in Types)
+```go
+// Structural Dependencies
+- hard:      Strong coupling with cascading operations
+- soft:      Loose coupling without cascading  
+- reference: Informational reference link only
+
+// Behavioral Dependencies  
+- runtime:   Required at runtime execution
+- compile:   Required at build/compile time
+- optional:  Optional enhancement dependency
+
+// Data Dependencies
+- sync:      Synchronous data dependency
+- async:     Asynchronous data dependency
+```
+
+### Advanced Features
+- **Circular Dependency Detection**: Tarjan's algorithm for cycle detection
+- **Impact Analysis**: Comprehensive analysis with scoring (0-100) and recommendations
+- **Version Constraints**: Semantic versioning support with compatibility checking
+- **History Tracking**: Complete audit trail of dependency changes
+- **Graph Caching**: Performance optimization for large dependency networks
+- **Validation Rules**: Domain-specific dependency rules and constraints
+
+### Core Tables
+```sql
+dependency_types           -- Type registry with 8 built-in types
+node_dependencies_v2       -- Enhanced dependency management
+dependency_history         -- Complete change tracking
+dependency_graph_cache     -- Performance optimization cache
+dependency_rules           -- Validation and constraint rules
+dependency_impact_analysis -- Impact analysis results
+node_events               -- Event logging system
+```
+
+### Performance Optimization
+- 25+ specialized indexes for optimal query performance
+- Graph traversal caching with automatic expiration
+- Batch operations for bulk dependency management
+- Memory-efficient algorithms for large networks
 
 ## Key Patterns and Conventions
 

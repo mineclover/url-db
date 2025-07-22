@@ -43,7 +43,7 @@ func (s *mcpService) ListSubscriptions(ctx context.Context, serviceName string, 
 	if serviceName != "" {
 		subscriptions, err = s.subscriptionService.GetServiceSubscriptions(serviceName)
 		total = len(subscriptions)
-		
+
 		// Apply pagination manually
 		start := (page - 1) * size
 		end := start + size
@@ -105,7 +105,7 @@ func (s *mcpService) CreateDependency(ctx context.Context, req *MCPCreateDepende
 		return nil, fmt.Errorf("invalid dependent node ID: %w", err)
 	}
 
-	// Parse dependency node composite ID  
+	// Parse dependency node composite ID
 	_, _, dependencyNodeIDStr, err := s.converter.ParseCompositeID(req.DependencyNodeID)
 	if err != nil {
 		return nil, fmt.Errorf("invalid dependency node composite ID: %w", err)

@@ -90,7 +90,7 @@ func main() {
 	}
 
 	if *version {
-		fmt.Println("URL Database Server v"+constants.DefaultServerVersion)
+		fmt.Println("URL Database Server v" + constants.DefaultServerVersion)
 		fmt.Println("Built with Go", "runtime.Version()")
 		os.Exit(0)
 	}

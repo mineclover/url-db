@@ -6,27 +6,27 @@ package mcp
 // MCP Tool Names - Single source of truth
 const (
 	// Server Information
-	ServerName    = "url-db-mcp-server"
-	ServerVersion = "1.0.0"
+	ServerName         = "url-db-mcp-server"
+	ServerVersion      = "1.0.0"
 	CompositeKeyFormat = "url-db:domain:id"
 
 	// Tool Names
 
 	// Domain management operations
-	ListDomainsTool           = "list_domains"
-	CreateDomainTool          = "create_domain"
+	ListDomainsTool  = "list_domains"
+	CreateDomainTool = "create_domain"
 
 	// Node/URL CRUD operations
-	ListNodesTool             = "list_nodes"
-	CreateNodeTool            = "create_node"
-	GetNodeTool               = "get_node"
-	UpdateNodeTool            = "update_node"
-	DeleteNodeTool            = "delete_node"
-	FindNodeByUrlTool         = "find_node_by_url"
+	ListNodesTool     = "list_nodes"
+	CreateNodeTool    = "create_node"
+	GetNodeTool       = "get_node"
+	UpdateNodeTool    = "update_node"
+	DeleteNodeTool    = "delete_node"
+	FindNodeByUrlTool = "find_node_by_url"
 
 	// Node attribute management
-	GetNodeAttributesTool     = "get_node_attributes"
-	SetNodeAttributesTool     = "set_node_attributes"
+	GetNodeAttributesTool = "get_node_attributes"
+	SetNodeAttributesTool = "set_node_attributes"
 
 	// Domain schema management
 	ListDomainAttributesTool  = "list_domain_attributes"
@@ -36,29 +36,29 @@ const (
 	DeleteDomainAttributeTool = "delete_domain_attribute"
 
 	// Advanced query operations
-	GetNodeWithAttributesTool = "get_node_with_attributes"
+	GetNodeWithAttributesTool   = "get_node_with_attributes"
 	FilterNodesByAttributesTool = "filter_nodes_by_attributes"
 
 	// Event subscription management
-	CreateSubscriptionTool    = "create_subscription"
-	ListSubscriptionsTool     = "list_subscriptions"
-	GetNodeSubscriptionsTool  = "get_node_subscriptions"
-	DeleteSubscriptionTool    = "delete_subscription"
+	CreateSubscriptionTool   = "create_subscription"
+	ListSubscriptionsTool    = "list_subscriptions"
+	GetNodeSubscriptionsTool = "get_node_subscriptions"
+	DeleteSubscriptionTool   = "delete_subscription"
 
 	// Node dependency management
-	CreateDependencyTool      = "create_dependency"
-	ListNodeDependenciesTool  = "list_node_dependencies"
-	ListNodeDependentsTool    = "list_node_dependents"
-	DeleteDependencyTool      = "delete_dependency"
+	CreateDependencyTool     = "create_dependency"
+	ListNodeDependenciesTool = "list_node_dependencies"
+	ListNodeDependentsTool   = "list_node_dependents"
+	DeleteDependencyTool     = "delete_dependency"
 
 	// Event tracking and processing
-	GetNodeEventsTool         = "get_node_events"
-	GetPendingEventsTool      = "get_pending_events"
-	ProcessEventTool          = "process_event"
-	GetEventStatsTool         = "get_event_stats"
+	GetNodeEventsTool    = "get_node_events"
+	GetPendingEventsTool = "get_pending_events"
+	ProcessEventTool     = "process_event"
+	GetEventStatsTool    = "get_event_stats"
 
 	// Server metadata and information
-	GetServerInfoTool         = "get_server_info"
+	GetServerInfoTool = "get_server_info"
 )
 
 // GetAllToolNames returns all tool names
@@ -99,68 +99,68 @@ func GetAllToolNames() []string {
 
 // ToolCategories maps tool names to categories
 var ToolCategories = map[string]string{
-	ListDomainsTool: "domain",
-	CreateDomainTool: "domain",
-	ListNodesTool: "node",
-	CreateNodeTool: "node",
-	GetNodeTool: "node",
-	UpdateNodeTool: "node",
-	DeleteNodeTool: "node",
-	FindNodeByUrlTool: "node",
-	GetNodeAttributesTool: "attribute",
-	SetNodeAttributesTool: "attribute",
-	ListDomainAttributesTool: "schema",
-	CreateDomainAttributeTool: "schema",
-	GetDomainAttributeTool: "schema",
-	UpdateDomainAttributeTool: "schema",
-	DeleteDomainAttributeTool: "schema",
-	GetNodeWithAttributesTool: "query",
+	ListDomainsTool:             "domain",
+	CreateDomainTool:            "domain",
+	ListNodesTool:               "node",
+	CreateNodeTool:              "node",
+	GetNodeTool:                 "node",
+	UpdateNodeTool:              "node",
+	DeleteNodeTool:              "node",
+	FindNodeByUrlTool:           "node",
+	GetNodeAttributesTool:       "attribute",
+	SetNodeAttributesTool:       "attribute",
+	ListDomainAttributesTool:    "schema",
+	CreateDomainAttributeTool:   "schema",
+	GetDomainAttributeTool:      "schema",
+	UpdateDomainAttributeTool:   "schema",
+	DeleteDomainAttributeTool:   "schema",
+	GetNodeWithAttributesTool:   "query",
 	FilterNodesByAttributesTool: "query",
-	CreateSubscriptionTool: "subscription",
-	ListSubscriptionsTool: "subscription",
-	GetNodeSubscriptionsTool: "subscription",
-	DeleteSubscriptionTool: "subscription",
-	CreateDependencyTool: "dependency",
-	ListNodeDependenciesTool: "dependency",
-	ListNodeDependentsTool: "dependency",
-	DeleteDependencyTool: "dependency",
-	GetNodeEventsTool: "event",
-	GetPendingEventsTool: "event",
-	ProcessEventTool: "event",
-	GetEventStatsTool: "event",
-	GetServerInfoTool: "meta",
+	CreateSubscriptionTool:      "subscription",
+	ListSubscriptionsTool:       "subscription",
+	GetNodeSubscriptionsTool:    "subscription",
+	DeleteSubscriptionTool:      "subscription",
+	CreateDependencyTool:        "dependency",
+	ListNodeDependenciesTool:    "dependency",
+	ListNodeDependentsTool:      "dependency",
+	DeleteDependencyTool:        "dependency",
+	GetNodeEventsTool:           "event",
+	GetPendingEventsTool:        "event",
+	ProcessEventTool:            "event",
+	GetEventStatsTool:           "event",
+	GetServerInfoTool:           "meta",
 }
 
 // ToolDescriptions maps tool names to descriptions
 var ToolDescriptions = map[string]string{
-	ListDomainsTool: "Get all domains",
-	CreateDomainTool: "Create new domain for organizing URLs",
-	ListNodesTool: "List URLs in domain",
-	CreateNodeTool: "Add URL to domain",
-	GetNodeTool: "Get URL details",
-	UpdateNodeTool: "Update URL title or description",
-	DeleteNodeTool: "Remove URL",
-	FindNodeByUrlTool: "Search by exact URL",
-	GetNodeAttributesTool: "Get URL tags and attributes",
-	SetNodeAttributesTool: "Add or update URL tags",
-	ListDomainAttributesTool: "Get available tag types for domain",
-	CreateDomainAttributeTool: "Define new tag type for domain",
-	GetDomainAttributeTool: "Get tag type details",
-	UpdateDomainAttributeTool: "Update tag type description",
-	DeleteDomainAttributeTool: "Remove unused tag type",
-	GetNodeWithAttributesTool: "Get URL with all tags at once",
+	ListDomainsTool:             "Get all domains",
+	CreateDomainTool:            "Create new domain for organizing URLs",
+	ListNodesTool:               "List URLs in domain",
+	CreateNodeTool:              "Add URL to domain",
+	GetNodeTool:                 "Get URL details",
+	UpdateNodeTool:              "Update URL title or description",
+	DeleteNodeTool:              "Remove URL",
+	FindNodeByUrlTool:           "Search by exact URL",
+	GetNodeAttributesTool:       "Get URL tags and attributes",
+	SetNodeAttributesTool:       "Add or update URL tags",
+	ListDomainAttributesTool:    "Get available tag types for domain",
+	CreateDomainAttributeTool:   "Define new tag type for domain",
+	GetDomainAttributeTool:      "Get tag type details",
+	UpdateDomainAttributeTool:   "Update tag type description",
+	DeleteDomainAttributeTool:   "Remove unused tag type",
+	GetNodeWithAttributesTool:   "Get URL with all tags at once",
 	FilterNodesByAttributesTool: "Search URLs by tag values",
-	CreateSubscriptionTool: "Subscribe to node events",
-	ListSubscriptionsTool: "List all subscriptions for a service",
-	GetNodeSubscriptionsTool: "Get all subscriptions for a specific node",
-	DeleteSubscriptionTool: "Cancel a subscription",
-	CreateDependencyTool: "Create dependency relationship between nodes",
-	ListNodeDependenciesTool: "Get all dependencies for a node",
-	ListNodeDependentsTool: "Get all nodes that depend on this node",
-	DeleteDependencyTool: "Remove dependency relationship",
-	GetNodeEventsTool: "Get event history for a node",
-	GetPendingEventsTool: "Get unprocessed events for processing",
-	ProcessEventTool: "Mark an event as processed",
-	GetEventStatsTool: "Get system event statistics",
-	GetServerInfoTool: "Get server info",
+	CreateSubscriptionTool:      "Subscribe to node events",
+	ListSubscriptionsTool:       "List all subscriptions for a service",
+	GetNodeSubscriptionsTool:    "Get all subscriptions for a specific node",
+	DeleteSubscriptionTool:      "Cancel a subscription",
+	CreateDependencyTool:        "Create dependency relationship between nodes",
+	ListNodeDependenciesTool:    "Get all dependencies for a node",
+	ListNodeDependentsTool:      "Get all nodes that depend on this node",
+	DeleteDependencyTool:        "Remove dependency relationship",
+	GetNodeEventsTool:           "Get event history for a node",
+	GetPendingEventsTool:        "Get unprocessed events for processing",
+	ProcessEventTool:            "Mark an event as processed",
+	GetEventStatsTool:           "Get system event statistics",
+	GetServerInfoTool:           "Get server info",
 }

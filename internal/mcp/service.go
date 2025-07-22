@@ -30,18 +30,18 @@ type MCPService interface {
 	DeleteDomainAttribute(ctx context.Context, compositeID string) error
 
 	GetServerInfo(ctx context.Context) (*MCPServerInfo, error)
-	
+
 	// External dependency management methods
 	CreateSubscription(ctx context.Context, req *MCPCreateSubscriptionRequest) (*models.NodeSubscription, error)
 	ListSubscriptions(ctx context.Context, serviceName string, page, size int) (*MCPSubscriptionListResponse, error)
 	GetNodeSubscriptions(ctx context.Context, compositeID string) ([]*models.NodeSubscription, error)
 	DeleteSubscription(ctx context.Context, subscriptionID int64) error
-	
+
 	CreateDependency(ctx context.Context, req *MCPCreateDependencyRequest) (*models.NodeDependency, error)
 	ListNodeDependencies(ctx context.Context, compositeID string) ([]*models.NodeDependency, error)
 	ListNodeDependents(ctx context.Context, compositeID string) ([]*models.NodeDependency, error)
 	DeleteDependency(ctx context.Context, dependencyID int64) error
-	
+
 	GetNodeEvents(ctx context.Context, compositeID string, limit int) ([]*models.NodeEvent, error)
 	GetPendingEvents(ctx context.Context, limit int) ([]*models.NodeEvent, error)
 	ProcessEvent(ctx context.Context, eventID int64) error

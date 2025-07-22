@@ -96,12 +96,12 @@ func SetupRoutes(r *gin.Engine,
 		{
 			nodes.POST("/:nodeId/subscriptions", subscriptionHandler.CreateSubscription)
 			nodes.GET("/:nodeId/subscriptions", subscriptionHandler.GetNodeSubscriptions)
-			
+
 			// Node dependency routes
 			nodes.POST("/:nodeId/dependencies", dependencyHandler.CreateDependency)
 			nodes.GET("/:nodeId/dependencies", dependencyHandler.GetNodeDependencies)
 			nodes.GET("/:nodeId/dependents", dependencyHandler.GetNodeDependents)
-			
+
 			// Node event routes
 			nodes.GET("/:nodeId/events", eventHandler.GetNodeEvents)
 		}

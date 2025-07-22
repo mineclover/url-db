@@ -105,7 +105,7 @@ func (tr *ToolRegistry) CallTool(ctx context.Context, name string, arguments int
 func (tr *ToolRegistry) registerTools() {
 	tr.tools = []Tool{
 		{
-			Name: ListDomainsTool,
+			Name:        ListDomainsTool,
 			Description: ToolDescriptions[ListDomainsTool],
 			InputSchema: map[string]interface{}{
 				"type":       "object",
@@ -113,7 +113,7 @@ func (tr *ToolRegistry) registerTools() {
 			},
 		},
 		{
-			Name: CreateDomainTool,
+			Name:        CreateDomainTool,
 			Description: ToolDescriptions[CreateDomainTool],
 			InputSchema: map[string]interface{}{
 				"type": "object",
@@ -131,7 +131,7 @@ func (tr *ToolRegistry) registerTools() {
 			},
 		},
 		{
-			Name: ListNodesTool,
+			Name:        ListNodesTool,
 			Description: ToolDescriptions[ListNodesTool],
 			InputSchema: map[string]interface{}{
 				"type": "object",
@@ -159,7 +159,7 @@ func (tr *ToolRegistry) registerTools() {
 			},
 		},
 		{
-			Name: CreateNodeTool,
+			Name:        CreateNodeTool,
 			Description: ToolDescriptions[CreateNodeTool],
 			InputSchema: map[string]interface{}{
 				"type": "object",
@@ -185,7 +185,7 @@ func (tr *ToolRegistry) registerTools() {
 			},
 		},
 		{
-			Name: GetNodeTool,
+			Name:        GetNodeTool,
 			Description: ToolDescriptions[GetNodeTool],
 			InputSchema: map[string]interface{}{
 				"type": "object",
@@ -199,7 +199,7 @@ func (tr *ToolRegistry) registerTools() {
 			},
 		},
 		{
-			Name: UpdateNodeTool,
+			Name:        UpdateNodeTool,
 			Description: ToolDescriptions[UpdateNodeTool],
 			InputSchema: map[string]interface{}{
 				"type": "object",
@@ -221,7 +221,7 @@ func (tr *ToolRegistry) registerTools() {
 			},
 		},
 		{
-			Name: DeleteNodeTool,
+			Name:        DeleteNodeTool,
 			Description: ToolDescriptions[DeleteNodeTool],
 			InputSchema: map[string]interface{}{
 				"type": "object",
@@ -235,7 +235,7 @@ func (tr *ToolRegistry) registerTools() {
 			},
 		},
 		{
-			Name: FindNodeByUrlTool,
+			Name:        FindNodeByUrlTool,
 			Description: ToolDescriptions[FindNodeByUrlTool],
 			InputSchema: map[string]interface{}{
 				"type": "object",
@@ -253,7 +253,7 @@ func (tr *ToolRegistry) registerTools() {
 			},
 		},
 		{
-			Name: GetNodeAttributesTool,
+			Name:        GetNodeAttributesTool,
 			Description: ToolDescriptions[GetNodeAttributesTool],
 			InputSchema: map[string]interface{}{
 				"type": "object",
@@ -267,7 +267,7 @@ func (tr *ToolRegistry) registerTools() {
 			},
 		},
 		{
-			Name: SetNodeAttributesTool,
+			Name:        SetNodeAttributesTool,
 			Description: ToolDescriptions[SetNodeAttributesTool],
 			InputSchema: map[string]interface{}{
 				"type": "object",
@@ -303,7 +303,7 @@ func (tr *ToolRegistry) registerTools() {
 			},
 		},
 		{
-			Name: GetServerInfoTool,
+			Name:        GetServerInfoTool,
 			Description: ToolDescriptions[GetServerInfoTool],
 			InputSchema: map[string]interface{}{
 				"type":       "object",
@@ -311,7 +311,7 @@ func (tr *ToolRegistry) registerTools() {
 			},
 		},
 		{
-			Name: ListDomainAttributesTool,
+			Name:        ListDomainAttributesTool,
 			Description: ToolDescriptions[ListDomainAttributesTool],
 			InputSchema: map[string]interface{}{
 				"type": "object",
@@ -325,7 +325,7 @@ func (tr *ToolRegistry) registerTools() {
 			},
 		},
 		{
-			Name: CreateDomainAttributeTool,
+			Name:        CreateDomainAttributeTool,
 			Description: ToolDescriptions[CreateDomainAttributeTool],
 			InputSchema: map[string]interface{}{
 				"type": "object",
@@ -352,7 +352,7 @@ func (tr *ToolRegistry) registerTools() {
 			},
 		},
 		{
-			Name: GetDomainAttributeTool,
+			Name:        GetDomainAttributeTool,
 			Description: ToolDescriptions[GetDomainAttributeTool],
 			InputSchema: map[string]interface{}{
 				"type": "object",
@@ -366,7 +366,7 @@ func (tr *ToolRegistry) registerTools() {
 			},
 		},
 		{
-			Name: UpdateDomainAttributeTool,
+			Name:        UpdateDomainAttributeTool,
 			Description: ToolDescriptions[UpdateDomainAttributeTool],
 			InputSchema: map[string]interface{}{
 				"type": "object",
@@ -384,7 +384,7 @@ func (tr *ToolRegistry) registerTools() {
 			},
 		},
 		{
-			Name: DeleteDomainAttributeTool,
+			Name:        DeleteDomainAttributeTool,
 			Description: ToolDescriptions[DeleteDomainAttributeTool],
 			InputSchema: map[string]interface{}{
 				"type": "object",
@@ -398,7 +398,7 @@ func (tr *ToolRegistry) registerTools() {
 			},
 		},
 		{
-			Name: GetNodeWithAttributesTool,
+			Name:        GetNodeWithAttributesTool,
 			Description: ToolDescriptions[GetNodeWithAttributesTool],
 			InputSchema: map[string]interface{}{
 				"type": "object",
@@ -412,7 +412,7 @@ func (tr *ToolRegistry) registerTools() {
 			},
 		},
 		{
-			Name: FilterNodesByAttributesTool,
+			Name:        FilterNodesByAttributesTool,
 			Description: ToolDescriptions[FilterNodesByAttributesTool],
 			InputSchema: map[string]interface{}{
 				"type": "object",
@@ -1152,7 +1152,7 @@ func (tr *ToolRegistry) callCreateSubscription(ctx context.Context, arguments in
 
 	compositeID := getStringArg(argsMap, "composite_id")
 	subscriberService := getStringArg(argsMap, "subscriber_service")
-	
+
 	if compositeID == "" || subscriberService == "" {
 		return &CallToolResult{
 			Content: []Content{{Type: "text", Text: "Missing required parameters: composite_id and subscriber_service"}},
@@ -1300,7 +1300,7 @@ func (tr *ToolRegistry) callCreateDependency(ctx context.Context, arguments inte
 	dependentNodeID := getStringArg(argsMap, "dependent_node_id")
 	dependencyNodeID := getStringArg(argsMap, "dependency_node_id")
 	dependencyType := getStringArg(argsMap, "dependency_type")
-	
+
 	if dependentNodeID == "" || dependencyNodeID == "" || dependencyType == "" {
 		return &CallToolResult{
 			Content: []Content{{Type: "text", Text: "Missing required parameters: dependent_node_id, dependency_node_id, dependency_type"}},
