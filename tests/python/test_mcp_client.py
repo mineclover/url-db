@@ -78,7 +78,7 @@ class MCPClient:
 
 def main():
     # 서버 바이너리 경로
-    server_path = "./bin/url-db"
+    server_path = "../../bin/url-db"
     
     client = MCPClient(server_path)
     
@@ -139,7 +139,7 @@ def main():
         # 4. 도메인 목록 조회
         print("\n4. Listing domains...")
         domains_response = client.send_request("tools/call", {
-            "name": "list_mcp_domains",
+            "name": "list_domains",
             "arguments": {}
         })
         
@@ -152,7 +152,7 @@ def main():
         # 5. 테스트 도메인 생성
         print("\n5. Creating test domain...")
         create_domain_response = client.send_request("tools/call", {
-            "name": "create_mcp_domain",
+            "name": "create_domain",
             "arguments": {
                 "name": "test-domain",
                 "description": "Test domain for MCP integration"
@@ -170,7 +170,7 @@ def main():
         # 6. 테스트 노드 생성
         print("\n6. Creating test node...")
         create_node_response = client.send_request("tools/call", {
-            "name": "create_mcp_node",
+            "name": "create_node",
             "arguments": {
                 "domain_name": "test-domain",
                 "url": "https://example.com/test",

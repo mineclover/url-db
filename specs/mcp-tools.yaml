@@ -1,0 +1,183 @@
+# MCP Tools Specification
+# Single source of truth for all MCP tool names and schemas
+version: "1.0.0"
+server_info:
+  name: "url-db-mcp-server"
+  version: "1.0.0"
+  composite_key_format: "url-db:domain:id"
+
+tools:
+  # Domain Management
+  list_domains:
+    name: "list_domains"
+    category: "domain"
+    description: "Get all domains"
+    parameters: {}
+    
+  create_domain:
+    name: "create_domain"
+    category: "domain"
+    description: "Create new domain for organizing URLs"
+    parameters:
+      name: { type: "string", required: true, description: "Domain name" }
+      description: { type: "string", required: true, description: "Domain description" }
+
+  # Node Management
+  list_nodes:
+    name: "list_nodes"
+    category: "node"
+    description: "List URLs in domain"
+    parameters:
+      domain_name: { type: "string", required: true, description: "Domain name to list nodes from" }
+      page: { type: "integer", required: false, default: 1, description: "Page number" }
+      size: { type: "integer", required: false, default: 20, description: "Page size" }
+      search: { type: "string", required: false, description: "Search query" }
+      
+  create_node:
+    name: "create_node"
+    category: "node"
+    description: "Add URL to domain"
+    parameters:
+      domain_name: { type: "string", required: true, description: "Domain name" }
+      url: { type: "string", required: true, description: "URL to store" }
+      title: { type: "string", required: false, description: "Node title" }
+      description: { type: "string", required: false, description: "Node description" }
+      
+  get_node:
+    name: "get_node"
+    category: "node"
+    description: "Get URL details"
+    parameters:
+      composite_id: { type: "string", required: true, description: "Composite ID (format: tool:domain:id)" }
+      
+  update_node:
+    name: "update_node"
+    category: "node"
+    description: "Update URL title or description"
+    parameters:
+      composite_id: { type: "string", required: true, description: "Composite ID (format: tool:domain:id)" }
+      title: { type: "string", required: false, description: "New title" }
+      description: { type: "string", required: false, description: "New description" }
+      
+  delete_node:
+    name: "delete_node"
+    category: "node"
+    description: "Remove URL"
+    parameters:
+      composite_id: { type: "string", required: true, description: "Composite ID (format: tool:domain:id)" }
+      
+  find_node_by_url:
+    name: "find_node_by_url"
+    category: "node"
+    description: "Search by exact URL"
+    parameters:
+      domain_name: { type: "string", required: true, description: "Domain name" }
+      url: { type: "string", required: true, description: "URL to find" }
+
+  # Node Attributes
+  get_node_attributes:
+    name: "get_node_attributes"
+    category: "attribute"
+    description: "Get URL tags and attributes"
+    parameters:
+      composite_id: { type: "string", required: true, description: "Composite ID (format: tool:domain:id)" }
+      
+  set_node_attributes:
+    name: "set_node_attributes"
+    category: "attribute"
+    description: "Add or update URL tags"
+    parameters:
+      composite_id: { type: "string", required: true, description: "Composite ID (format: tool:domain:id)" }
+      attributes: 
+        type: "array"
+        required: true
+        description: "Array of attributes to set"
+        items:
+          type: "object"
+          properties:
+            name: { type: "string", required: true, description: "Attribute name" }
+            value: { type: "string", required: true, description: "Attribute value" }
+            order_index: { type: "integer", required: false, description: "Order index (required for ordered_tag type)" }
+
+  # Domain Schema Management
+  list_domain_attributes:
+    name: "list_domain_attributes"
+    category: "schema"
+    description: "Get available tag types for domain"
+    parameters:
+      domain_name: { type: "string", required: true, description: "The domain to list attributes for" }
+      
+  create_domain_attribute:
+    name: "create_domain_attribute"
+    category: "schema"
+    description: "Define new tag type for domain"
+    parameters:
+      domain_name: { type: "string", required: true, description: "The domain to add attribute to" }
+      name: { type: "string", required: true, description: "Attribute name" }
+      type: { type: "string", required: true, description: "One of: tag, ordered_tag, number, string, markdown, image", enum: ["tag", "ordered_tag", "number", "string", "markdown", "image"] }
+      description: { type: "string", required: false, description: "Human-readable description" }
+      
+  get_domain_attribute:
+    name: "get_domain_attribute"
+    category: "schema"
+    description: "Get tag type details"
+    parameters:
+      composite_id: { type: "string", required: true, description: "Composite ID (format: tool-name:domain:attr-{id})" }
+      
+  update_domain_attribute:
+    name: "update_domain_attribute"
+    category: "schema"
+    description: "Update tag type description"
+    parameters:
+      composite_id: { type: "string", required: true, description: "Composite ID (format: tool-name:domain:attr-{id})" }
+      description: { type: "string", required: true, description: "New description" }
+      
+  delete_domain_attribute:
+    name: "delete_domain_attribute"
+    category: "schema"
+    description: "Remove unused tag type"
+    parameters:
+      composite_id: { type: "string", required: true, description: "Composite ID (format: tool-name:domain:attr-{id})" }
+
+  # Enhanced Query Tools
+  get_node_with_attributes:
+    name: "get_node_with_attributes"
+    category: "query"
+    description: "Get URL with all tags at once"
+    parameters:
+      composite_id: { type: "string", required: true, description: "Composite ID (format: tool-name:domain:id)" }
+      
+  filter_nodes_by_attributes:
+    name: "filter_nodes_by_attributes"
+    category: "query"
+    description: "Search URLs by tag values"
+    parameters:
+      domain_name: { type: "string", required: true, description: "Domain name to search in" }
+      filters:
+        type: "array"
+        required: true
+        description: "Array of attribute filters"
+        items:
+          type: "object"
+          properties:
+            name: { type: "string", required: true, description: "Attribute name" }
+            value: { type: "string", required: true, description: "Attribute value to match" }
+            operator: { type: "string", required: false, default: "equals", description: "Comparison operator", enum: ["equals", "contains", "starts_with", "ends_with"] }
+      page: { type: "integer", required: false, default: 1, description: "Page number" }
+      size: { type: "integer", required: false, default: 20, description: "Page size" }
+
+  # Server Information
+  get_server_info:
+    name: "get_server_info"
+    category: "meta"
+    description: "Get server info"
+    parameters: {}
+
+# Tool Categories
+categories:
+  domain: "Domain management operations"
+  node: "Node/URL CRUD operations"
+  attribute: "Node attribute management"
+  schema: "Domain schema management"
+  query: "Advanced query operations"
+  meta: "Server metadata and information"

@@ -126,9 +126,9 @@ class MCPFinalTester:
         return False
         
     def test_server_info(self):
-        """Test get_mcp_server_info"""
+        """Test get_server_info"""
         response = self.send_request("tools/call", {
-            "name": "get_mcp_server_info",
+            "name": "get_server_info",
             "arguments": {}
         })
         
@@ -144,9 +144,9 @@ class MCPFinalTester:
         return True
         
     def test_list_domains(self):
-        """Test list_mcp_domains"""
+        """Test list_domains"""
         response = self.send_request("tools/call", {
-            "name": "list_mcp_domains",
+            "name": "list_domains",
             "arguments": {}
         })
         
@@ -169,7 +169,7 @@ class MCPFinalTester:
         domain_name = f"final-test-{timestamp}"
         
         response = self.send_request("tools/call", {
-            "name": "create_mcp_domain",
+            "name": "create_domain",
             "arguments": {
                 "name": domain_name,
                 "description": "Final test domain"
@@ -188,7 +188,7 @@ class MCPFinalTester:
         """Test node creation and management"""
         # Create node
         response = self.send_request("tools/call", {
-            "name": "create_mcp_node",
+            "name": "create_node",
             "arguments": {
                 "domain_name": domain_name,
                 "url": f"https://example.com/final-{int(time.time())}",
@@ -208,7 +208,7 @@ class MCPFinalTester:
             
             # Get node
             response = self.send_request("tools/call", {
-                "name": "get_mcp_node",
+                "name": "get_node",
                 "arguments": {"composite_id": composite_id}
             })
             
@@ -218,7 +218,7 @@ class MCPFinalTester:
                 
             # Update node
             response = self.send_request("tools/call", {
-                "name": "update_mcp_node",
+                "name": "update_node",
                 "arguments": {
                     "composite_id": composite_id,
                     "title": "Updated Final Node"
@@ -231,7 +231,7 @@ class MCPFinalTester:
                 
             # Delete node
             response = self.send_request("tools/call", {
-                "name": "delete_mcp_node",
+                "name": "delete_node",
                 "arguments": {"composite_id": composite_id}
             })
             

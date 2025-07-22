@@ -84,11 +84,11 @@ class MCPToolTester:
             return False
             
     def test_server_info(self):
-        """Test get_mcp_server_info tool"""
-        print("\n📋 Step 2: Testing get_mcp_server_info")
+        """Test get_server_info tool"""
+        print("\n📋 Step 2: Testing get_server_info")
         
         response = self.send_request("tools/call", {
-            "name": "get_mcp_server_info",
+            "name": "get_server_info",
             "arguments": {}
         })
         
@@ -105,11 +105,11 @@ class MCPToolTester:
             return False
             
     def test_list_domains(self):
-        """Test list_mcp_domains tool"""
-        print("\n📋 Step 3: Testing list_mcp_domains")
+        """Test list_domains tool"""
+        print("\n📋 Step 3: Testing list_domains")
         
         response = self.send_request("tools/call", {
-            "name": "list_mcp_domains",
+            "name": "list_domains",
             "arguments": {}
         })
         
@@ -125,14 +125,14 @@ class MCPToolTester:
             return []
             
     def test_create_domain(self):
-        """Test create_mcp_domain tool"""
-        print("\n📋 Step 4: Testing create_mcp_domain")
+        """Test create_domain tool"""
+        print("\n📋 Step 4: Testing create_domain")
         
         timestamp = int(time.time())
         domain_name = f"mcp-test-{timestamp}"
         
         response = self.send_request("tools/call", {
-            "name": "create_mcp_domain",
+            "name": "create_domain",
             "arguments": {
                 "name": domain_name,
                 "description": "Test domain created via MCP protocol"
@@ -150,11 +150,11 @@ class MCPToolTester:
             return None
             
     def test_create_node(self, domain_name):
-        """Test create_mcp_node tool"""
-        print("\n📋 Step 5: Testing create_mcp_node")
+        """Test create_node tool"""
+        print("\n📋 Step 5: Testing create_node")
         
         response = self.send_request("tools/call", {
-            "name": "create_mcp_node",
+            "name": "create_node",
             "arguments": {
                 "domain_name": domain_name,
                 "url": f"https://example.com/test-{int(time.time())}",
@@ -175,11 +175,11 @@ class MCPToolTester:
             return None
             
     def test_get_node(self, composite_id):
-        """Test get_mcp_node tool"""
-        print("\n📋 Step 6: Testing get_mcp_node")
+        """Test get_node tool"""
+        print("\n📋 Step 6: Testing get_node")
         
         response = self.send_request("tools/call", {
-            "name": "get_mcp_node",
+            "name": "get_node",
             "arguments": {
                 "composite_id": composite_id
             }
@@ -196,11 +196,11 @@ class MCPToolTester:
             return False
             
     def test_update_node(self, composite_id):
-        """Test update_mcp_node tool"""
-        print("\n📋 Step 7: Testing update_mcp_node")
+        """Test update_node tool"""
+        print("\n📋 Step 7: Testing update_node")
         
         response = self.send_request("tools/call", {
-            "name": "update_mcp_node",
+            "name": "update_node",
             "arguments": {
                 "composite_id": composite_id,
                 "title": "Updated Node Title",
@@ -219,11 +219,11 @@ class MCPToolTester:
             return False
             
     def test_set_attributes(self, composite_id):
-        """Test set_mcp_node_attributes tool"""
-        print("\n📋 Step 8: Testing set_mcp_node_attributes")
+        """Test set_node_attributes tool"""
+        print("\n📋 Step 8: Testing set_node_attributes")
         
         response = self.send_request("tools/call", {
-            "name": "set_mcp_node_attributes",
+            "name": "set_node_attributes",
             "arguments": {
                 "composite_id": composite_id,
                 "attributes": [
@@ -257,11 +257,11 @@ class MCPToolTester:
             return False
             
     def test_get_attributes(self, composite_id):
-        """Test get_mcp_node_attributes tool"""
-        print("\n📋 Step 9: Testing get_mcp_node_attributes")
+        """Test get_node_attributes tool"""
+        print("\n📋 Step 9: Testing get_node_attributes")
         
         response = self.send_request("tools/call", {
-            "name": "get_mcp_node_attributes",
+            "name": "get_node_attributes",
             "arguments": {
                 "composite_id": composite_id
             }
@@ -289,11 +289,11 @@ class MCPToolTester:
             return False
             
     def test_find_by_url(self, domain_name, url):
-        """Test find_mcp_node_by_url tool"""
-        print("\n📋 Step 10: Testing find_mcp_node_by_url")
+        """Test find_node_by_url tool"""
+        print("\n📋 Step 10: Testing find_node_by_url")
         
         response = self.send_request("tools/call", {
-            "name": "find_mcp_node_by_url",
+            "name": "find_node_by_url",
             "arguments": {
                 "domain_name": domain_name,
                 "url": url
@@ -310,11 +310,11 @@ class MCPToolTester:
             return False
             
     def test_list_nodes(self, domain_name):
-        """Test list_mcp_nodes tool"""
-        print("\n📋 Step 11: Testing list_mcp_nodes")
+        """Test list_nodes tool"""
+        print("\n📋 Step 11: Testing list_nodes")
         
         response = self.send_request("tools/call", {
-            "name": "list_mcp_nodes",
+            "name": "list_nodes",
             "arguments": {
                 "domain_name": domain_name,
                 "page": 1,
@@ -334,11 +334,11 @@ class MCPToolTester:
             return False
             
     def test_delete_node(self, composite_id):
-        """Test delete_mcp_node tool"""
-        print("\n📋 Step 12: Testing delete_mcp_node")
+        """Test delete_node tool"""
+        print("\n📋 Step 12: Testing delete_node")
         
         response = self.send_request("tools/call", {
-            "name": "delete_mcp_node",
+            "name": "delete_node",
             "arguments": {
                 "composite_id": composite_id
             }
@@ -411,7 +411,7 @@ class MCPToolTester:
                     if node2_id:
                         # Get the actual URL from the node
                         response = self.send_request("tools/call", {
-                            "name": "get_mcp_node",
+                            "name": "get_node",
                             "arguments": {"composite_id": node2_id}
                         })
                         if response and not response.get("error"):

@@ -14,7 +14,7 @@ class MCPClient:
     def start(self):
         """Start the MCP server process"""
         self.proc = subprocess.Popen(
-            ["./bin/url-db", "-mcp-mode=stdio"],
+            ["../../bin/url-db", "-mcp-mode=stdio"],
             stdin=subprocess.PIPE,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
@@ -98,7 +98,7 @@ def test_domain_attributes():
         # 3. Create domain
         print("\n3. Creating test domain...")
         response = client.send_request("tools/call", {
-            "name": "create_mcp_domain",
+            "name": "create_domain",
             "arguments": {
                 "name": "test-domain",
                 "description": "Test domain for attribute testing"
@@ -109,7 +109,7 @@ def test_domain_attributes():
         # 4. List domain attributes
         print("\n4. Listing domain attributes...")
         response = client.send_request("tools/call", {
-            "name": "list_mcp_domain_attributes",
+            "name": "list_domain_attributes",
             "arguments": {
                 "domain_name": "test-domain"
             }
@@ -119,7 +119,7 @@ def test_domain_attributes():
         # 5. Create domain attribute
         print("\n5. Creating domain attribute...")
         response = client.send_request("tools/call", {
-            "name": "create_mcp_domain_attribute",
+            "name": "create_domain_attribute",
             "arguments": {
                 "domain_name": "test-domain",
                 "name": "category",
@@ -136,7 +136,7 @@ def test_domain_attributes():
             # 6. Get attribute
             print("\n6. Getting attribute by composite ID...")
             response = client.send_request("tools/call", {
-                "name": "get_mcp_domain_attribute",
+                "name": "get_domain_attribute",
                 "arguments": {
                     "composite_id": composite_id
                 }
@@ -146,7 +146,7 @@ def test_domain_attributes():
             # 7. Update attribute
             print("\n7. Updating attribute description...")
             response = client.send_request("tools/call", {
-                "name": "update_mcp_domain_attribute",
+                "name": "update_domain_attribute",
                 "arguments": {
                     "composite_id": composite_id,
                     "description": "Updated category tag description"
@@ -157,7 +157,7 @@ def test_domain_attributes():
             # 8. List attributes again
             print("\n8. Listing domain attributes after update...")
             response = client.send_request("tools/call", {
-                "name": "list_mcp_domain_attributes",
+                "name": "list_domain_attributes",
                 "arguments": {
                     "domain_name": "test-domain"
                 }
@@ -167,7 +167,7 @@ def test_domain_attributes():
             # 9. Delete attribute
             print("\n9. Deleting attribute...")
             response = client.send_request("tools/call", {
-                "name": "delete_mcp_domain_attribute",
+                "name": "delete_domain_attribute",
                 "arguments": {
                     "composite_id": composite_id
                 }

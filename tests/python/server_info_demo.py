@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Demo script showing what the get_mcp_server_info tool would return
+Demo script showing what the get_server_info tool would return
 based on the implementation in the URL-DB MCP server.
 """
 
@@ -9,7 +9,7 @@ from datetime import datetime
 
 def get_server_info():
     """
-    Simulates the get_mcp_server_info tool response based on the Go implementation.
+    Simulates the get_server_info tool response based on the Go implementation.
     """
     
     # Based on MetadataManager.GetServerInfo() in internal/mcp/metadata.go
@@ -84,47 +84,47 @@ def list_available_tools():
     # Based on registerTools() in internal/mcp/tools.go
     tools = [
         {
-            "name": "list_mcp_domains",
+            "name": "list_domains",
             "description": "List all domains in the URL database"
         },
         {
-            "name": "create_mcp_domain", 
+            "name": "create_domain", 
             "description": "Create a new domain"
         },
         {
-            "name": "list_mcp_nodes",
+            "name": "list_nodes",
             "description": "List nodes in a specific domain"
         },
         {
-            "name": "create_mcp_node",
+            "name": "create_node",
             "description": "Create a new node (URL) in a domain"
         },
         {
-            "name": "get_mcp_node",
+            "name": "get_node",
             "description": "Get a node by composite ID"
         },
         {
-            "name": "update_mcp_node",
+            "name": "update_node",
             "description": "Update a node's title and description"
         },
         {
-            "name": "delete_mcp_node",
+            "name": "delete_node",
             "description": "Delete a node by composite ID"
         },
         {
-            "name": "find_mcp_node_by_url",
+            "name": "find_node_by_url",
             "description": "Find a node by URL in a domain"
         },
         {
-            "name": "get_mcp_node_attributes",
+            "name": "get_node_attributes",
             "description": "Get all attributes for a node"
         },
         {
-            "name": "set_mcp_node_attributes",
+            "name": "set_node_attributes",
             "description": "Set attributes for a node"
         },
         {
-            "name": "get_mcp_server_info",
+            "name": "get_server_info",
             "description": "Get server information and capabilities"
         }
     ]
@@ -135,7 +135,7 @@ def main():
     print("URL-DB MCP Server Information Demo")
     print("=" * 50)
     
-    print("\n1. Basic Server Info (get_mcp_server_info):")
+    print("\n1. Basic Server Info (get_server_info):")
     print(json.dumps(get_server_info(), indent=2))
     
     print("\n2. Detailed Server Info:")

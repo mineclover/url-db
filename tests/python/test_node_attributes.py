@@ -14,7 +14,7 @@ class MCPClient:
     def start(self):
         """Start the MCP server process"""
         self.proc = subprocess.Popen(
-            ["./bin/url-db", "-mcp-mode=stdio"],
+            ["../../bin/url-db", "-mcp-mode=stdio"],
             stdin=subprocess.PIPE,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
@@ -81,7 +81,7 @@ def test_node_with_attributes():
         # Create domain
         print("\n2. Creating test domain 'tech-articles'...")
         response = client.send_request("tools/call", {
-            "name": "create_mcp_domain",
+            "name": "create_domain",
             "arguments": {
                 "name": "tech-articles",
                 "description": "Technology articles and resources"
@@ -95,7 +95,7 @@ def test_node_with_attributes():
         # Category attribute
         print("\n   a. Creating 'category' attribute...")
         response = client.send_request("tools/call", {
-            "name": "create_mcp_domain_attribute",
+            "name": "create_domain_attribute",
             "arguments": {
                 "domain_name": "tech-articles",
                 "name": "category",
@@ -108,7 +108,7 @@ def test_node_with_attributes():
         # Priority attribute
         print("\n   b. Creating 'priority' attribute...")
         response = client.send_request("tools/call", {
-            "name": "create_mcp_domain_attribute",
+            "name": "create_domain_attribute",
             "arguments": {
                 "domain_name": "tech-articles",
                 "name": "priority",
@@ -121,7 +121,7 @@ def test_node_with_attributes():
         # Rating attribute
         print("\n   c. Creating 'rating' attribute...")
         response = client.send_request("tools/call", {
-            "name": "create_mcp_domain_attribute",
+            "name": "create_domain_attribute",
             "arguments": {
                 "domain_name": "tech-articles",
                 "name": "rating",
@@ -134,7 +134,7 @@ def test_node_with_attributes():
         # Summary attribute
         print("\n   d. Creating 'summary' attribute...")
         response = client.send_request("tools/call", {
-            "name": "create_mcp_domain_attribute",
+            "name": "create_domain_attribute",
             "arguments": {
                 "domain_name": "tech-articles",
                 "name": "summary",
@@ -147,7 +147,7 @@ def test_node_with_attributes():
         # List attributes
         print("\n4. Listing domain attributes...")
         response = client.send_request("tools/call", {
-            "name": "list_mcp_domain_attributes",
+            "name": "list_domain_attributes",
             "arguments": {
                 "domain_name": "tech-articles"
             }
@@ -161,7 +161,7 @@ def test_node_with_attributes():
         # Get existing nodes or create new ones
         print("\n5. Listing existing nodes...")
         response = client.send_request("tools/call", {
-            "name": "list_mcp_nodes",
+            "name": "list_nodes",
             "arguments": {
                 "domain_name": "tech-articles"
             }
@@ -178,7 +178,7 @@ def test_node_with_attributes():
             # Create new node with unique URL
             unique_id = int(time.time())
             response = client.send_request("tools/call", {
-                "name": "create_mcp_node",
+                "name": "create_node",
                 "arguments": {
                     "domain_name": "tech-articles",
                     "url": f"https://example.com/ai-security-best-practices-{unique_id}",
@@ -195,7 +195,7 @@ def test_node_with_attributes():
         # Set attributes on the node
         print("\n6. Setting attributes on the node...")
         response = client.send_request("tools/call", {
-            "name": "set_mcp_node_attributes",
+            "name": "set_node_attributes",
             "arguments": {
                 "composite_id": node_composite_id,
                 "attributes": [
@@ -224,7 +224,7 @@ def test_node_with_attributes():
         # Get node attributes
         print("\n7. Getting node attributes...")
         response = client.send_request("tools/call", {
-            "name": "get_mcp_node_attributes",
+            "name": "get_node_attributes",
             "arguments": {
                 "composite_id": node_composite_id
             }
@@ -239,7 +239,7 @@ def test_node_with_attributes():
         # Create another node with different attributes
         print("\n8. Creating another node...")
         response = client.send_request("tools/call", {
-            "name": "create_mcp_node",
+            "name": "create_node",
             "arguments": {
                 "domain_name": "tech-articles",
                 "url": "https://example.com/cloud-migration-guide",
@@ -254,7 +254,7 @@ def test_node_with_attributes():
         
         # Set different attributes
         response = client.send_request("tools/call", {
-            "name": "set_mcp_node_attributes",
+            "name": "set_node_attributes",
             "arguments": {
                 "composite_id": node_composite_id2,
                 "attributes": [
@@ -282,7 +282,7 @@ def test_node_with_attributes():
         # List all nodes in the domain
         print("\n9. Listing all nodes in the domain...")
         response = client.send_request("tools/call", {
-            "name": "list_mcp_nodes",
+            "name": "list_nodes",
             "arguments": {
                 "domain_name": "tech-articles"
             }

@@ -74,7 +74,7 @@ class MCPClient:
 
 def main():
     # Server binary path
-    server_path = "./bin/url-db"
+    server_path = "../../bin/url-db"
     
     client = MCPClient(server_path)
     
@@ -108,9 +108,9 @@ def main():
         # Wait briefly
         time.sleep(0.2)
         
-        # 3. Call list_mcp_domains tool
+        # 3. Call list_domains tool
         domains_response = client.send_request("tools/call", {
-            "name": "list_mcp_domains",
+            "name": "list_domains",
             "arguments": {}
         })
         
@@ -133,7 +133,7 @@ def main():
                 else:
                     print("No domains found in the database.")
             else:
-                print("Error calling list_mcp_domains:", result["content"][0]["text"])
+                print("Error calling list_domains:", result["content"][0]["text"])
         else:
             print("Failed to get domains list")
         

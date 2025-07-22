@@ -14,7 +14,7 @@ class MCPClient:
     def __init__(self, db_path: str = "./test.db"):
         """Initialize MCP client with stdio connection"""
         self.process = subprocess.Popen(
-            ["./bin/url-db", "-mcp-mode=stdio", f"-db-path={db_path}"],
+            ["../../bin/url-db", "-mcp-mode=stdio", f"-db-path={db_path}"],
             stdin=subprocess.PIPE,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,

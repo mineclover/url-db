@@ -164,10 +164,10 @@ class MCPTestRunner:
         notes = []
         
         expected_tools = [
-            "list_mcp_domains", "create_mcp_domain", "list_mcp_nodes",
-            "create_mcp_node", "get_mcp_node", "update_mcp_node",
-            "delete_mcp_node", "find_mcp_node_by_url", "get_mcp_node_attributes",
-            "set_mcp_node_attributes", "get_mcp_server_info"
+            "list_domains", "create_domain", "list_nodes",
+            "create_node", "get_node", "update_node",
+            "delete_node", "find_node_by_url", "get_node_attributes",
+            "set_node_attributes", "get_server_info"
         ]
         
         try:
@@ -247,7 +247,7 @@ class MCPTestRunner:
         try:
             # List initial domains
             domains_response = self.send_request("tools/call", {
-                "name": "list_mcp_domains",
+                "name": "list_domains",
                 "arguments": {}
             })
             
@@ -260,7 +260,7 @@ class MCPTestRunner:
             # Create test domain with unique name
             unique_name = f"test-scenario-{int(time.time())}"
             create_response = self.send_request("tools/call", {
-                "name": "create_mcp_domain",
+                "name": "create_domain",
                 "arguments": {
                     "name": unique_name,
                     "description": "Test domain for LLM judge scenarios"
@@ -282,7 +282,7 @@ class MCPTestRunner:
             
             # List domains again to verify
             domains_response2 = self.send_request("tools/call", {
-                "name": "list_mcp_domains",
+                "name": "list_domains",
                 "arguments": {}
             })
             
@@ -297,7 +297,7 @@ class MCPTestRunner:
             
             # Test duplicate domain creation
             duplicate_response = self.send_request("tools/call", {
-                "name": "create_mcp_domain",
+                "name": "create_domain",
                 "arguments": {
                     "name": unique_name,
                     "description": "Duplicate domain"
@@ -336,7 +336,7 @@ class MCPTestRunner:
         try:
             # Create node (using existing test domain)
             create_response = self.send_request("tools/call", {
-                "name": "create_mcp_node",
+                "name": "create_node",
                 "arguments": {
                     "domain_name": "test-domain",  # Use existing domain
                     "url": f"https://example.com/test-page-{int(time.time())}",  # Unique URL
@@ -366,7 +366,7 @@ class MCPTestRunner:
             if composite_id:
                 # Retrieve node by composite key
                 get_response = self.send_request("tools/call", {
-                    "name": "get_mcp_node",
+                    "name": "get_node",
                     "arguments": {"composite_id": composite_id}
                 })
                 
@@ -379,7 +379,7 @@ class MCPTestRunner:
                 
                 # Update node
                 update_response = self.send_request("tools/call", {
-                    "name": "update_mcp_node",
+                    "name": "update_node",
                     "arguments": {
                         "composite_id": composite_id,
                         "title": "Updated Test Page",
@@ -395,7 +395,7 @@ class MCPTestRunner:
                 # Find node by URL
                 test_url = f"https://example.com/test-page-{int(time.time())}"
                 find_response = self.send_request("tools/call", {
-                    "name": "find_mcp_node_by_url",
+                    "name": "find_node_by_url",
                     "arguments": {
                         "domain_name": "test-domain",
                         "url": node_data.get("url", test_url)  # Use actual URL from created node
@@ -409,7 +409,7 @@ class MCPTestRunner:
                 
                 # Delete node
                 delete_response = self.send_request("tools/call", {
-                    "name": "delete_mcp_node",
+                    "name": "delete_node",
                     "arguments": {"composite_id": composite_id}
                 })
                 
@@ -659,7 +659,7 @@ class MCPTestRunner:
 
 def main():
     """Main test execution"""
-    server_path = "./bin/url-db"
+    server_path = "../../bin/url-db"
     
     # Check if server exists
     try:

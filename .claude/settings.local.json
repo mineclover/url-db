@@ -62,7 +62,8 @@
       "Bash(pip3 install:*)",
       "Bash(export PATH=$PATH:~/go/bin)",
       "Bash(./scripts/test.sh:*)",
-      "Bash(sed:*)"
+      "Bash(sed:*)",
+      "Bash(./run_python_tests.sh)"
     ],
     "deny": []
   }

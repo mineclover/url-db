@@ -17,7 +17,7 @@ def send_mcp_request(method, params=None):
     
     # Start the MCP server
     proc = subprocess.Popen(
-        ["./bin/url-db", "-mcp-mode=stdio"],
+        ["../../bin/url-db", "-mcp-mode=stdio"],
         stdin=subprocess.PIPE,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
@@ -57,7 +57,7 @@ def test_domain_attributes():
     
     # 1. Create a test domain first
     print("\n1. Creating test domain...")
-    response = send_mcp_request("create_mcp_domain", {
+    response = send_mcp_request("create_domain", {
         "name": "test-domain",
         "description": "Test domain for attribute testing"
     })
@@ -65,14 +65,14 @@ def test_domain_attributes():
     
     # 2. List domain attributes (should be empty)
     print("\n2. Listing domain attributes...")
-    response = send_mcp_request("list_mcp_domain_attributes", {
+    response = send_mcp_request("list_domain_attributes", {
         "domain_name": "test-domain"
     })
     print(f"Response: {json.dumps(response, indent=2)}")
     
     # 3. Create a domain attribute
     print("\n3. Creating domain attribute...")
-    response = send_mcp_request("create_mcp_domain_attribute", {
+    response = send_mcp_request("create_domain_attribute", {
         "domain_name": "test-domain",
         "name": "category",
         "type": "tag",
@@ -86,14 +86,14 @@ def test_domain_attributes():
         
         # 4. Get the attribute by composite ID
         print("\n4. Getting attribute by composite ID...")
-        response = send_mcp_request("get_mcp_domain_attribute", {
+        response = send_mcp_request("get_domain_attribute", {
             "composite_id": composite_id
         })
         print(f"Response: {json.dumps(response, indent=2)}")
         
         # 5. Update the attribute
         print("\n5. Updating attribute description...")
-        response = send_mcp_request("update_mcp_domain_attribute", {
+        response = send_mcp_request("update_domain_attribute", {
             "composite_id": composite_id,
             "description": "Updated category tag description"
         })
@@ -101,14 +101,14 @@ def test_domain_attributes():
         
         # 6. List attributes again
         print("\n6. Listing domain attributes after creation...")
-        response = send_mcp_request("list_mcp_domain_attributes", {
+        response = send_mcp_request("list_domain_attributes", {
             "domain_name": "test-domain"
         })
         print(f"Response: {json.dumps(response, indent=2)}")
         
         # 7. Delete the attribute
         print("\n7. Deleting attribute...")
-        response = send_mcp_request("delete_mcp_domain_attribute", {
+        response = send_mcp_request("delete_domain_attribute", {
             "composite_id": composite_id
         })
         print(f"Response: {json.dumps(response, indent=2)}")
