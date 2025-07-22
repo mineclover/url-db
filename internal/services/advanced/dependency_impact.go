@@ -534,9 +534,3 @@ func (a *DependencyImpactAnalyzer) buildCompositeID(node *models.Node) string {
 	return fmt.Sprintf("url-db:%d", node.ID)
 }
 
-func max(a, b int) int {
-	if a > b {
-		return a
-	}
-	return b
-}

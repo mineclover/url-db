@@ -3,9 +3,14 @@ package database
 import (
 	"database/sql"
 	"fmt"
+	"os"
+	"path/filepath"
 
 	_ "github.com/mattn/go-sqlite3"
 )
+
+// Schema file path relative to project root
+const schemaFilePath = "schema.sql"
 
 type Database struct {
 	db     *sql.DB
@@ -68,7 +73,64 @@ func configureDatabase(db *sql.DB, config *Config) error {
 }
 
 func (d *Database) createSchema() error {
-	schema := `
+	// Load schema from external file
+	schema, err := d.loadSchemaFromFile()
+	if err != nil {
+		// Fallback to inline schema if file not found
+		fmt.Printf("Warning: Could not load schema.sql file, using inline schema: %v\n", err)
+		schema = d.getInlineSchema()
+	}
+
+	if _, err := d.db.Exec(schema); err != nil {
+		return fmt.Errorf("failed to execute schema: %w", err)
+	}
+
+	return nil
+}
+
+// loadSchemaFromFile loads schema from external schema.sql file
+func (d *Database) loadSchemaFromFile() (string, error) {
+	// Find project root by looking for go.mod
+	projectRoot, err := findProjectRoot()
+	if err != nil {
+		return "", fmt.Errorf("could not find project root: %w", err)
+	}
+
+	schemaPath := filepath.Join(projectRoot, schemaFilePath)
+	schemaBytes, err := os.ReadFile(schemaPath)
+	if err != nil {
+		return "", fmt.Errorf("could not read schema file %s: %w", schemaPath, err)
+	}
+
+	return string(schemaBytes), nil
+}
+
+// findProjectRoot finds the project root by looking for go.mod file
+func findProjectRoot() (string, error) {
+	dir, err := os.Getwd()
+	if err != nil {
+		return "", err
+	}
+
+	// Walk up the directory tree looking for go.mod
+	for {
+		if _, err := os.Stat(filepath.Join(dir, "go.mod")); err == nil {
+			return dir, nil
+		}
+
+		parent := filepath.Dir(dir)
+		if parent == dir {
+			break // reached root directory
+		}
+		dir = parent
+	}
+
+	return "", fmt.Errorf("go.mod not found")
+}
+
+// getInlineSchema returns the inline schema as fallback
+func (d *Database) getInlineSchema() string {
+	return `
 	-- 도메인 폴더 테이블
 	CREATE TABLE IF NOT EXISTS domains (
 		id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -344,12 +406,6 @@ func (d *Database) createSchema() error {
 		('sync', 'data', false, true, true, 'Synchronous data dependency'),
 		('async', 'data', false, false, false, 'Asynchronous data dependency');
 	`
-
-	if _, err := d.db.Exec(schema); err != nil {
-		return fmt.Errorf("failed to create schema: %w", err)
-	}
-
-	return nil
 }
 
 func (d *Database) DB() *sql.DB {
