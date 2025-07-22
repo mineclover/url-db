@@ -257,11 +257,12 @@ class MCPTestRunner:
                 score += 1
                 notes.append(f"✓ Initial domain count: {initial_count}")
             
-            # Create test domain
+            # Create test domain with unique name
+            unique_name = f"test-scenario-{int(time.time())}"
             create_response = self.send_request("tools/call", {
                 "name": "create_mcp_domain",
                 "arguments": {
-                    "name": "test-scenario-domain",
+                    "name": unique_name,
                     "description": "Test domain for LLM judge scenarios"
                 }
             })
@@ -298,7 +299,7 @@ class MCPTestRunner:
             duplicate_response = self.send_request("tools/call", {
                 "name": "create_mcp_domain",
                 "arguments": {
-                    "name": "test-scenario-domain",
+                    "name": unique_name,
                     "description": "Duplicate domain"
                 }
             })
@@ -333,12 +334,12 @@ class MCPTestRunner:
         notes = []
         
         try:
-            # Create node
+            # Create node (using existing test domain)
             create_response = self.send_request("tools/call", {
                 "name": "create_mcp_node",
                 "arguments": {
-                    "domain_name": "test-scenario-domain",
-                    "url": "https://example.com/test-page",
+                    "domain_name": "test-domain",  # Use existing domain
+                    "url": f"https://example.com/test-page-{int(time.time())}",  # Unique URL
                     "title": "Test Page for LLM Judge",
                     "description": "Test node for scenario validation"
                 }
@@ -351,7 +352,7 @@ class MCPTestRunner:
                     composite_id = node_data.get("composite_id")
                     
                     # Check composite key format
-                    if composite_id and composite_id.startswith("url-db:test-scenario-domain:"):
+                    if composite_id and composite_id.startswith("url-db:test-domain:"):
                         score += 2
                         notes.append("✓ Proper composite key format")
                     else:
@@ -392,11 +393,12 @@ class MCPTestRunner:
                         notes.append("✓ Node update successful")
                 
                 # Find node by URL
+                test_url = f"https://example.com/test-page-{int(time.time())}"
                 find_response = self.send_request("tools/call", {
                     "name": "find_mcp_node_by_url",
                     "arguments": {
-                        "domain_name": "test-scenario-domain",
-                        "url": "https://example.com/test-page"
+                        "domain_name": "test-domain",
+                        "url": node_data.get("url", test_url)  # Use actual URL from created node
                     }
                 })
                 

@@ -1,14 +1,14 @@
 # MCP Server LLM-as-a-Judge Test Report
 
-**Date**: 2025-07-22 10:58:22
+**Date**: 2025-07-22 11:11:39
 **Server Version**: url-db-mcp-server v1.0.0
 **Test Environment**: Local development
 
 ## Executive Summary
 
-- **Total Score**: 41/50 (82.0%)
-- **Overall Grade**: Good
-- **Scenarios Passed**: 4/5
+- **Total Score**: 46/50 (92.0%)
+- **Overall Grade**: Excellent
+- **Scenarios Passed**: 5/5
 - **Production Ready**: ✅ Yes
 
 ## Scenario Results
@@ -26,10 +26,10 @@
 - **Notes**: ✓ All 11 tools present; ✓ Tool schemas are valid; ✓ Tools are well documented; ✓ Parameter specifications present
 
 ### Domain Management Workflow
-- **Score**: 3/10 (30.0%)
-- **Status**: FAIL
+- **Score**: 8/10 (80.0%)
+- **Status**: PASS
 - **Execution Time**: 0.00s
-- **Notes**: ✓ Initial domain count: 2; ✗ Domain creation failed; ✗ Domain not found in subsequent listing; ✓ Duplicate domain properly rejected
+- **Notes**: ✓ Initial domain count: 3; ✓ Domain creation successful; ✓ Proper metadata timestamps; ✓ Domain persists in listings; ✓ Duplicate domain properly rejected
 
 ### Node/URL Management with Composite Keys
 - **Score**: 10/10 (100.0%)
@@ -54,11 +54,12 @@
 ### Strengths
 - Protocol Handshake Compliance: Excellent implementation
 - Tool Discovery and Schema Validation: Excellent implementation
+- Domain Management Workflow: Excellent implementation
 - Node/URL Management with Composite Keys: Excellent implementation
 - Resource System Integration: Excellent implementation
 
 ### Areas for Improvement
-- Domain Management Workflow: Needs attention (scored 3/10)
+- All scenarios perform at acceptable levels or higher
 
 ## Production Readiness Assessment
 
