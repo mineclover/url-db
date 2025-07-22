@@ -29,7 +29,7 @@ func TestToolRegistry_CallTool_ListNodes(t *testing.T) {
 		"search":      "",
 	}
 
-	result, err := registry.CallTool(context.Background(), "list_mcp_nodes", arguments)
+	result, err := registry.CallTool(context.Background(), "list_nodes", arguments)
 
 	assert.NoError(t, err)
 	assert.NotNil(t, result)
@@ -58,7 +58,7 @@ func TestToolRegistry_CallTool_CreateNode(t *testing.T) {
 		"title":       "Test Node",
 	}
 
-	result, err := registry.CallTool(context.Background(), "create_mcp_node", arguments)
+	result, err := registry.CallTool(context.Background(), "create_node", arguments)
 
 	assert.NoError(t, err)
 	assert.NotNil(t, result)

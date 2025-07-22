@@ -49,7 +49,7 @@ func TestParseJSONRPCRequest(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			result, err := ParseJSONRPCRequest([]byte(tt.input))
-			
+
 			if tt.expectError {
 				assert.Error(t, err)
 				assert.Nil(t, result)
@@ -104,7 +104,7 @@ func TestJSONRPCResponse_ToJSON(t *testing.T) {
 
 func TestNewJSONRPCRequest(t *testing.T) {
 	req := NewJSONRPCRequest(1, "test_method", map[string]string{"key": "value"})
-	
+
 	assert.Equal(t, "2.0", req.JSONRPC)
 	assert.Equal(t, 1, req.ID)
 	assert.Equal(t, "test_method", req.Method)
@@ -113,7 +113,7 @@ func TestNewJSONRPCRequest(t *testing.T) {
 
 func TestNewJSONRPCResponse(t *testing.T) {
 	resp := NewJSONRPCResponse(1, "test_result")
-	
+
 	assert.Equal(t, "2.0", resp.JSONRPC)
 	assert.Equal(t, 1, resp.ID)
 	assert.Equal(t, "test_result", resp.Result)
@@ -122,7 +122,7 @@ func TestNewJSONRPCResponse(t *testing.T) {
 
 func TestNewJSONRPCError(t *testing.T) {
 	resp := NewJSONRPCError(1, ParseError, "Parse error", "additional data")
-	
+
 	assert.Equal(t, "2.0", resp.JSONRPC)
 	assert.Equal(t, 1, resp.ID)
 	assert.Nil(t, resp.Result)

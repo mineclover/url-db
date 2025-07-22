@@ -26,7 +26,7 @@ func (r *DependencyRepository) Create(dependency *models.NodeDependency) error {
 			cascade_delete, cascade_update, metadata
 		) VALUES (?, ?, ?, ?, ?, ?)
 	`
-	
+
 	result, err := r.db.Exec(
 		query,
 		dependency.DependentNodeID,
@@ -39,12 +39,12 @@ func (r *DependencyRepository) Create(dependency *models.NodeDependency) error {
 	if err != nil {
 		return fmt.Errorf("failed to create dependency: %w", err)
 	}
-	
+
 	id, err := result.LastInsertId()
 	if err != nil {
 		return fmt.Errorf("failed to get last insert id: %w", err)
 	}
-	
+
 	dependency.ID = id
 	return nil
 }
@@ -58,7 +58,7 @@ func (r *DependencyRepository) GetByID(id int64) (*models.NodeDependency, error)
 		FROM node_dependencies
 		WHERE id = ?
 	`
-	
+
 	err := r.db.Get(&dependency, query, id)
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -66,7 +66,7 @@ func (r *DependencyRepository) GetByID(id int64) (*models.NodeDependency, error)
 		}
 		return nil, fmt.Errorf("failed to get dependency: %w", err)
 	}
-	
+
 	return &dependency, nil
 }
 
@@ -80,12 +80,12 @@ func (r *DependencyRepository) GetByDependentNode(nodeID int64) ([]*models.NodeD
 		WHERE dependent_node_id = ?
 		ORDER BY created_at DESC
 	`
-	
+
 	err := r.db.Select(&dependencies, query, nodeID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get dependencies: %w", err)
 	}
-	
+
 	return dependencies, nil
 }
 
@@ -99,12 +99,12 @@ func (r *DependencyRepository) GetByDependencyNode(nodeID int64) ([]*models.Node
 		WHERE dependency_node_id = ?
 		ORDER BY created_at DESC
 	`
-	
+
 	err := r.db.Select(&dependencies, query, nodeID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get dependencies: %w", err)
 	}
-	
+
 	return dependencies, nil
 }
 
@@ -125,34 +125,34 @@ func (r *DependencyRepository) CheckCircularDependency(dependentID, dependencyID
 		)
 		SELECT COUNT(*) FROM dependency_chain WHERE dependency_node_id = ?
 	`
-	
+
 	var count int
 	err := r.db.Get(&count, query, dependencyID, dependentID)
 	if err != nil {
 		return false, fmt.Errorf("failed to check circular dependency: %w", err)
 	}
-	
+
 	return count > 0, nil
 }
 
 // Delete deletes a dependency
 func (r *DependencyRepository) Delete(id int64) error {
 	query := "DELETE FROM node_dependencies WHERE id = ?"
-	
+
 	result, err := r.db.Exec(query, id)
 	if err != nil {
 		return fmt.Errorf("failed to delete dependency: %w", err)
 	}
-	
+
 	rowsAffected, err := result.RowsAffected()
 	if err != nil {
 		return fmt.Errorf("failed to get rows affected: %w", err)
 	}
-	
+
 	if rowsAffected == 0 {
 		return sql.ErrNoRows
 	}
-	
+
 	return nil
 }
 
@@ -164,12 +164,12 @@ func (r *DependencyRepository) GetDependentsWithCascadeDelete(nodeID int64) ([]i
 		FROM node_dependencies
 		WHERE dependency_node_id = ? AND cascade_delete = true
 	`
-	
+
 	err := r.db.Select(&dependentIDs, query, nodeID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get cascade delete dependents: %w", err)
 	}
-	
+
 	return dependentIDs, nil
 }
 
@@ -181,11 +181,11 @@ func (r *DependencyRepository) GetDependentsWithCascadeUpdate(nodeID int64) ([]i
 		FROM node_dependencies
 		WHERE dependency_node_id = ? AND cascade_update = true
 	`
-	
+
 	err := r.db.Select(&dependentIDs, query, nodeID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get cascade update dependents: %w", err)
 	}
-	
+
 	return dependentIDs, nil
 }

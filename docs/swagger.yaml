@@ -1,5 +1,13 @@
 basePath: /api
 definitions:
+  handlers.ErrorResponse:
+    properties:
+      details: {}
+      error:
+        type: string
+      message:
+        type: string
+    type: object
   models.Attribute:
     properties:
       created_at:
@@ -14,6 +22,14 @@ definitions:
         type: string
       type:
         $ref: '#/definitions/models.AttributeType'
+    type: object
+  models.AttributeFilter:
+    properties:
+      attribute_name:
+        type: string
+      operator:
+        type: string
+      value: {}
     type: object
   models.AttributeListResponse:
     properties:
@@ -60,6 +76,17 @@ definitions:
           $ref: '#/definitions/models.MCPNode'
         type: array
       not_found:
+        items:
+          type: string
+        type: array
+    type: object
+  models.ChangeFilter:
+    properties:
+      fields:
+        items:
+          type: string
+        type: array
+      ignore_fields:
         items:
           type: string
         type: array
@@ -130,6 +157,26 @@ definitions:
     - attribute_id
     - value
     type: object
+  models.CreateNodeDependencyRequest:
+    properties:
+      cascade_delete:
+        type: boolean
+      cascade_update:
+        type: boolean
+      dependency_node_id:
+        type: integer
+      dependency_type:
+        enum:
+        - hard
+        - soft
+        - reference
+        type: string
+      metadata:
+        $ref: '#/definitions/models.DependencyMetadata'
+    required:
+    - dependency_node_id
+    - dependency_type
+    type: object
   models.CreateNodeRequest:
     properties:
       description:
@@ -143,6 +190,30 @@ definitions:
         type: string
     required:
     - url
+    type: object
+  models.CreateNodeSubscriptionRequest:
+    properties:
+      event_types:
+        items:
+          type: string
+        minItems: 1
+        type: array
+      filter_conditions:
+        $ref: '#/definitions/models.FilterCondition'
+      subscriber_endpoint:
+        type: string
+      subscriber_service:
+        type: string
+    required:
+    - event_types
+    - subscriber_service
+    type: object
+  models.DependencyMetadata:
+    properties:
+      description:
+        type: string
+      relationship:
+        type: string
     type: object
   models.Domain:
     properties:
@@ -171,6 +242,40 @@ definitions:
         type: integer
       total_pages:
         type: integer
+    type: object
+  models.EventChanges:
+    properties:
+      after:
+        additionalProperties: true
+        type: object
+      before:
+        additionalProperties: true
+        type: object
+    type: object
+  models.EventData:
+    properties:
+      changes:
+        $ref: '#/definitions/models.EventChanges'
+      event_id:
+        type: string
+      event_type:
+        type: string
+      metadata:
+        additionalProperties: true
+        type: object
+      node_id:
+        type: integer
+      timestamp:
+        type: string
+    type: object
+  models.FilterCondition:
+    properties:
+      attribute_filters:
+        items:
+          $ref: '#/definitions/models.AttributeFilter'
+        type: array
+      change_filters:
+        $ref: '#/definitions/models.ChangeFilter'
     type: object
   models.FindMCPNodeRequest:
     properties:
@@ -212,6 +317,32 @@ definitions:
         type: integer
       updated_at:
         type: string
+    type: object
+  models.MCPDomainAttribute:
+    properties:
+      composite_id:
+        type: string
+      created_at:
+        type: string
+      description:
+        type: string
+      name:
+        type: string
+      type:
+        $ref: '#/definitions/models.AttributeType'
+      updated_at:
+        type: string
+    type: object
+  models.MCPDomainAttributeListResponse:
+    properties:
+      attributes:
+        items:
+          $ref: '#/definitions/models.MCPDomainAttribute'
+        type: array
+      domain_name:
+        type: string
+      total_count:
+        type: integer
     type: object
   models.MCPNode:
     properties:
@@ -332,6 +463,40 @@ definitions:
       value:
         type: string
     type: object
+  models.NodeDependency:
+    properties:
+      cascade_delete:
+        type: boolean
+      cascade_update:
+        type: boolean
+      created_at:
+        type: string
+      dependency_node_id:
+        type: integer
+      dependency_type:
+        type: string
+      dependent_node_id:
+        type: integer
+      id:
+        type: integer
+      metadata:
+        $ref: '#/definitions/models.DependencyMetadata'
+    type: object
+  models.NodeEvent:
+    properties:
+      event_data:
+        $ref: '#/definitions/models.EventData'
+      event_type:
+        type: string
+      id:
+        type: integer
+      node_id:
+        type: integer
+      occurred_at:
+        type: string
+      processed_at:
+        type: string
+    type: object
   models.NodeListResponse:
     properties:
       nodes:
@@ -347,6 +512,29 @@ definitions:
       total_pages:
         type: integer
     type: object
+  models.NodeSubscription:
+    properties:
+      created_at:
+        type: string
+      event_types:
+        items:
+          type: string
+        type: array
+      filter_conditions:
+        $ref: '#/definitions/models.FilterCondition'
+      id:
+        type: integer
+      is_active:
+        type: boolean
+      subscribed_node_id:
+        type: integer
+      subscriber_endpoint:
+        type: string
+      subscriber_service:
+        type: string
+      updated_at:
+        type: string
+    type: object
   models.SetMCPNodeAttributesRequest:
     properties:
       attributes:
@@ -354,6 +542,8 @@ definitions:
           properties:
             name:
               type: string
+            order_index:
+              type: integer
             value:
               type: string
           required:
@@ -404,6 +594,19 @@ definitions:
         maxLength: 255
         type: string
     type: object
+  models.UpdateNodeSubscriptionRequest:
+    properties:
+      event_types:
+        items:
+          type: string
+        type: array
+      filter_conditions:
+        $ref: '#/definitions/models.FilterCondition'
+      is_active:
+        type: boolean
+      subscriber_endpoint:
+        type: string
+    type: object
 host: localhost:8080
 info:
   contact:
@@ -418,6 +621,508 @@ info:
   title: URL Database API
   version: "1.0"
 paths:
+  /api/dependencies/{id}:
+    delete:
+      description: Delete a dependency relationship
+      parameters:
+      - description: Dependency ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: No Content
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Delete dependency
+      tags:
+      - dependencies
+    get:
+      description: Get a dependency by ID
+      parameters:
+      - description: Dependency ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.NodeDependency'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Get dependency
+      tags:
+      - dependencies
+  /api/events:
+    get:
+      description: Get events by type within a date range
+      parameters:
+      - description: Event type
+        in: query
+        name: type
+        required: true
+        type: string
+      - description: Start date (RFC3339)
+        in: query
+        name: start
+        required: true
+        type: string
+      - description: End date (RFC3339)
+        in: query
+        name: end
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.NodeEvent'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Get events by type
+      tags:
+      - events
+  /api/events/{eventId}/process:
+    post:
+      description: Mark an event as processed
+      parameters:
+      - description: Event ID
+        in: path
+        name: eventId
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Process event
+      tags:
+      - events
+  /api/events/cleanup:
+    post:
+      description: Delete processed events older than specified days
+      parameters:
+      - description: Number of days to retain events
+        in: query
+        minimum: 1
+        name: days
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Cleanup old events
+      tags:
+      - events
+  /api/events/pending:
+    get:
+      description: Get unprocessed events for processing
+      parameters:
+      - default: 100
+        description: Maximum number of events to return
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.NodeEvent'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Get pending events
+      tags:
+      - events
+  /api/events/stats:
+    get:
+      description: Get statistics about events in the system
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Get event statistics
+      tags:
+      - events
+  /api/nodes/{nodeId}/dependencies:
+    get:
+      description: Get all dependencies where the node is dependent
+      parameters:
+      - description: Node ID
+        in: path
+        name: nodeId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.NodeDependency'
+            type: array
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Get node dependencies
+      tags:
+      - dependencies
+    post:
+      consumes:
+      - application/json
+      description: Create a new dependency relationship between nodes
+      parameters:
+      - description: Dependent Node ID
+        in: path
+        name: nodeId
+        required: true
+        type: integer
+      - description: Dependency details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreateNodeDependencyRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.NodeDependency'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "409":
+          description: Circular dependency detected
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Create dependency
+      tags:
+      - dependencies
+  /api/nodes/{nodeId}/dependents:
+    get:
+      description: Get all nodes that depend on this node
+      parameters:
+      - description: Node ID
+        in: path
+        name: nodeId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.NodeDependency'
+            type: array
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Get node dependents
+      tags:
+      - dependencies
+  /api/nodes/{nodeId}/events:
+    get:
+      description: Get events for a specific node
+      parameters:
+      - description: Node ID
+        in: path
+        name: nodeId
+        required: true
+        type: integer
+      - default: 50
+        description: Maximum number of events to return
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.NodeEvent'
+            type: array
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Get node events
+      tags:
+      - events
+  /api/nodes/{nodeId}/subscriptions:
+    get:
+      description: Get all subscriptions for a specific node
+      parameters:
+      - description: Node ID
+        in: path
+        name: nodeId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.NodeSubscription'
+            type: array
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Get node subscriptions
+      tags:
+      - subscriptions
+    post:
+      consumes:
+      - application/json
+      description: Create a new subscription for node events
+      parameters:
+      - description: Node ID
+        in: path
+        name: nodeId
+        required: true
+        type: integer
+      - description: Subscription details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreateNodeSubscriptionRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.NodeSubscription'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Create subscription
+      tags:
+      - subscriptions
+  /api/subscriptions:
+    get:
+      description: Get all subscriptions for a specific service
+      parameters:
+      - description: Service name
+        in: query
+        name: service
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.NodeSubscription'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Get service subscriptions
+      tags:
+      - subscriptions
+  /api/subscriptions/{id}:
+    delete:
+      description: Delete a subscription
+      parameters:
+      - description: Subscription ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: No Content
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Delete subscription
+      tags:
+      - subscriptions
+    get:
+      description: Get a subscription by ID
+      parameters:
+      - description: Subscription ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.NodeSubscription'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Get subscription
+      tags:
+      - subscriptions
+    put:
+      consumes:
+      - application/json
+      description: Update a subscription
+      parameters:
+      - description: Subscription ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Update details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpdateNodeSubscriptionRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.NodeSubscription'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Update subscription
+      tags:
+      - subscriptions
   /attributes/{id}:
     delete:
       description: Delete attribute by ID (only if no associated values exist)
@@ -912,6 +1617,115 @@ paths:
       summary: Update a domain
       tags:
       - domains
+  /mcp/attributes/{composite_id}:
+    delete:
+      description: Delete an attribute definition by composite ID
+      parameters:
+      - description: Composite ID (domain:attribute_id)
+        in: path
+        name: composite_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Delete domain attribute
+      tags:
+      - mcp
+    get:
+      description: Get a specific attribute definition by composite ID
+      parameters:
+      - description: Composite ID (domain:attribute_id)
+        in: path
+        name: composite_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.MCPDomainAttribute'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get domain attribute
+      tags:
+      - mcp
+    put:
+      consumes:
+      - application/json
+      description: Update an attribute definition by composite ID
+      parameters:
+      - description: Composite ID (domain:attribute_id)
+        in: path
+        name: composite_id
+        required: true
+        type: string
+      - description: Attribute update data
+        in: body
+        name: attribute
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpdateAttributeRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.MCPDomainAttribute'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Update domain attribute
+      tags:
+      - mcp
   /mcp/domains:
     get:
       description: Get all domains with their node counts in MCP format
@@ -965,6 +1779,86 @@ paths:
             additionalProperties: true
             type: object
       summary: Create a new MCP domain
+      tags:
+      - mcp
+  /mcp/domains/{domain_name}/attributes:
+    get:
+      description: Get all attribute definitions for a domain
+      parameters:
+      - description: Domain name
+        in: path
+        name: domain_name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.MCPDomainAttributeListResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: List domain attributes
+      tags:
+      - mcp
+    post:
+      consumes:
+      - application/json
+      description: Create a new attribute definition for a domain
+      parameters:
+      - description: Domain name
+        in: path
+        name: domain_name
+        required: true
+        type: string
+      - description: Attribute data
+        in: body
+        name: attribute
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreateAttributeRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.MCPDomainAttribute'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "409":
+          description: Conflict
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Create domain attribute
       tags:
       - mcp
   /mcp/nodes:

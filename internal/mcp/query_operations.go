@@ -57,7 +57,7 @@ func (s *mcpService) FilterNodesByAttributes(ctx context.Context, domainName str
 			filterName, _ := filterMap["name"].(string)
 			filterValue, _ := filterMap["value"].(string)
 			filterOperator, _ := filterMap["operator"].(string)
-			
+
 			if filterName == "" || filterValue == "" {
 				continue
 			}

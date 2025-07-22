@@ -37,7 +37,7 @@ func (s *DependencyService) CreateDependency(dependentNodeID int64, req *models.
 	if dependentNode == nil {
 		return nil, fmt.Errorf("dependent node not found")
 	}
-	
+
 	dependencyNode, err := s.nodeRepo.GetByID(int(req.DependencyNodeID))
 	if err != nil {
 		return nil, fmt.Errorf("failed to get dependency node: %w", err)
@@ -45,7 +45,7 @@ func (s *DependencyService) CreateDependency(dependentNodeID int64, req *models.
 	if dependencyNode == nil {
 		return nil, fmt.Errorf("dependency node not found")
 	}
-	
+
 	// Check for circular dependency
 	hasCircular, err := s.dependencyRepo.CheckCircularDependency(dependentNodeID, req.DependencyNodeID)
 	if err != nil {
@@ -54,7 +54,7 @@ func (s *DependencyService) CreateDependency(dependentNodeID int64, req *models.
 	if hasCircular {
 		return nil, fmt.Errorf("circular dependency detected")
 	}
-	
+
 	// Create dependency
 	dependency := &models.NodeDependency{
 		DependentNodeID:  dependentNodeID,
@@ -64,12 +64,12 @@ func (s *DependencyService) CreateDependency(dependentNodeID int64, req *models.
 		CascadeUpdate:    req.CascadeUpdate,
 		Metadata:         req.Metadata,
 	}
-	
+
 	err = s.dependencyRepo.Create(dependency)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create dependency: %w", err)
 	}
-	
+
 	return dependency, nil
 }
 
@@ -82,7 +82,7 @@ func (s *DependencyService) GetDependency(id int64) (*models.NodeDependency, err
 	if dependency == nil {
 		return nil, fmt.Errorf("dependency not found")
 	}
-	
+
 	return dependency, nil
 }
 
@@ -92,7 +92,7 @@ func (s *DependencyService) DeleteDependency(id int64) error {
 	if err != nil {
 		return fmt.Errorf("failed to delete dependency: %w", err)
 	}
-	
+
 	return nil
 }
 
@@ -106,7 +106,7 @@ func (s *DependencyService) GetNodeDependencies(nodeID int64) ([]*models.NodeDep
 	if node == nil {
 		return nil, fmt.Errorf("node not found")
 	}
-	
+
 	return s.dependencyRepo.GetByDependentNode(nodeID)
 }
 
@@ -120,7 +120,7 @@ func (s *DependencyService) GetNodeDependents(nodeID int64) ([]*models.NodeDepen
 	if node == nil {
 		return nil, fmt.Errorf("node not found")
 	}
-	
+
 	return s.dependencyRepo.GetByDependencyNode(nodeID)
 }
 
@@ -131,7 +131,7 @@ func (s *DependencyService) HandleNodeDeletion(nodeID int64) error {
 	if err != nil {
 		return fmt.Errorf("failed to get cascade delete dependents: %w", err)
 	}
-	
+
 	// Delete each dependent node (this will trigger their own cascades)
 	for _, depID := range dependentIDs {
 		err = s.nodeRepo.Delete(int(depID))
@@ -139,7 +139,7 @@ func (s *DependencyService) HandleNodeDeletion(nodeID int64) error {
 			return fmt.Errorf("failed to delete dependent node %d: %w", depID, err)
 		}
 	}
-	
+
 	return nil
 }
 
@@ -150,7 +150,7 @@ func (s *DependencyService) HandleNodeUpdate(nodeID int64, changes *models.Event
 	if err != nil {
 		return fmt.Errorf("failed to get cascade update dependents: %w", err)
 	}
-	
+
 	// Create update event for each dependent
 	for _, depID := range dependentIDs {
 		eventData := &models.EventData{
@@ -158,21 +158,21 @@ func (s *DependencyService) HandleNodeUpdate(nodeID int64, changes *models.Event
 			EventType: "dependency_updated",
 			Metadata: map[string]interface{}{
 				"dependency_node_id": nodeID,
-				"changes":           changes,
+				"changes":            changes,
 			},
 		}
-		
+
 		event := &models.NodeEvent{
 			NodeID:    depID,
 			EventType: "dependency_updated",
 			EventData: eventData,
 		}
-		
+
 		err = s.eventRepo.Create(event)
 		if err != nil {
 			return fmt.Errorf("failed to create update event for dependent %d: %w", depID, err)
 		}
 	}
-	
+
 	return nil
 }

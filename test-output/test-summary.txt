@@ -1,0 +1,31 @@
+URL Database Test Summary
+========================
+Timestamp: #오후
+Go Version: go version go1.24.5 darwin/arm64
+
+Coverage Summary:
+Coverage: 19.3%
+
+Test Files Generated:
+total 1752
+drwxr-xr-x@ 15 junwoobang  staff     480  7 22 15:39 .
+drwxr-xr-x@ 67 junwoobang  staff    2144  7 22 15:32 ..
+-rw-r--r--@  1 junwoobang  staff    3358  7 22 15:39 benchmark-results.txt
+-rw-r--r--@  1 junwoobang  staff   12111  7 22 15:39 coverage-internal-attributes.out
+-rw-r--r--@  1 junwoobang  staff    6690  7 22 15:39 coverage-internal-domains.out
+-rw-r--r--@  1 junwoobang  staff      10  7 22 15:39 coverage-internal-mcp.out
+-rw-r--r--@  1 junwoobang  staff   16536  7 22 15:39 coverage-internal-nodeattributes.out
+-rw-r--r--@  1 junwoobang  staff   11269  7 22 15:39 coverage-internal-nodes.out
+-rw-r--r--@  1 junwoobang  staff      16  7 22 15:39 coverage-summary.txt
+-rw-r--r--@  1 junwoobang  staff  548590  7 22 15:39 coverage.html
+-rw-r--r--@  1 junwoobang  staff  161889  7 22 15:39 coverage.out
+-rw-r--r--@  1 junwoobang  staff     104  7 22 15:39 lint-report.txt
+-rw-r--r--@  1 junwoobang  staff    7330  7 22 15:39 race-detection.txt
+-rw-r--r--@  1 junwoobang  staff   63633  7 22 15:39 test-results.txt
+-rw-r--r--@  1 junwoobang  staff     173  7 22 15:39 test-summary.txt
+
+Test Commands Used:
+- Unit Tests: go test ./... -v -race -timeout=300s -coverprofile=coverage.out
+- Linting: golangci-lint run --timeout=5m
+- Benchmarks: go test ./... -bench=. -benchmem
+- Race Detection: go test ./... -race -short

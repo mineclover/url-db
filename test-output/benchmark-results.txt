@@ -1,0 +1,38 @@
+# url-db/docs
+docs/docs.go:3765:2: unknown field LeftDelim in struct literal of type "github.com/swaggo/swag".Spec
+docs/docs.go:3766:2: unknown field RightDelim in struct literal of type "github.com/swaggo/swag".Spec
+# url-db/internal/mcp [url-db/internal/mcp.test]
+internal/mcp/resources_test.go:14:34: cannot use mockService (variable of type *MockMCPService) as MCPService value in argument to NewResourceRegistry: *MockMCPService does not implement MCPService (missing method FilterNodesByAttributes)
+internal/mcp/resources_test.go:56:34: cannot use mockService (variable of type *MockMCPService) as MCPService value in argument to NewResourceRegistry: *MockMCPService does not implement MCPService (missing method FilterNodesByAttributes)
+internal/mcp/resources_test.go:85:34: cannot use mockService (variable of type *MockMCPService) as MCPService value in argument to NewResourceRegistry: *MockMCPService does not implement MCPService (missing method FilterNodesByAttributes)
+internal/mcp/resources_test.go:111:34: cannot use mockService (variable of type *MockMCPService) as MCPService value in argument to NewResourceRegistry: *MockMCPService does not implement MCPService (missing method FilterNodesByAttributes)
+internal/mcp/resources_test.go:138:34: cannot use mockService (variable of type *MockMCPService) as MCPService value in argument to NewResourceRegistry: *MockMCPService does not implement MCPService (missing method FilterNodesByAttributes)
+internal/mcp/resources_test.go:166:34: cannot use mockService (variable of type *MockMCPService) as MCPService value in argument to NewResourceRegistry: *MockMCPService does not implement MCPService (missing method FilterNodesByAttributes)
+internal/mcp/resources_test.go:177:34: cannot use mockService (variable of type *MockMCPService) as MCPService value in argument to NewResourceRegistry: *MockMCPService does not implement MCPService (missing method FilterNodesByAttributes)
+internal/mcp/tools_additional_test.go:14:30: cannot use mockService (variable of type *MockMCPService) as MCPService value in argument to NewToolRegistry: *MockMCPService does not implement MCPService (missing method FilterNodesByAttributes)
+internal/mcp/tools_additional_test.go:45:30: cannot use mockService (variable of type *MockMCPService) as MCPService value in argument to NewToolRegistry: *MockMCPService does not implement MCPService (missing method FilterNodesByAttributes)
+internal/mcp/tools_additional_test.go:74:30: cannot use mockService (variable of type *MockMCPService) as MCPService value in argument to NewToolRegistry: *MockMCPService does not implement MCPService (missing method FilterNodesByAttributes)
+internal/mcp/tools_additional_test.go:74:30: too many errors
+FAIL	url-db [build failed]
+FAIL	url-db/cmd/server [build failed]
+FAIL	url-db/docs [build failed]
+PASS
+ok  	url-db/internal/attributes	0.249s
+PASS
+ok  	url-db/internal/compositekey	0.238s
+?   	url-db/internal/config	[no test files]
+PASS
+ok  	url-db/internal/database	0.240s
+?   	url-db/internal/domains	[no test files]
+PASS
+ok  	url-db/internal/handlers	0.235s
+FAIL	url-db/internal/mcp [build failed]
+?   	url-db/internal/models	[no test files]
+PASS
+ok  	url-db/internal/nodeattributes	0.231s
+PASS
+ok  	url-db/internal/nodes	0.232s
+PASS
+ok  	url-db/internal/repositories	0.229s
+?   	url-db/internal/services	[no test files]
+FAIL

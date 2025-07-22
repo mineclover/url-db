@@ -51,12 +51,12 @@ import (
 func main() {
 	// Parse command line flags
 	var (
-		mcpMode = flag.String("mcp-mode", "sse", "MCP server mode: 'stdio' for stdin/stdout, 'sse' for HTTP server")
-		dbPath = flag.String("db-path", "", "Path to the database file (overrides DATABASE_URL)")
+		mcpMode  = flag.String("mcp-mode", "sse", "MCP server mode: 'stdio' for stdin/stdout, 'sse' for HTTP server")
+		dbPath   = flag.String("db-path", "", "Path to the database file (overrides DATABASE_URL)")
 		toolName = flag.String("tool-name", "", "Tool name for composite keys (default: url-db)")
-		port = flag.String("port", "", "Port for HTTP server (default: 8080)")
+		port     = flag.String("port", "", "Port for HTTP server (default: 8080)")
 		showHelp = flag.Bool("help", false, "Show help message")
-		version = flag.Bool("version", false, "Show version information")
+		version  = flag.Bool("version", false, "Show version information")
 	)
 	flag.Parse()
 
@@ -144,7 +144,7 @@ func main() {
 
 	// Use the repositories package for MCP service dependencies
 	repos := repositories.NewRepositories(sqlDB)
-	
+
 	// Initialize external dependency repositories
 	subscriptionRepo := repositories.NewSubscriptionRepository(sqlxDB)
 	dependencyRepo := repositories.NewDependencyRepository(sqlxDB)
@@ -159,7 +159,7 @@ func main() {
 	nodeAttributeValidator := nodeattributes.NewValidator()
 	nodeAttributeOrderManager := nodeattributes.NewOrderManager(nodeAttributeRepo)
 	nodeAttributeService := nodeattributes.NewService(nodeAttributeRepo, nodeAttributeValidator, nodeAttributeOrderManager)
-	
+
 	// Initialize external dependency services
 	subscriptionService := services.NewSubscriptionService(subscriptionRepo, repos.Node, eventRepo)
 	dependencyService := services.NewDependencyService(dependencyRepo, repos.Node, eventRepo)
@@ -186,7 +186,7 @@ func main() {
 	nodeHandler := nodes.NewNodeHandler(nodeService)
 	attributeHandler := attributes.NewAttributeHandler(attributeService)
 	nodeAttributeHandler := nodeattributes.NewHandler(nodeAttributeService)
-	
+
 	// Initialize external dependency handlers
 	subscriptionHandler := handlers.NewSubscriptionHandler(subscriptionService)
 	dependencyHandler := handlers.NewDependencyHandler(dependencyService)
@@ -330,7 +330,7 @@ func main() {
 	case "sse":
 		// SSE mode: HTTP server with MCP endpoints (default)
 		log.Println("Starting MCP SSE mode (HTTP server)...")
-		
+
 		// Register MCP routes
 		mcpHandler.RegisterRoutes(r)
 

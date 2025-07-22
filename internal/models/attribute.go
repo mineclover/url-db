@@ -117,7 +117,7 @@ type MCPDomainAttribute struct {
 }
 
 type MCPDomainAttributeListResponse struct {
-	DomainName  string                `json:"domain_name"`
-	Attributes  []MCPDomainAttribute  `json:"attributes"`
-	TotalCount  int                   `json:"total_count"`
+	DomainName string               `json:"domain_name"`
+	Attributes []MCPDomainAttribute `json:"attributes"`
+	TotalCount int                  `json:"total_count"`
 }

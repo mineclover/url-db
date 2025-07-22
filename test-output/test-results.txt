@@ -1,0 +1,1071 @@
+# url-db/docs
+docs/docs.go:3765:2: unknown field LeftDelim in struct literal of type "github.com/swaggo/swag".Spec
+docs/docs.go:3766:2: unknown field RightDelim in struct literal of type "github.com/swaggo/swag".Spec
+# url-db/internal/mcp [url-db/internal/mcp.test]
+internal/mcp/resources_test.go:14:34: cannot use mockService (variable of type *MockMCPService) as MCPService value in argument to NewResourceRegistry: *MockMCPService does not implement MCPService (missing method FilterNodesByAttributes)
+internal/mcp/resources_test.go:56:34: cannot use mockService (variable of type *MockMCPService) as MCPService value in argument to NewResourceRegistry: *MockMCPService does not implement MCPService (missing method FilterNodesByAttributes)
+internal/mcp/resources_test.go:85:34: cannot use mockService (variable of type *MockMCPService) as MCPService value in argument to NewResourceRegistry: *MockMCPService does not implement MCPService (missing method FilterNodesByAttributes)
+internal/mcp/resources_test.go:111:34: cannot use mockService (variable of type *MockMCPService) as MCPService value in argument to NewResourceRegistry: *MockMCPService does not implement MCPService (missing method FilterNodesByAttributes)
+internal/mcp/resources_test.go:138:34: cannot use mockService (variable of type *MockMCPService) as MCPService value in argument to NewResourceRegistry: *MockMCPService does not implement MCPService (missing method FilterNodesByAttributes)
+internal/mcp/resources_test.go:166:34: cannot use mockService (variable of type *MockMCPService) as MCPService value in argument to NewResourceRegistry: *MockMCPService does not implement MCPService (missing method FilterNodesByAttributes)
+internal/mcp/resources_test.go:177:34: cannot use mockService (variable of type *MockMCPService) as MCPService value in argument to NewResourceRegistry: *MockMCPService does not implement MCPService (missing method FilterNodesByAttributes)
+internal/mcp/tools_additional_test.go:14:30: cannot use mockService (variable of type *MockMCPService) as MCPService value in argument to NewToolRegistry: *MockMCPService does not implement MCPService (missing method FilterNodesByAttributes)
+internal/mcp/tools_additional_test.go:45:30: cannot use mockService (variable of type *MockMCPService) as MCPService value in argument to NewToolRegistry: *MockMCPService does not implement MCPService (missing method FilterNodesByAttributes)
+internal/mcp/tools_additional_test.go:74:30: cannot use mockService (variable of type *MockMCPService) as MCPService value in argument to NewToolRegistry: *MockMCPService does not implement MCPService (missing method FilterNodesByAttributes)
+internal/mcp/tools_additional_test.go:74:30: too many errors
+# url-db.test
+ld: warning: '/private/var/folders/t4/5cn643kn7ls_6vyl6y51gnnm0000gn/T/go-link-2383965973/000023.o' has malformed LC_DYSYMTAB, expected 98 undefined symbols to start at index 1626, found 95 undefined symbols starting at index 1626
+# url-db/internal/database.test
+ld: warning: '/private/var/folders/t4/5cn643kn7ls_6vyl6y51gnnm0000gn/T/go-link-2394659367/000023.o' has malformed LC_DYSYMTAB, expected 98 undefined symbols to start at index 1626, found 95 undefined symbols starting at index 1626
+# url-db/internal/attributes.test
+ld: warning: '/private/var/folders/t4/5cn643kn7ls_6vyl6y51gnnm0000gn/T/go-link-2379846958/000023.o' has malformed LC_DYSYMTAB, expected 98 undefined symbols to start at index 1626, found 95 undefined symbols starting at index 1626
+# url-db/internal/handlers.test
+ld: warning: '/private/var/folders/t4/5cn643kn7ls_6vyl6y51gnnm0000gn/T/go-link-366909448/000023.o' has malformed LC_DYSYMTAB, expected 98 undefined symbols to start at index 1626, found 95 undefined symbols starting at index 1626
+# url-db/internal/nodes.test
+ld: warning: '/private/var/folders/t4/5cn643kn7ls_6vyl6y51gnnm0000gn/T/go-link-4044912577/000023.o' has malformed LC_DYSYMTAB, expected 98 undefined symbols to start at index 1626, found 95 undefined symbols starting at index 1626
+=== RUN   TestDatabaseConnection
+--- PASS: TestDatabaseConnection (0.00s)
+=== RUN   TestConfigLoad
+--- PASS: TestConfigLoad (0.00s)
+=== RUN   TestMainApplicationComponents
+    main_test.go:92: All main application components initialized successfully
+--- PASS: TestMainApplicationComponents (0.00s)
+PASS
+coverage: [no statements]
+ok  	url-db	1.253s	coverage: [no statements]
+FAIL	url-db/cmd/server [build failed]
+FAIL	url-db/docs [build failed]
+=== RUN   TestAttributeHandler_CreateAttribute
+    handler_test.go:11: Test needs update for current interface
+--- SKIP: TestAttributeHandler_CreateAttribute (0.00s)
+=== RUN   TestAttributeHandler_GetAttribute
+    handler_test.go:15: Test needs update for current interface
+--- SKIP: TestAttributeHandler_GetAttribute (0.00s)
+=== RUN   TestAttributeHandler_UpdateAttribute
+    handler_test.go:19: Test needs update for current interface
+--- SKIP: TestAttributeHandler_UpdateAttribute (0.00s)
+=== RUN   TestAttributeHandler_DeleteAttribute
+    handler_test.go:23: Test needs update for current interface
+--- SKIP: TestAttributeHandler_DeleteAttribute (0.00s)
+=== RUN   TestAttributeHandler_ListAttributes
+    handler_test.go:27: Test needs update for current interface
+--- SKIP: TestAttributeHandler_ListAttributes (0.00s)
+=== RUN   TestSQLiteAttributeRepository_Create
+--- PASS: TestSQLiteAttributeRepository_Create (0.00s)
+=== RUN   TestSQLiteAttributeRepository_GetByID
+--- PASS: TestSQLiteAttributeRepository_GetByID (0.00s)
+=== RUN   TestSQLiteAttributeRepository_GetByID_NotFound
+--- PASS: TestSQLiteAttributeRepository_GetByID_NotFound (0.00s)
+=== RUN   TestSQLiteAttributeRepository_GetByDomainID
+--- PASS: TestSQLiteAttributeRepository_GetByDomainID (0.00s)
+=== RUN   TestSQLiteAttributeRepository_GetByDomainIDAndName
+--- PASS: TestSQLiteAttributeRepository_GetByDomainIDAndName (0.00s)
+=== RUN   TestSQLiteAttributeRepository_GetByDomainIDAndName_NotFound
+--- PASS: TestSQLiteAttributeRepository_GetByDomainIDAndName_NotFound (0.00s)
+=== RUN   TestSQLiteAttributeRepository_Update
+--- PASS: TestSQLiteAttributeRepository_Update (0.00s)
+=== RUN   TestSQLiteAttributeRepository_Update_NotFound
+--- PASS: TestSQLiteAttributeRepository_Update_NotFound (0.00s)
+=== RUN   TestSQLiteAttributeRepository_Delete
+--- PASS: TestSQLiteAttributeRepository_Delete (0.00s)
+=== RUN   TestSQLiteAttributeRepository_Delete_NotFound
+--- PASS: TestSQLiteAttributeRepository_Delete_NotFound (0.00s)
+=== RUN   TestSQLiteAttributeRepository_HasValues
+--- PASS: TestSQLiteAttributeRepository_HasValues (0.00s)
+=== RUN   TestAttributeService_CreateAttribute
+    service_test.go:114: PASS:	GetByDomainIDAndName(context.backgroundCtx,int,string)
+    service_test.go:114: PASS:	Create(context.backgroundCtx,mock.AnythingOfTypeArgument)
+    service_test.go:115: PASS:	GetDomain(context.backgroundCtx,int)
+--- PASS: TestAttributeService_CreateAttribute (0.00s)
+=== RUN   TestAttributeService_CreateAttribute_ValidationErrors
+=== RUN   TestAttributeService_CreateAttribute_ValidationErrors/empty_name
+=== RUN   TestAttributeService_CreateAttribute_ValidationErrors/long_name
+=== RUN   TestAttributeService_CreateAttribute_ValidationErrors/empty_type
+=== RUN   TestAttributeService_CreateAttribute_ValidationErrors/invalid_type
+=== RUN   TestAttributeService_CreateAttribute_ValidationErrors/long_description
+--- PASS: TestAttributeService_CreateAttribute_ValidationErrors (0.00s)
+    --- PASS: TestAttributeService_CreateAttribute_ValidationErrors/empty_name (0.00s)
+    --- PASS: TestAttributeService_CreateAttribute_ValidationErrors/long_name (0.00s)
+    --- PASS: TestAttributeService_CreateAttribute_ValidationErrors/empty_type (0.00s)
+    --- PASS: TestAttributeService_CreateAttribute_ValidationErrors/invalid_type (0.00s)
+    --- PASS: TestAttributeService_CreateAttribute_ValidationErrors/long_description (0.00s)
+=== RUN   TestAttributeService_CreateAttribute_DomainNotFound
+    service_test.go:196: PASS:	GetDomain(context.backgroundCtx,int)
+--- PASS: TestAttributeService_CreateAttribute_DomainNotFound (0.00s)
+=== RUN   TestAttributeService_CreateAttribute_AlreadyExists
+    service_test.go:224: PASS:	GetByDomainIDAndName(context.backgroundCtx,int,string)
+    service_test.go:225: PASS:	GetDomain(context.backgroundCtx,int)
+--- PASS: TestAttributeService_CreateAttribute_AlreadyExists (0.00s)
+=== RUN   TestAttributeService_GetAttribute
+    service_test.go:248: PASS:	GetByID(context.backgroundCtx,int)
+--- PASS: TestAttributeService_GetAttribute (0.00s)
+=== RUN   TestAttributeService_ListAttributes
+    service_test.go:284: PASS:	GetByDomainID(context.backgroundCtx,int)
+    service_test.go:285: PASS:	GetDomain(context.backgroundCtx,int)
+--- PASS: TestAttributeService_ListAttributes (0.00s)
+=== RUN   TestAttributeService_UpdateAttribute
+    service_test.go:316: PASS:	GetByID(context.backgroundCtx,int)
+    service_test.go:316: PASS:	Update(context.backgroundCtx,mock.AnythingOfTypeArgument)
+--- PASS: TestAttributeService_UpdateAttribute (0.00s)
+=== RUN   TestAttributeService_DeleteAttribute
+    service_test.go:340: PASS:	GetByID(context.backgroundCtx,int)
+    service_test.go:340: PASS:	HasValues(context.backgroundCtx,int)
+    service_test.go:340: PASS:	Delete(context.backgroundCtx,int)
+--- PASS: TestAttributeService_DeleteAttribute (0.00s)
+=== RUN   TestAttributeService_DeleteAttribute_HasValues
+    service_test.go:363: PASS:	GetByID(context.backgroundCtx,int)
+    service_test.go:363: PASS:	HasValues(context.backgroundCtx,int)
+--- PASS: TestAttributeService_DeleteAttribute_HasValues (0.00s)
+=== RUN   TestTagValidator_Validate
+=== RUN   TestTagValidator_Validate/valid_tag
+=== RUN   TestTagValidator_Validate/empty_value
+=== RUN   TestTagValidator_Validate/too_long_value
+=== RUN   TestTagValidator_Validate/max_length_value
+--- PASS: TestTagValidator_Validate (0.00s)
+    --- PASS: TestTagValidator_Validate/valid_tag (0.00s)
+    --- PASS: TestTagValidator_Validate/empty_value (0.00s)
+    --- PASS: TestTagValidator_Validate/too_long_value (0.00s)
+    --- PASS: TestTagValidator_Validate/max_length_value (0.00s)
+=== RUN   TestOrderedTagValidator_Validate
+=== RUN   TestOrderedTagValidator_Validate/valid_ordered_tag
+=== RUN   TestOrderedTagValidator_Validate/empty_value
+=== RUN   TestOrderedTagValidator_Validate/missing_order_index
+=== RUN   TestOrderedTagValidator_Validate/too_long_value
+--- PASS: TestOrderedTagValidator_Validate (0.00s)
+    --- PASS: TestOrderedTagValidator_Validate/valid_ordered_tag (0.00s)
+    --- PASS: TestOrderedTagValidator_Validate/empty_value (0.00s)
+    --- PASS: TestOrderedTagValidator_Validate/missing_order_index (0.00s)
+    --- PASS: TestOrderedTagValidator_Validate/too_long_value (0.00s)
+=== RUN   TestNumberValidator_Validate
+=== RUN   TestNumberValidator_Validate/valid_integer
+=== RUN   TestNumberValidator_Validate/valid_float
+=== RUN   TestNumberValidator_Validate/valid_negative_number
+=== RUN   TestNumberValidator_Validate/empty_value
+=== RUN   TestNumberValidator_Validate/invalid_number
+=== RUN   TestNumberValidator_Validate/scientific_notation
+--- PASS: TestNumberValidator_Validate (0.00s)
+    --- PASS: TestNumberValidator_Validate/valid_integer (0.00s)
+    --- PASS: TestNumberValidator_Validate/valid_float (0.00s)
+    --- PASS: TestNumberValidator_Validate/valid_negative_number (0.00s)
+    --- PASS: TestNumberValidator_Validate/empty_value (0.00s)
+    --- PASS: TestNumberValidator_Validate/invalid_number (0.00s)
+    --- PASS: TestNumberValidator_Validate/scientific_notation (0.00s)
+=== RUN   TestStringValidator_Validate
+=== RUN   TestStringValidator_Validate/valid_string
+=== RUN   TestStringValidator_Validate/empty_value
+=== RUN   TestStringValidator_Validate/too_long_value
+=== RUN   TestStringValidator_Validate/max_length_value
+--- PASS: TestStringValidator_Validate (0.00s)
+    --- PASS: TestStringValidator_Validate/valid_string (0.00s)
+    --- PASS: TestStringValidator_Validate/empty_value (0.00s)
+    --- PASS: TestStringValidator_Validate/too_long_value (0.00s)
+    --- PASS: TestStringValidator_Validate/max_length_value (0.00s)
+=== RUN   TestMarkdownValidator_Validate
+=== RUN   TestMarkdownValidator_Validate/valid_markdown
+=== RUN   TestMarkdownValidator_Validate/empty_value
+=== RUN   TestMarkdownValidator_Validate/too_long_value
+=== RUN   TestMarkdownValidator_Validate/valid_with_code_block
+=== RUN   TestMarkdownValidator_Validate/valid_with_inline_code
+=== RUN   TestMarkdownValidator_Validate/valid_with_relative_link
+=== RUN   TestMarkdownValidator_Validate/valid_with_anchor
+--- PASS: TestMarkdownValidator_Validate (0.00s)
+    --- PASS: TestMarkdownValidator_Validate/valid_markdown (0.00s)
+    --- PASS: TestMarkdownValidator_Validate/empty_value (0.00s)
+    --- PASS: TestMarkdownValidator_Validate/too_long_value (0.00s)
+    --- PASS: TestMarkdownValidator_Validate/valid_with_code_block (0.00s)
+    --- PASS: TestMarkdownValidator_Validate/valid_with_inline_code (0.00s)
+    --- PASS: TestMarkdownValidator_Validate/valid_with_relative_link (0.00s)
+    --- PASS: TestMarkdownValidator_Validate/valid_with_anchor (0.00s)
+=== RUN   TestImageValidator_Validate
+=== RUN   TestImageValidator_Validate/valid_image_URL_with_extension
+=== RUN   TestImageValidator_Validate/valid_imgur_URL
+=== RUN   TestImageValidator_Validate/valid_unsplash_URL
+=== RUN   TestImageValidator_Validate/valid_GitHub_avatar
+=== RUN   TestImageValidator_Validate/empty_value
+=== RUN   TestImageValidator_Validate/too_long_value
+    validators_test.go:331: 
+        	Error Trace:	/Users/junwoobang/mcp/url-db/internal/attributes/validators_test.go:331
+        	Error:      	Target error should be in err chain:
+        	            	expected: "value too long"
+        	            	in chain: "invalid URL"
+        	Test:       	TestImageValidator_Validate/too_long_value
+=== RUN   TestImageValidator_Validate/invalid_URL
+=== RUN   TestImageValidator_Validate/relative_URL
+=== RUN   TestImageValidator_Validate/non-HTTP_scheme
+=== RUN   TestImageValidator_Validate/valid_HTTPS_image
+=== RUN   TestImageValidator_Validate/valid_HTTP_image
+=== RUN   TestImageValidator_Validate/valid_webp_image
+=== RUN   TestImageValidator_Validate/valid_svg_image
+--- FAIL: TestImageValidator_Validate (0.00s)
+    --- PASS: TestImageValidator_Validate/valid_image_URL_with_extension (0.00s)
+    --- PASS: TestImageValidator_Validate/valid_imgur_URL (0.00s)
+    --- PASS: TestImageValidator_Validate/valid_unsplash_URL (0.00s)
+    --- PASS: TestImageValidator_Validate/valid_GitHub_avatar (0.00s)
+    --- PASS: TestImageValidator_Validate/empty_value (0.00s)
+    --- FAIL: TestImageValidator_Validate/too_long_value (0.00s)
+    --- PASS: TestImageValidator_Validate/invalid_URL (0.00s)
+    --- PASS: TestImageValidator_Validate/relative_URL (0.00s)
+    --- PASS: TestImageValidator_Validate/non-HTTP_scheme (0.00s)
+    --- PASS: TestImageValidator_Validate/valid_HTTPS_image (0.00s)
+    --- PASS: TestImageValidator_Validate/valid_HTTP_image (0.00s)
+    --- PASS: TestImageValidator_Validate/valid_webp_image (0.00s)
+    --- PASS: TestImageValidator_Validate/valid_svg_image (0.00s)
+=== RUN   TestValidatorFactory_GetValidator
+=== RUN   TestValidatorFactory_GetValidator/tag_validator
+=== RUN   TestValidatorFactory_GetValidator/ordered_tag_validator
+=== RUN   TestValidatorFactory_GetValidator/number_validator
+=== RUN   TestValidatorFactory_GetValidator/string_validator
+=== RUN   TestValidatorFactory_GetValidator/markdown_validator
+=== RUN   TestValidatorFactory_GetValidator/image_validator
+=== RUN   TestValidatorFactory_GetValidator/unsupported_type
+--- PASS: TestValidatorFactory_GetValidator (0.00s)
+    --- PASS: TestValidatorFactory_GetValidator/tag_validator (0.00s)
+    --- PASS: TestValidatorFactory_GetValidator/ordered_tag_validator (0.00s)
+    --- PASS: TestValidatorFactory_GetValidator/number_validator (0.00s)
+    --- PASS: TestValidatorFactory_GetValidator/string_validator (0.00s)
+    --- PASS: TestValidatorFactory_GetValidator/markdown_validator (0.00s)
+    --- PASS: TestValidatorFactory_GetValidator/image_validator (0.00s)
+    --- PASS: TestValidatorFactory_GetValidator/unsupported_type (0.00s)
+=== RUN   TestValidateAttributeValue
+=== RUN   TestValidateAttributeValue/valid_tag
+=== RUN   TestValidateAttributeValue/valid_ordered_tag
+=== RUN   TestValidateAttributeValue/valid_number
+=== RUN   TestValidateAttributeValue/invalid_number
+=== RUN   TestValidateAttributeValue/valid_string
+=== RUN   TestValidateAttributeValue/valid_markdown
+=== RUN   TestValidateAttributeValue/valid_image
+=== RUN   TestValidateAttributeValue/unsupported_type
+--- PASS: TestValidateAttributeValue (0.00s)
+    --- PASS: TestValidateAttributeValue/valid_tag (0.00s)
+    --- PASS: TestValidateAttributeValue/valid_ordered_tag (0.00s)
+    --- PASS: TestValidateAttributeValue/valid_number (0.00s)
+    --- PASS: TestValidateAttributeValue/invalid_number (0.00s)
+    --- PASS: TestValidateAttributeValue/valid_string (0.00s)
+    --- PASS: TestValidateAttributeValue/valid_markdown (0.00s)
+    --- PASS: TestValidateAttributeValue/valid_image (0.00s)
+    --- PASS: TestValidateAttributeValue/unsupported_type (0.00s)
+FAIL
+coverage: 65.2% of statements
+FAIL	url-db/internal/attributes	0.280s
+# url-db/internal/repositories.test
+ld: warning: '/private/var/folders/t4/5cn643kn7ls_6vyl6y51gnnm0000gn/T/go-link-3042522563/000023.o' has malformed LC_DYSYMTAB, expected 98 undefined symbols to start at index 1626, found 95 undefined symbols starting at index 1626
+=== RUN   TestCreate
+=== RUN   TestCreate/기본_생성
+=== RUN   TestCreate/다른_도구명
+--- PASS: TestCreate (0.00s)
+    --- PASS: TestCreate/기본_생성 (0.00s)
+    --- PASS: TestCreate/다른_도구명 (0.00s)
+=== RUN   TestParse
+=== RUN   TestParse/유효한_합성키
+=== RUN   TestParse/다른_유효한_합성키
+=== RUN   TestParse/구성_요소_부족
+=== RUN   TestParse/구성_요소_초과
+=== RUN   TestParse/잘못된_ID
+=== RUN   TestParse/음수_ID
+=== RUN   TestParse/0_ID
+=== RUN   TestParse/빈_문자열
+--- PASS: TestParse (0.00s)
+    --- PASS: TestParse/유효한_합성키 (0.00s)
+    --- PASS: TestParse/다른_유효한_합성키 (0.00s)
+    --- PASS: TestParse/구성_요소_부족 (0.00s)
+    --- PASS: TestParse/구성_요소_초과 (0.00s)
+    --- PASS: TestParse/잘못된_ID (0.00s)
+    --- PASS: TestParse/음수_ID (0.00s)
+    --- PASS: TestParse/0_ID (0.00s)
+    --- PASS: TestParse/빈_문자열 (0.00s)
+=== RUN   TestIsValid
+=== RUN   TestIsValid/유효한_합성키
+=== RUN   TestIsValid/잘못된_형식
+=== RUN   TestIsValid/잘못된_ID
+=== RUN   TestIsValid/빈_문자열
+--- PASS: TestIsValid (0.00s)
+    --- PASS: TestIsValid/유효한_합성키 (0.00s)
+    --- PASS: TestIsValid/잘못된_형식 (0.00s)
+    --- PASS: TestIsValid/잘못된_ID (0.00s)
+    --- PASS: TestIsValid/빈_문자열 (0.00s)
+=== RUN   TestCompositeKeyString
+--- PASS: TestCompositeKeyString (0.00s)
+=== RUN   TestNormalizeToolName
+=== RUN   TestNormalizeToolName/기본_정규화
+=== RUN   TestNormalizeToolName/특수문자_변환
+=== RUN   TestNormalizeToolName/연속_구분자_처리
+=== RUN   TestNormalizeToolName/앞뒤_공백_제거
+=== RUN   TestNormalizeToolName/카멜케이스_변환
+=== RUN   TestNormalizeToolName/이미_정규화된_문자열
+=== RUN   TestNormalizeToolName/빈_문자열
+=== RUN   TestNormalizeToolName/공백만_있는_문자열
+=== RUN   TestNormalizeToolName/너무_긴_문자열
+--- PASS: TestNormalizeToolName (0.00s)
+    --- PASS: TestNormalizeToolName/기본_정규화 (0.00s)
+    --- PASS: TestNormalizeToolName/특수문자_변환 (0.00s)
+    --- PASS: TestNormalizeToolName/연속_구분자_처리 (0.00s)
+    --- PASS: TestNormalizeToolName/앞뒤_공백_제거 (0.00s)
+    --- PASS: TestNormalizeToolName/카멜케이스_변환 (0.00s)
+    --- PASS: TestNormalizeToolName/이미_정규화된_문자열 (0.00s)
+    --- PASS: TestNormalizeToolName/빈_문자열 (0.00s)
+    --- PASS: TestNormalizeToolName/공백만_있는_문자열 (0.00s)
+    --- PASS: TestNormalizeToolName/너무_긴_문자열 (0.00s)
+=== RUN   TestNormalizeDomainName
+=== RUN   TestNormalizeDomainName/기본_정규화
+=== RUN   TestNormalizeDomainName/특수문자_변환
+=== RUN   TestNormalizeDomainName/연속_구분자_처리
+=== RUN   TestNormalizeDomainName/앞뒤_공백_제거
+=== RUN   TestNormalizeDomainName/카멜케이스_변환
+=== RUN   TestNormalizeDomainName/이미_정규화된_문자열
+=== RUN   TestNormalizeDomainName/빈_문자열
+=== RUN   TestNormalizeDomainName/공백만_있는_문자열
+=== RUN   TestNormalizeDomainName/너무_긴_문자열
+--- PASS: TestNormalizeDomainName (0.00s)
+    --- PASS: TestNormalizeDomainName/기본_정규화 (0.00s)
+    --- PASS: TestNormalizeDomainName/특수문자_변환 (0.00s)
+    --- PASS: TestNormalizeDomainName/연속_구분자_처리 (0.00s)
+    --- PASS: TestNormalizeDomainName/앞뒤_공백_제거 (0.00s)
+    --- PASS: TestNormalizeDomainName/카멜케이스_변환 (0.00s)
+    --- PASS: TestNormalizeDomainName/이미_정규화된_문자열 (0.00s)
+    --- PASS: TestNormalizeDomainName/빈_문자열 (0.00s)
+    --- PASS: TestNormalizeDomainName/공백만_있는_문자열 (0.00s)
+    --- PASS: TestNormalizeDomainName/너무_긴_문자열 (0.00s)
+=== RUN   TestCreateNormalized
+=== RUN   TestCreateNormalized/기본_정규화된_생성
+=== RUN   TestCreateNormalized/특수문자_포함
+=== RUN   TestCreateNormalized/잘못된_도구명
+=== RUN   TestCreateNormalized/잘못된_도메인명
+=== RUN   TestCreateNormalized/잘못된_ID
+=== RUN   TestCreateNormalized/음수_ID
+--- PASS: TestCreateNormalized (0.00s)
+    --- PASS: TestCreateNormalized/기본_정규화된_생성 (0.00s)
+    --- PASS: TestCreateNormalized/특수문자_포함 (0.00s)
+    --- PASS: TestCreateNormalized/잘못된_도구명 (0.00s)
+    --- PASS: TestCreateNormalized/잘못된_도메인명 (0.00s)
+    --- PASS: TestCreateNormalized/잘못된_ID (0.00s)
+    --- PASS: TestCreateNormalized/음수_ID (0.00s)
+=== RUN   TestNormalizeString
+=== RUN   TestNormalizeString/기본_정규화
+=== RUN   TestNormalizeString/특수문자_변환
+=== RUN   TestNormalizeString/연속_구분자
+=== RUN   TestNormalizeString/앞뒤_공백과_하이픈
+=== RUN   TestNormalizeString/빈_문자열
+=== RUN   TestNormalizeString/공백만
+=== RUN   TestNormalizeString/하이픈만
+=== RUN   TestNormalizeString/대소문자_변환
+--- PASS: TestNormalizeString (0.00s)
+    --- PASS: TestNormalizeString/기본_정규화 (0.00s)
+    --- PASS: TestNormalizeString/특수문자_변환 (0.00s)
+    --- PASS: TestNormalizeString/연속_구분자 (0.00s)
+    --- PASS: TestNormalizeString/앞뒤_공백과_하이픈 (0.00s)
+    --- PASS: TestNormalizeString/빈_문자열 (0.00s)
+    --- PASS: TestNormalizeString/공백만 (0.00s)
+    --- PASS: TestNormalizeString/하이픈만 (0.00s)
+    --- PASS: TestNormalizeString/대소문자_변환 (0.00s)
+=== RUN   TestNewService
+--- PASS: TestNewService (0.00s)
+=== RUN   TestServiceCreate
+=== RUN   TestServiceCreate/기본_생성
+=== RUN   TestServiceCreate/특수문자_포함
+=== RUN   TestServiceCreate/잘못된_도메인명
+=== RUN   TestServiceCreate/잘못된_ID
+=== RUN   TestServiceCreate/음수_ID
+--- PASS: TestServiceCreate (0.00s)
+    --- PASS: TestServiceCreate/기본_생성 (0.00s)
+    --- PASS: TestServiceCreate/특수문자_포함 (0.00s)
+    --- PASS: TestServiceCreate/잘못된_도메인명 (0.00s)
+    --- PASS: TestServiceCreate/잘못된_ID (0.00s)
+    --- PASS: TestServiceCreate/음수_ID (0.00s)
+=== RUN   TestServiceCreateWithTool
+=== RUN   TestServiceCreateWithTool/기본_생성
+=== RUN   TestServiceCreateWithTool/특수문자_포함
+=== RUN   TestServiceCreateWithTool/잘못된_도구명
+=== RUN   TestServiceCreateWithTool/잘못된_도메인명
+=== RUN   TestServiceCreateWithTool/잘못된_ID
+--- PASS: TestServiceCreateWithTool (0.00s)
+    --- PASS: TestServiceCreateWithTool/기본_생성 (0.00s)
+    --- PASS: TestServiceCreateWithTool/특수문자_포함 (0.00s)
+    --- PASS: TestServiceCreateWithTool/잘못된_도구명 (0.00s)
+    --- PASS: TestServiceCreateWithTool/잘못된_도메인명 (0.00s)
+    --- PASS: TestServiceCreateWithTool/잘못된_ID (0.00s)
+=== RUN   TestServiceParse
+=== RUN   TestServiceParse/유효한_합성키
+=== RUN   TestServiceParse/다른_유효한_합성키
+=== RUN   TestServiceParse/잘못된_형식
+=== RUN   TestServiceParse/잘못된_ID
+--- PASS: TestServiceParse (0.00s)
+    --- PASS: TestServiceParse/유효한_합성키 (0.00s)
+    --- PASS: TestServiceParse/다른_유효한_합성키 (0.00s)
+    --- PASS: TestServiceParse/잘못된_형식 (0.00s)
+    --- PASS: TestServiceParse/잘못된_ID (0.00s)
+=== RUN   TestServiceValidate
+=== RUN   TestServiceValidate/유효한_합성키
+=== RUN   TestServiceValidate/잘못된_형식
+=== RUN   TestServiceValidate/잘못된_ID
+=== RUN   TestServiceValidate/빈_문자열
+--- PASS: TestServiceValidate (0.00s)
+    --- PASS: TestServiceValidate/유효한_합성키 (0.00s)
+    --- PASS: TestServiceValidate/잘못된_형식 (0.00s)
+    --- PASS: TestServiceValidate/잘못된_ID (0.00s)
+    --- PASS: TestServiceValidate/빈_문자열 (0.00s)
+=== RUN   TestServiceParseComponents
+=== RUN   TestServiceParseComponents/유효한_합성키
+=== RUN   TestServiceParseComponents/다른_유효한_합성키
+=== RUN   TestServiceParseComponents/잘못된_형식
+=== RUN   TestServiceParseComponents/잘못된_ID
+--- PASS: TestServiceParseComponents (0.00s)
+    --- PASS: TestServiceParseComponents/유효한_합성키 (0.00s)
+    --- PASS: TestServiceParseComponents/다른_유효한_합성키 (0.00s)
+    --- PASS: TestServiceParseComponents/잘못된_형식 (0.00s)
+    --- PASS: TestServiceParseComponents/잘못된_ID (0.00s)
+=== RUN   TestServiceGetToolName
+=== RUN   TestServiceGetToolName/유효한_합성키
+=== RUN   TestServiceGetToolName/다른_유효한_합성키
+=== RUN   TestServiceGetToolName/잘못된_형식
+=== RUN   TestServiceGetToolName/빈_문자열
+--- PASS: TestServiceGetToolName (0.00s)
+    --- PASS: TestServiceGetToolName/유효한_합성키 (0.00s)
+    --- PASS: TestServiceGetToolName/다른_유효한_합성키 (0.00s)
+    --- PASS: TestServiceGetToolName/잘못된_형식 (0.00s)
+    --- PASS: TestServiceGetToolName/빈_문자열 (0.00s)
+=== RUN   TestServiceGetDomainName
+=== RUN   TestServiceGetDomainName/유효한_합성키
+=== RUN   TestServiceGetDomainName/다른_유효한_합성키
+=== RUN   TestServiceGetDomainName/잘못된_형식
+=== RUN   TestServiceGetDomainName/빈_문자열
+--- PASS: TestServiceGetDomainName (0.00s)
+    --- PASS: TestServiceGetDomainName/유효한_합성키 (0.00s)
+    --- PASS: TestServiceGetDomainName/다른_유효한_합성키 (0.00s)
+    --- PASS: TestServiceGetDomainName/잘못된_형식 (0.00s)
+    --- PASS: TestServiceGetDomainName/빈_문자열 (0.00s)
+=== RUN   TestServiceGetID
+=== RUN   TestServiceGetID/유효한_합성키
+=== RUN   TestServiceGetID/다른_유효한_합성키
+=== RUN   TestServiceGetID/잘못된_형식
+=== RUN   TestServiceGetID/잘못된_ID
+--- PASS: TestServiceGetID (0.00s)
+    --- PASS: TestServiceGetID/유효한_합성키 (0.00s)
+    --- PASS: TestServiceGetID/다른_유효한_합성키 (0.00s)
+    --- PASS: TestServiceGetID/잘못된_형식 (0.00s)
+    --- PASS: TestServiceGetID/잘못된_ID (0.00s)
+=== RUN   TestServiceIsValidFormat
+=== RUN   TestServiceIsValidFormat/유효한_형식
+=== RUN   TestServiceIsValidFormat/잘못된_형식
+=== RUN   TestServiceIsValidFormat/빈_문자열
+--- PASS: TestServiceIsValidFormat (0.00s)
+    --- PASS: TestServiceIsValidFormat/유효한_형식 (0.00s)
+    --- PASS: TestServiceIsValidFormat/잘못된_형식 (0.00s)
+    --- PASS: TestServiceIsValidFormat/빈_문자열 (0.00s)
+=== RUN   TestServiceNormalizeComponents
+=== RUN   TestServiceNormalizeComponents/기본_정규화
+=== RUN   TestServiceNormalizeComponents/특수문자_처리
+=== RUN   TestServiceNormalizeComponents/잘못된_도구명
+=== RUN   TestServiceNormalizeComponents/잘못된_도메인명
+--- PASS: TestServiceNormalizeComponents (0.00s)
+    --- PASS: TestServiceNormalizeComponents/기본_정규화 (0.00s)
+    --- PASS: TestServiceNormalizeComponents/특수문자_처리 (0.00s)
+    --- PASS: TestServiceNormalizeComponents/잘못된_도구명 (0.00s)
+    --- PASS: TestServiceNormalizeComponents/잘못된_도메인명 (0.00s)
+=== RUN   TestServiceValidateComponents
+=== RUN   TestServiceValidateComponents/유효한_구성_요소
+=== RUN   TestServiceValidateComponents/잘못된_도구명
+=== RUN   TestServiceValidateComponents/잘못된_도메인명
+=== RUN   TestServiceValidateComponents/잘못된_ID
+=== RUN   TestServiceValidateComponents/음수_ID
+--- PASS: TestServiceValidateComponents (0.00s)
+    --- PASS: TestServiceValidateComponents/유효한_구성_요소 (0.00s)
+    --- PASS: TestServiceValidateComponents/잘못된_도구명 (0.00s)
+    --- PASS: TestServiceValidateComponents/잘못된_도메인명 (0.00s)
+    --- PASS: TestServiceValidateComponents/잘못된_ID (0.00s)
+    --- PASS: TestServiceValidateComponents/음수_ID (0.00s)
+=== RUN   TestValidateFormat
+=== RUN   TestValidateFormat/유효한_형식
+=== RUN   TestValidateFormat/빈_문자열
+=== RUN   TestValidateFormat/구성_요소_부족
+=== RUN   TestValidateFormat/구성_요소_초과
+=== RUN   TestValidateFormat/단일_구성_요소
+--- PASS: TestValidateFormat (0.00s)
+    --- PASS: TestValidateFormat/유효한_형식 (0.00s)
+    --- PASS: TestValidateFormat/빈_문자열 (0.00s)
+    --- PASS: TestValidateFormat/구성_요소_부족 (0.00s)
+    --- PASS: TestValidateFormat/구성_요소_초과 (0.00s)
+    --- PASS: TestValidateFormat/단일_구성_요소 (0.00s)
+=== RUN   TestValidateToolName
+=== RUN   TestValidateToolName/유효한_도구명
+=== RUN   TestValidateToolName/언더스코어_포함
+=== RUN   TestValidateToolName/숫자_포함
+=== RUN   TestValidateToolName/빈_문자열
+=== RUN   TestValidateToolName/너무_긴_도구명
+=== RUN   TestValidateToolName/특수문자_포함
+=== RUN   TestValidateToolName/공백_포함
+=== RUN   TestValidateToolName/하이픈으로_시작
+=== RUN   TestValidateToolName/하이픈으로_끝남
+--- PASS: TestValidateToolName (0.00s)
+    --- PASS: TestValidateToolName/유효한_도구명 (0.00s)
+    --- PASS: TestValidateToolName/언더스코어_포함 (0.00s)
+    --- PASS: TestValidateToolName/숫자_포함 (0.00s)
+    --- PASS: TestValidateToolName/빈_문자열 (0.00s)
+    --- PASS: TestValidateToolName/너무_긴_도구명 (0.00s)
+    --- PASS: TestValidateToolName/특수문자_포함 (0.00s)
+    --- PASS: TestValidateToolName/공백_포함 (0.00s)
+    --- PASS: TestValidateToolName/하이픈으로_시작 (0.00s)
+    --- PASS: TestValidateToolName/하이픈으로_끝남 (0.00s)
+=== RUN   TestValidateDomainName
+=== RUN   TestValidateDomainName/유효한_도메인명
+=== RUN   TestValidateDomainName/언더스코어_포함
+=== RUN   TestValidateDomainName/숫자_포함
+=== RUN   TestValidateDomainName/빈_문자열
+=== RUN   TestValidateDomainName/너무_긴_도메인명
+=== RUN   TestValidateDomainName/특수문자_포함
+=== RUN   TestValidateDomainName/공백_포함
+=== RUN   TestValidateDomainName/하이픈으로_시작
+=== RUN   TestValidateDomainName/하이픈으로_끝남
+--- PASS: TestValidateDomainName (0.00s)
+    --- PASS: TestValidateDomainName/유효한_도메인명 (0.00s)
+    --- PASS: TestValidateDomainName/언더스코어_포함 (0.00s)
+    --- PASS: TestValidateDomainName/숫자_포함 (0.00s)
+    --- PASS: TestValidateDomainName/빈_문자열 (0.00s)
+    --- PASS: TestValidateDomainName/너무_긴_도메인명 (0.00s)
+    --- PASS: TestValidateDomainName/특수문자_포함 (0.00s)
+    --- PASS: TestValidateDomainName/공백_포함 (0.00s)
+    --- PASS: TestValidateDomainName/하이픈으로_시작 (0.00s)
+    --- PASS: TestValidateDomainName/하이픈으로_끝남 (0.00s)
+=== RUN   TestValidateID
+=== RUN   TestValidateID/유효한_ID
+=== RUN   TestValidateID/큰_ID
+=== RUN   TestValidateID/빈_문자열
+=== RUN   TestValidateID/너무_긴_ID
+=== RUN   TestValidateID/문자_포함
+=== RUN   TestValidateID/음수
+=== RUN   TestValidateID/0
+=== RUN   TestValidateID/부동소수점
+--- PASS: TestValidateID (0.00s)
+    --- PASS: TestValidateID/유효한_ID (0.00s)
+    --- PASS: TestValidateID/큰_ID (0.00s)
+    --- PASS: TestValidateID/빈_문자열 (0.00s)
+    --- PASS: TestValidateID/너무_긴_ID (0.00s)
+    --- PASS: TestValidateID/문자_포함 (0.00s)
+    --- PASS: TestValidateID/음수 (0.00s)
+    --- PASS: TestValidateID/0 (0.00s)
+    --- PASS: TestValidateID/부동소수점 (0.00s)
+=== RUN   TestValidateCompositeKey
+=== RUN   TestValidateCompositeKey/유효한_합성키
+=== RUN   TestValidateCompositeKey/다른_유효한_합성키
+=== RUN   TestValidateCompositeKey/잘못된_형식
+=== RUN   TestValidateCompositeKey/잘못된_도구명
+=== RUN   TestValidateCompositeKey/잘못된_도메인명
+=== RUN   TestValidateCompositeKey/잘못된_ID
+=== RUN   TestValidateCompositeKey/음수_ID
+=== RUN   TestValidateCompositeKey/0_ID
+=== RUN   TestValidateCompositeKey/빈_문자열
+--- PASS: TestValidateCompositeKey (0.00s)
+    --- PASS: TestValidateCompositeKey/유효한_합성키 (0.00s)
+    --- PASS: TestValidateCompositeKey/다른_유효한_합성키 (0.00s)
+    --- PASS: TestValidateCompositeKey/잘못된_형식 (0.00s)
+    --- PASS: TestValidateCompositeKey/잘못된_도구명 (0.00s)
+    --- PASS: TestValidateCompositeKey/잘못된_도메인명 (0.00s)
+    --- PASS: TestValidateCompositeKey/잘못된_ID (0.00s)
+    --- PASS: TestValidateCompositeKey/음수_ID (0.00s)
+    --- PASS: TestValidateCompositeKey/0_ID (0.00s)
+    --- PASS: TestValidateCompositeKey/빈_문자열 (0.00s)
+=== RUN   TestValidateCompositeKeyStruct
+=== RUN   TestValidateCompositeKeyStruct/유효한_구조체
+=== RUN   TestValidateCompositeKeyStruct/잘못된_도구명
+=== RUN   TestValidateCompositeKeyStruct/잘못된_도메인명
+=== RUN   TestValidateCompositeKeyStruct/잘못된_ID
+=== RUN   TestValidateCompositeKeyStruct/음수_ID
+--- PASS: TestValidateCompositeKeyStruct (0.00s)
+    --- PASS: TestValidateCompositeKeyStruct/유효한_구조체 (0.00s)
+    --- PASS: TestValidateCompositeKeyStruct/잘못된_도구명 (0.00s)
+    --- PASS: TestValidateCompositeKeyStruct/잘못된_도메인명 (0.00s)
+    --- PASS: TestValidateCompositeKeyStruct/잘못된_ID (0.00s)
+    --- PASS: TestValidateCompositeKeyStruct/음수_ID (0.00s)
+=== RUN   ExampleService_Create
+--- PASS: ExampleService_Create (0.00s)
+=== RUN   ExampleService_CreateWithTool
+--- PASS: ExampleService_CreateWithTool (0.00s)
+=== RUN   ExampleService_Parse
+--- PASS: ExampleService_Parse (0.00s)
+=== RUN   ExampleService_ParseComponents
+--- PASS: ExampleService_ParseComponents (0.00s)
+=== RUN   ExampleService_Validate
+--- PASS: ExampleService_Validate (0.00s)
+=== RUN   ExampleService_GetToolName
+--- PASS: ExampleService_GetToolName (0.00s)
+=== RUN   ExampleService_GetDomainName
+--- PASS: ExampleService_GetDomainName (0.00s)
+=== RUN   ExampleService_GetID
+--- PASS: ExampleService_GetID (0.00s)
+=== RUN   ExampleService_NormalizeComponents
+--- PASS: ExampleService_NormalizeComponents (0.00s)
+=== RUN   ExampleCreateNormalized
+--- PASS: ExampleCreateNormalized (0.00s)
+=== RUN   ExampleParse
+--- PASS: ExampleParse (0.00s)
+=== RUN   ExampleIsValid
+--- PASS: ExampleIsValid (0.00s)
+=== RUN   ExampleNormalizeToolName
+--- PASS: ExampleNormalizeToolName (0.00s)
+=== RUN   ExampleNormalizeDomainName
+--- PASS: ExampleNormalizeDomainName (0.00s)
+PASS
+coverage: 99.3% of statements
+ok  	url-db/internal/compositekey	1.491s	coverage: 99.3% of statements
+	url-db/internal/config		coverage: 0.0% of statements
+=== RUN   TestNew
+=== RUN   TestNew/default_config
+=== RUN   TestNew/test_config
+=== RUN   TestNew/custom_config
+--- PASS: TestNew (0.00s)
+    --- PASS: TestNew/default_config (0.00s)
+    --- PASS: TestNew/test_config (0.00s)
+    --- PASS: TestNew/custom_config (0.00s)
+=== RUN   TestDatabase_createSchema
+--- PASS: TestDatabase_createSchema (0.00s)
+=== RUN   TestDatabase_WithTransaction
+=== RUN   TestDatabase_WithTransaction/successful_transaction
+=== RUN   TestDatabase_WithTransaction/failed_transaction_rollback
+--- PASS: TestDatabase_WithTransaction (0.00s)
+    --- PASS: TestDatabase_WithTransaction/successful_transaction (0.00s)
+    --- PASS: TestDatabase_WithTransaction/failed_transaction_rollback (0.00s)
+=== RUN   TestDatabase_Close
+--- PASS: TestDatabase_Close (0.00s)
+=== RUN   TestDatabase_Ping
+--- PASS: TestDatabase_Ping (0.00s)
+=== RUN   TestDatabase_DB
+--- PASS: TestDatabase_DB (0.00s)
+=== RUN   TestConfigureDatabase
+    database_test.go:179: 
+        	Error Trace:	/Users/junwoobang/mcp/url-db/internal/database/database_test.go:179
+        	Error:      	Not equal: 
+        	            	expected: "DELETE"
+        	            	actual  : "memory"
+        	            	
+        	            	Diff:
+        	            	--- Expected
+        	            	+++ Actual
+        	            	@@ -1 +1 @@
+        	            	-DELETE
+        	            	+memory
+        	Test:       	TestConfigureDatabase
+--- FAIL: TestConfigureDatabase (0.00s)
+FAIL
+coverage: 70.6% of statements
+FAIL	url-db/internal/database	1.108s
+	url-db/internal/domains		coverage: 0.0% of statements
+=== RUN   TestDomainHandler_CreateDomain
+    domain_handler_test.go:11: Test needs update for current interface
+--- SKIP: TestDomainHandler_CreateDomain (0.00s)
+=== RUN   TestDomainHandler_GetDomain
+    domain_handler_test.go:15: Test needs update for current interface
+--- SKIP: TestDomainHandler_GetDomain (0.00s)
+=== RUN   TestDomainHandler_UpdateDomain
+    domain_handler_test.go:19: Test needs update for current interface
+--- SKIP: TestDomainHandler_UpdateDomain (0.00s)
+=== RUN   TestDomainHandler_DeleteDomain
+    domain_handler_test.go:23: Test needs update for current interface
+--- SKIP: TestDomainHandler_DeleteDomain (0.00s)
+=== RUN   TestDomainHandler_ListDomains
+    domain_handler_test.go:27: Test needs update for current interface
+--- SKIP: TestDomainHandler_ListDomains (0.00s)
+=== RUN   TestHandleError_ValidationError
+--- PASS: TestHandleError_ValidationError (0.00s)
+=== RUN   TestHandleError_NotFoundError
+--- PASS: TestHandleError_NotFoundError (0.00s)
+=== RUN   TestHandleError_ConflictError
+--- PASS: TestHandleError_ConflictError (0.00s)
+=== RUN   TestHandleError_InternalError
+--- PASS: TestHandleError_InternalError (0.00s)
+=== RUN   TestHandleError_UnknownError
+--- PASS: TestHandleError_UnknownError (0.00s)
+=== RUN   TestErrorTypes_ErrorMethod
+--- PASS: TestErrorTypes_ErrorMethod (0.00s)
+PASS
+coverage: 1.5% of statements
+ok  	url-db/internal/handlers	2.029s	coverage: 1.5% of statements
+FAIL	url-db/internal/mcp [build failed]
+	url-db/internal/models		coverage: 0.0% of statements
+=== RUN   TestRepository_Create
+    repository_test.go:8: Test needs database setup
+--- SKIP: TestRepository_Create (0.00s)
+=== RUN   TestRepository_GetByNodeID
+    repository_test.go:12: Test needs database setup
+--- SKIP: TestRepository_GetByNodeID (0.00s)
+=== RUN   TestRepository_Update
+    repository_test.go:16: Test needs database setup
+--- SKIP: TestRepository_Update (0.00s)
+=== RUN   TestRepository_Delete
+    repository_test.go:20: Test needs database setup
+--- SKIP: TestRepository_Delete (0.00s)
+=== RUN   TestService_CreateNodeAttribute
+=== RUN   TestService_CreateNodeAttribute/should_create_node_attribute_successfully
+    service_test.go:146: PASS:	ValidateNodeAndAttributeDomain(int,int)
+    service_test.go:146: PASS:	GetByNodeIDAndAttributeID(int,int)
+    service_test.go:146: PASS:	GetAttributeType(int)
+    service_test.go:146: PASS:	Create(mock.AnythingOfTypeArgument)
+    service_test.go:147: PASS:	Validate(models.AttributeType,string,*int)
+=== RUN   TestService_CreateNodeAttribute/should_handle_domain_mismatch_error
+    service_test.go:168: PASS:	ValidateNodeAndAttributeDomain(int,int)
+--- PASS: TestService_CreateNodeAttribute (0.00s)
+    --- PASS: TestService_CreateNodeAttribute/should_create_node_attribute_successfully (0.00s)
+    --- PASS: TestService_CreateNodeAttribute/should_handle_domain_mismatch_error (0.00s)
+=== RUN   TestService_GetNodeAttributeByID
+=== RUN   TestService_GetNodeAttributeByID/should_get_node_attribute_successfully
+    service_test.go:196: PASS:	GetByID(int)
+=== RUN   TestService_GetNodeAttributeByID/should_return_error_when_not_found
+    service_test.go:212: PASS:	GetByID(int)
+--- PASS: TestService_GetNodeAttributeByID (0.00s)
+    --- PASS: TestService_GetNodeAttributeByID/should_get_node_attribute_successfully (0.00s)
+    --- PASS: TestService_GetNodeAttributeByID/should_return_error_when_not_found (0.00s)
+=== RUN   TestService_ValidateNodeAttribute
+=== RUN   TestService_ValidateNodeAttribute/should_validate_successfully
+=== RUN   TestService_ValidateNodeAttribute/should_return_error_for_invalid_attribute_id
+=== RUN   TestService_ValidateNodeAttribute/should_return_error_for_empty_value
+=== RUN   TestService_ValidateNodeAttribute/should_return_error_for_value_too_long
+--- PASS: TestService_ValidateNodeAttribute (0.00s)
+    --- PASS: TestService_ValidateNodeAttribute/should_validate_successfully (0.00s)
+    --- PASS: TestService_ValidateNodeAttribute/should_return_error_for_invalid_attribute_id (0.00s)
+    --- PASS: TestService_ValidateNodeAttribute/should_return_error_for_empty_value (0.00s)
+    --- PASS: TestService_ValidateNodeAttribute/should_return_error_for_value_too_long (0.00s)
+=== RUN   TestValidator_ValidateValue
+=== RUN   TestValidator_ValidateValue/tag_validation
+=== RUN   TestValidator_ValidateValue/tag_validation/valid_tag
+=== RUN   TestValidator_ValidateValue/tag_validation/valid_tag_with_hyphens
+=== RUN   TestValidator_ValidateValue/tag_validation/valid_tag_with_underscores
+=== RUN   TestValidator_ValidateValue/tag_validation/valid_tag_with_numbers
+=== RUN   TestValidator_ValidateValue/tag_validation/empty_tag
+=== RUN   TestValidator_ValidateValue/tag_validation/tag_too_long
+=== RUN   TestValidator_ValidateValue/tag_validation/tag_with_spaces
+=== RUN   TestValidator_ValidateValue/tag_validation/tag_with_special_chars
+=== RUN   TestValidator_ValidateValue/ordered_tag_validation
+=== RUN   TestValidator_ValidateValue/ordered_tag_validation/valid_ordered_tag
+=== RUN   TestValidator_ValidateValue/ordered_tag_validation/empty_ordered_tag
+=== RUN   TestValidator_ValidateValue/ordered_tag_validation/ordered_tag_too_long
+=== RUN   TestValidator_ValidateValue/ordered_tag_validation/ordered_tag_with_spaces
+=== RUN   TestValidator_ValidateValue/number_validation
+=== RUN   TestValidator_ValidateValue/number_validation/valid_integer
+=== RUN   TestValidator_ValidateValue/number_validation/valid_float
+=== RUN   TestValidator_ValidateValue/number_validation/valid_negative
+=== RUN   TestValidator_ValidateValue/number_validation/valid_zero
+=== RUN   TestValidator_ValidateValue/number_validation/empty_number
+=== RUN   TestValidator_ValidateValue/number_validation/invalid_number
+=== RUN   TestValidator_ValidateValue/number_validation/number_with_spaces
+=== RUN   TestValidator_ValidateValue/string_validation
+=== RUN   TestValidator_ValidateValue/string_validation/valid_string
+=== RUN   TestValidator_ValidateValue/string_validation/empty_string
+=== RUN   TestValidator_ValidateValue/string_validation/string_too_long
+=== RUN   TestValidator_ValidateValue/string_validation/string_at_max_length
+=== RUN   TestValidator_ValidateValue/markdown_validation
+=== RUN   TestValidator_ValidateValue/markdown_validation/valid_markdown
+=== RUN   TestValidator_ValidateValue/markdown_validation/empty_markdown
+=== RUN   TestValidator_ValidateValue/markdown_validation/whitespace_only
+=== RUN   TestValidator_ValidateValue/markdown_validation/markdown_too_long
+=== RUN   TestValidator_ValidateValue/markdown_validation/markdown_at_max_length
+=== RUN   TestValidator_ValidateValue/image_validation
+=== RUN   TestValidator_ValidateValue/image_validation/valid_jpg
+=== RUN   TestValidator_ValidateValue/image_validation/valid_png
+=== RUN   TestValidator_ValidateValue/image_validation/valid_gif
+=== RUN   TestValidator_ValidateValue/image_validation/valid_webp
+=== RUN   TestValidator_ValidateValue/image_validation/valid_svg
+=== RUN   TestValidator_ValidateValue/image_validation/http_url
+=== RUN   TestValidator_ValidateValue/image_validation/empty_image
+=== RUN   TestValidator_ValidateValue/image_validation/invalid_url
+=== RUN   TestValidator_ValidateValue/image_validation/invalid_extension
+=== RUN   TestValidator_ValidateValue/image_validation/no_extension
+=== RUN   TestValidator_ValidateValue/image_validation/ftp_scheme
+--- PASS: TestValidator_ValidateValue (0.00s)
+    --- PASS: TestValidator_ValidateValue/tag_validation (0.00s)
+        --- PASS: TestValidator_ValidateValue/tag_validation/valid_tag (0.00s)
+        --- PASS: TestValidator_ValidateValue/tag_validation/valid_tag_with_hyphens (0.00s)
+        --- PASS: TestValidator_ValidateValue/tag_validation/valid_tag_with_underscores (0.00s)
+        --- PASS: TestValidator_ValidateValue/tag_validation/valid_tag_with_numbers (0.00s)
+        --- PASS: TestValidator_ValidateValue/tag_validation/empty_tag (0.00s)
+        --- PASS: TestValidator_ValidateValue/tag_validation/tag_too_long (0.00s)
+        --- PASS: TestValidator_ValidateValue/tag_validation/tag_with_spaces (0.00s)
+        --- PASS: TestValidator_ValidateValue/tag_validation/tag_with_special_chars (0.00s)
+    --- PASS: TestValidator_ValidateValue/ordered_tag_validation (0.00s)
+        --- PASS: TestValidator_ValidateValue/ordered_tag_validation/valid_ordered_tag (0.00s)
+        --- PASS: TestValidator_ValidateValue/ordered_tag_validation/empty_ordered_tag (0.00s)
+        --- PASS: TestValidator_ValidateValue/ordered_tag_validation/ordered_tag_too_long (0.00s)
+        --- PASS: TestValidator_ValidateValue/ordered_tag_validation/ordered_tag_with_spaces (0.00s)
+    --- PASS: TestValidator_ValidateValue/number_validation (0.00s)
+        --- PASS: TestValidator_ValidateValue/number_validation/valid_integer (0.00s)
+        --- PASS: TestValidator_ValidateValue/number_validation/valid_float (0.00s)
+        --- PASS: TestValidator_ValidateValue/number_validation/valid_negative (0.00s)
+        --- PASS: TestValidator_ValidateValue/number_validation/valid_zero (0.00s)
+        --- PASS: TestValidator_ValidateValue/number_validation/empty_number (0.00s)
+        --- PASS: TestValidator_ValidateValue/number_validation/invalid_number (0.00s)
+        --- PASS: TestValidator_ValidateValue/number_validation/number_with_spaces (0.00s)
+    --- PASS: TestValidator_ValidateValue/string_validation (0.00s)
+        --- PASS: TestValidator_ValidateValue/string_validation/valid_string (0.00s)
+        --- PASS: TestValidator_ValidateValue/string_validation/empty_string (0.00s)
+        --- PASS: TestValidator_ValidateValue/string_validation/string_too_long (0.00s)
+        --- PASS: TestValidator_ValidateValue/string_validation/string_at_max_length (0.00s)
+    --- PASS: TestValidator_ValidateValue/markdown_validation (0.00s)
+        --- PASS: TestValidator_ValidateValue/markdown_validation/valid_markdown (0.00s)
+        --- PASS: TestValidator_ValidateValue/markdown_validation/empty_markdown (0.00s)
+        --- PASS: TestValidator_ValidateValue/markdown_validation/whitespace_only (0.00s)
+        --- PASS: TestValidator_ValidateValue/markdown_validation/markdown_too_long (0.00s)
+        --- PASS: TestValidator_ValidateValue/markdown_validation/markdown_at_max_length (0.00s)
+    --- PASS: TestValidator_ValidateValue/image_validation (0.00s)
+        --- PASS: TestValidator_ValidateValue/image_validation/valid_jpg (0.00s)
+        --- PASS: TestValidator_ValidateValue/image_validation/valid_png (0.00s)
+        --- PASS: TestValidator_ValidateValue/image_validation/valid_gif (0.00s)
+        --- PASS: TestValidator_ValidateValue/image_validation/valid_webp (0.00s)
+        --- PASS: TestValidator_ValidateValue/image_validation/valid_svg (0.00s)
+        --- PASS: TestValidator_ValidateValue/image_validation/http_url (0.00s)
+        --- PASS: TestValidator_ValidateValue/image_validation/empty_image (0.00s)
+        --- PASS: TestValidator_ValidateValue/image_validation/invalid_url (0.00s)
+        --- PASS: TestValidator_ValidateValue/image_validation/invalid_extension (0.00s)
+        --- PASS: TestValidator_ValidateValue/image_validation/no_extension (0.00s)
+        --- PASS: TestValidator_ValidateValue/image_validation/ftp_scheme (0.00s)
+=== RUN   TestValidator_ValidateOrderIndex
+=== RUN   TestValidator_ValidateOrderIndex/ordered_tag_requires_order_index
+=== RUN   TestValidator_ValidateOrderIndex/other_types_don't_allow_order_index
+=== RUN   TestValidator_ValidateOrderIndex/other_types_don't_allow_order_index/tag
+=== RUN   TestValidator_ValidateOrderIndex/other_types_don't_allow_order_index/number
+=== RUN   TestValidator_ValidateOrderIndex/other_types_don't_allow_order_index/string
+=== RUN   TestValidator_ValidateOrderIndex/other_types_don't_allow_order_index/markdown
+=== RUN   TestValidator_ValidateOrderIndex/other_types_don't_allow_order_index/image
+--- PASS: TestValidator_ValidateOrderIndex (0.00s)
+    --- PASS: TestValidator_ValidateOrderIndex/ordered_tag_requires_order_index (0.00s)
+    --- PASS: TestValidator_ValidateOrderIndex/other_types_don't_allow_order_index (0.00s)
+        --- PASS: TestValidator_ValidateOrderIndex/other_types_don't_allow_order_index/tag (0.00s)
+        --- PASS: TestValidator_ValidateOrderIndex/other_types_don't_allow_order_index/number (0.00s)
+        --- PASS: TestValidator_ValidateOrderIndex/other_types_don't_allow_order_index/string (0.00s)
+        --- PASS: TestValidator_ValidateOrderIndex/other_types_don't_allow_order_index/markdown (0.00s)
+        --- PASS: TestValidator_ValidateOrderIndex/other_types_don't_allow_order_index/image (0.00s)
+=== RUN   TestValidator_Validate
+=== RUN   TestValidator_Validate/valid_tag_without_order_index
+=== RUN   TestValidator_Validate/valid_ordered_tag_with_order_index
+=== RUN   TestValidator_Validate/invalid_tag_with_order_index
+=== RUN   TestValidator_Validate/invalid_ordered_tag_without_order_index
+--- PASS: TestValidator_Validate (0.00s)
+    --- PASS: TestValidator_Validate/valid_tag_without_order_index (0.00s)
+    --- PASS: TestValidator_Validate/valid_ordered_tag_with_order_index (0.00s)
+    --- PASS: TestValidator_Validate/invalid_tag_with_order_index (0.00s)
+    --- PASS: TestValidator_Validate/invalid_ordered_tag_without_order_index (0.00s)
+PASS
+coverage: 22.0% of statements
+ok  	url-db/internal/nodeattributes	2.244s	coverage: 22.0% of statements
+=== RUN   TestSQLiteNodeRepository_Create
+--- PASS: TestSQLiteNodeRepository_Create (0.00s)
+=== RUN   TestSQLiteNodeRepository_Create_DuplicateURL
+--- PASS: TestSQLiteNodeRepository_Create_DuplicateURL (0.00s)
+=== RUN   TestSQLiteNodeRepository_GetByID
+--- PASS: TestSQLiteNodeRepository_GetByID (0.00s)
+=== RUN   TestSQLiteNodeRepository_GetByID_NotFound
+--- PASS: TestSQLiteNodeRepository_GetByID_NotFound (0.00s)
+=== RUN   TestSQLiteNodeRepository_GetByURL
+--- PASS: TestSQLiteNodeRepository_GetByURL (0.00s)
+=== RUN   TestSQLiteNodeRepository_GetByURL_NotFound
+--- PASS: TestSQLiteNodeRepository_GetByURL_NotFound (0.00s)
+=== RUN   TestSQLiteNodeRepository_GetByDomainID
+--- PASS: TestSQLiteNodeRepository_GetByDomainID (0.00s)
+=== RUN   TestSQLiteNodeRepository_Update
+--- PASS: TestSQLiteNodeRepository_Update (0.00s)
+=== RUN   TestSQLiteNodeRepository_Update_NotFound
+--- PASS: TestSQLiteNodeRepository_Update_NotFound (0.00s)
+=== RUN   TestSQLiteNodeRepository_Delete
+--- PASS: TestSQLiteNodeRepository_Delete (0.00s)
+=== RUN   TestSQLiteNodeRepository_Delete_NotFound
+--- PASS: TestSQLiteNodeRepository_Delete_NotFound (0.00s)
+=== RUN   TestSQLiteNodeRepository_Search
+--- PASS: TestSQLiteNodeRepository_Search (0.00s)
+=== RUN   TestSQLiteNodeRepository_CheckDomainExists
+--- PASS: TestSQLiteNodeRepository_CheckDomainExists (0.00s)
+=== RUN   TestGenerateTitleFromURL
+=== RUN   TestGenerateTitleFromURL/Simple_domain
+=== RUN   TestGenerateTitleFromURL/Domain_with_www
+=== RUN   TestGenerateTitleFromURL/URL_with_path
+=== RUN   TestGenerateTitleFromURL/URL_with_dashed_path
+=== RUN   TestGenerateTitleFromURL/URL_with_underscored_path
+=== RUN   TestGenerateTitleFromURL/URL_with_file_extension
+=== RUN   TestGenerateTitleFromURL/URL_with_nested_path
+=== RUN   TestGenerateTitleFromURL/URL_with_trailing_slash
+    url_utils_test.go:75: 
+        	Error Trace:	/Users/junwoobang/mcp/url-db/internal/nodes/url_utils_test.go:75
+        	Error:      	Not equal: 
+        	            	expected: "example.com"
+        	            	actual  : "Article - example.com"
+        	            	
+        	            	Diff:
+        	            	--- Expected
+        	            	+++ Actual
+        	            	@@ -1 +1 @@
+        	            	-example.com
+        	            	+Article - example.com
+        	Test:       	TestGenerateTitleFromURL/URL_with_trailing_slash
+=== RUN   TestGenerateTitleFromURL/Empty_URL
+=== RUN   TestGenerateTitleFromURL/Invalid_URL
+=== RUN   TestGenerateTitleFromURL/URL_without_protocol
+--- FAIL: TestGenerateTitleFromURL (0.00s)
+    --- PASS: TestGenerateTitleFromURL/Simple_domain (0.00s)
+    --- PASS: TestGenerateTitleFromURL/Domain_with_www (0.00s)
+    --- PASS: TestGenerateTitleFromURL/URL_with_path (0.00s)
+    --- PASS: TestGenerateTitleFromURL/URL_with_dashed_path (0.00s)
+    --- PASS: TestGenerateTitleFromURL/URL_with_underscored_path (0.00s)
+    --- PASS: TestGenerateTitleFromURL/URL_with_file_extension (0.00s)
+    --- PASS: TestGenerateTitleFromURL/URL_with_nested_path (0.00s)
+    --- FAIL: TestGenerateTitleFromURL/URL_with_trailing_slash (0.00s)
+    --- PASS: TestGenerateTitleFromURL/Empty_URL (0.00s)
+    --- PASS: TestGenerateTitleFromURL/Invalid_URL (0.00s)
+    --- PASS: TestGenerateTitleFromURL/URL_without_protocol (0.00s)
+=== RUN   TestExtractTitleFromRawURL
+=== RUN   TestExtractTitleFromRawURL/URL_with_path
+=== RUN   TestExtractTitleFromRawURL/URL_with_www
+=== RUN   TestExtractTitleFromRawURL/URL_without_path
+    url_utils_test.go:111: 
+        	Error Trace:	/Users/junwoobang/mcp/url-db/internal/nodes/url_utils_test.go:111
+        	Error:      	Not equal: 
+        	            	expected: "example.com"
+        	            	actual  : "https://example.com"
+        	            	
+        	            	Diff:
+        	            	--- Expected
+        	            	+++ Actual
+        	            	@@ -1 +1 @@
+        	            	-example.com
+        	            	+https://example.com
+        	Test:       	TestExtractTitleFromRawURL/URL_without_path
+=== RUN   TestExtractTitleFromRawURL/Invalid_format
+--- FAIL: TestExtractTitleFromRawURL (0.00s)
+    --- PASS: TestExtractTitleFromRawURL/URL_with_path (0.00s)
+    --- PASS: TestExtractTitleFromRawURL/URL_with_www (0.00s)
+    --- FAIL: TestExtractTitleFromRawURL/URL_without_path (0.00s)
+    --- PASS: TestExtractTitleFromRawURL/Invalid_format (0.00s)
+=== RUN   TestValidateURL
+=== RUN   TestValidateURL/Valid_HTTP_URL
+=== RUN   TestValidateURL/Valid_HTTPS_URL
+=== RUN   TestValidateURL/Protocol-relative_URL
+=== RUN   TestValidateURL/Empty_URL
+=== RUN   TestValidateURL/URL_without_protocol
+=== RUN   TestValidateURL/Very_long_URL
+=== RUN   TestValidateURL/URL_with_custom_protocol
+=== RUN   TestValidateURL/URL_with_port
+=== RUN   TestValidateURL/URL_with_query_params
+=== RUN   TestValidateURL/URL_with_fragment
+--- PASS: TestValidateURL (0.00s)
+    --- PASS: TestValidateURL/Valid_HTTP_URL (0.00s)
+    --- PASS: TestValidateURL/Valid_HTTPS_URL (0.00s)
+    --- PASS: TestValidateURL/Protocol-relative_URL (0.00s)
+    --- PASS: TestValidateURL/Empty_URL (0.00s)
+    --- PASS: TestValidateURL/URL_without_protocol (0.00s)
+    --- PASS: TestValidateURL/Very_long_URL (0.00s)
+    --- PASS: TestValidateURL/URL_with_custom_protocol (0.00s)
+    --- PASS: TestValidateURL/URL_with_port (0.00s)
+    --- PASS: TestValidateURL/URL_with_query_params (0.00s)
+    --- PASS: TestValidateURL/URL_with_fragment (0.00s)
+FAIL
+coverage: 39.5% of statements
+FAIL	url-db/internal/nodes	0.970s
+=== RUN   TestDomainRepository_Create
+=== RUN   TestDomainRepository_Create/성공적인_도메인_생성
+=== RUN   TestDomainRepository_Create/중복_도메인_이름
+--- PASS: TestDomainRepository_Create (0.00s)
+    --- PASS: TestDomainRepository_Create/성공적인_도메인_생성 (0.00s)
+    --- PASS: TestDomainRepository_Create/중복_도메인_이름 (0.00s)
+=== RUN   TestDomainRepository_GetByID
+=== RUN   TestDomainRepository_GetByID/존재하는_도메인_조회
+=== RUN   TestDomainRepository_GetByID/존재하지_않는_도메인_조회
+--- PASS: TestDomainRepository_GetByID (0.00s)
+    --- PASS: TestDomainRepository_GetByID/존재하는_도메인_조회 (0.00s)
+    --- PASS: TestDomainRepository_GetByID/존재하지_않는_도메인_조회 (0.00s)
+=== RUN   TestDomainRepository_GetByName
+=== RUN   TestDomainRepository_GetByName/존재하는_도메인_이름으로_조회
+=== RUN   TestDomainRepository_GetByName/존재하지_않는_도메인_이름으로_조회
+--- PASS: TestDomainRepository_GetByName (0.00s)
+    --- PASS: TestDomainRepository_GetByName/존재하는_도메인_이름으로_조회 (0.00s)
+    --- PASS: TestDomainRepository_GetByName/존재하지_않는_도메인_이름으로_조회 (0.00s)
+=== RUN   TestDomainRepository_List
+=== RUN   TestDomainRepository_List/모든_도메인_조회
+=== RUN   TestDomainRepository_List/페이지네이션_-_첫_번째_페이지
+=== RUN   TestDomainRepository_List/페이지네이션_-_두_번째_페이지
+--- PASS: TestDomainRepository_List (0.00s)
+    --- PASS: TestDomainRepository_List/모든_도메인_조회 (0.00s)
+    --- PASS: TestDomainRepository_List/페이지네이션_-_첫_번째_페이지 (0.00s)
+    --- PASS: TestDomainRepository_List/페이지네이션_-_두_번째_페이지 (0.00s)
+=== RUN   TestDomainRepository_Update
+=== RUN   TestDomainRepository_Update/성공적인_도메인_업데이트
+=== RUN   TestDomainRepository_Update/존재하지_않는_도메인_업데이트
+--- PASS: TestDomainRepository_Update (0.00s)
+    --- PASS: TestDomainRepository_Update/성공적인_도메인_업데이트 (0.00s)
+    --- PASS: TestDomainRepository_Update/존재하지_않는_도메인_업데이트 (0.00s)
+=== RUN   TestDomainRepository_Delete
+=== RUN   TestDomainRepository_Delete/성공적인_도메인_삭제
+=== RUN   TestDomainRepository_Delete/존재하지_않는_도메인_삭제
+--- PASS: TestDomainRepository_Delete (0.00s)
+    --- PASS: TestDomainRepository_Delete/성공적인_도메인_삭제 (0.00s)
+    --- PASS: TestDomainRepository_Delete/존재하지_않는_도메인_삭제 (0.00s)
+=== RUN   TestDomainRepository_ExistsByName
+=== RUN   TestDomainRepository_ExistsByName/존재하는_도메인_이름
+=== RUN   TestDomainRepository_ExistsByName/존재하지_않는_도메인_이름
+--- PASS: TestDomainRepository_ExistsByName (0.00s)
+    --- PASS: TestDomainRepository_ExistsByName/존재하는_도메인_이름 (0.00s)
+    --- PASS: TestDomainRepository_ExistsByName/존재하지_않는_도메인_이름 (0.00s)
+=== RUN   TestDomainRepository_Transaction
+=== RUN   TestDomainRepository_Transaction/트랜잭션_커밋
+=== RUN   TestDomainRepository_Transaction/트랜잭션_롤백
+--- PASS: TestDomainRepository_Transaction (0.00s)
+    --- PASS: TestDomainRepository_Transaction/트랜잭션_커밋 (0.00s)
+    --- PASS: TestDomainRepository_Transaction/트랜잭션_롤백 (0.00s)
+=== RUN   TestNodeRepository_Create
+=== RUN   TestNodeRepository_Create/성공적인_노드_생성
+=== RUN   TestNodeRepository_Create/중복_노드_생성
+--- PASS: TestNodeRepository_Create (0.00s)
+    --- PASS: TestNodeRepository_Create/성공적인_노드_생성 (0.00s)
+    --- PASS: TestNodeRepository_Create/중복_노드_생성 (0.00s)
+=== RUN   TestNodeRepository_GetByID
+=== RUN   TestNodeRepository_GetByID/존재하는_노드_조회
+=== RUN   TestNodeRepository_GetByID/존재하지_않는_노드_조회
+--- PASS: TestNodeRepository_GetByID (0.00s)
+    --- PASS: TestNodeRepository_GetByID/존재하는_노드_조회 (0.00s)
+    --- PASS: TestNodeRepository_GetByID/존재하지_않는_노드_조회 (0.00s)
+=== RUN   TestNodeRepository_GetByDomainAndContent
+=== RUN   TestNodeRepository_GetByDomainAndContent/존재하는_노드_조회
+=== RUN   TestNodeRepository_GetByDomainAndContent/존재하지_않는_노드_조회
+--- PASS: TestNodeRepository_GetByDomainAndContent (0.00s)
+    --- PASS: TestNodeRepository_GetByDomainAndContent/존재하는_노드_조회 (0.00s)
+    --- PASS: TestNodeRepository_GetByDomainAndContent/존재하지_않는_노드_조회 (0.00s)
+=== RUN   TestNodeRepository_ListByDomain
+=== RUN   TestNodeRepository_ListByDomain/도메인1의_모든_노드_조회
+=== RUN   TestNodeRepository_ListByDomain/도메인2의_모든_노드_조회
+=== RUN   TestNodeRepository_ListByDomain/페이지네이션_테스트
+--- PASS: TestNodeRepository_ListByDomain (0.00s)
+    --- PASS: TestNodeRepository_ListByDomain/도메인1의_모든_노드_조회 (0.00s)
+    --- PASS: TestNodeRepository_ListByDomain/도메인2의_모든_노드_조회 (0.00s)
+    --- PASS: TestNodeRepository_ListByDomain/페이지네이션_테스트 (0.00s)
+=== RUN   TestNodeRepository_Search
+=== RUN   TestNodeRepository_Search/제목으로_검색
+=== RUN   TestNodeRepository_Search/콘텐츠로_검색
+=== RUN   TestNodeRepository_Search/설명으로_검색
+=== RUN   TestNodeRepository_Search/검색_결과_없음
+--- PASS: TestNodeRepository_Search (0.00s)
+    --- PASS: TestNodeRepository_Search/제목으로_검색 (0.00s)
+    --- PASS: TestNodeRepository_Search/콘텐츠로_검색 (0.00s)
+    --- PASS: TestNodeRepository_Search/설명으로_검색 (0.00s)
+    --- PASS: TestNodeRepository_Search/검색_결과_없음 (0.00s)
+=== RUN   TestNodeRepository_Update
+=== RUN   TestNodeRepository_Update/성공적인_노드_업데이트
+=== RUN   TestNodeRepository_Update/존재하지_않는_노드_업데이트
+--- PASS: TestNodeRepository_Update (0.00s)
+    --- PASS: TestNodeRepository_Update/성공적인_노드_업데이트 (0.00s)
+    --- PASS: TestNodeRepository_Update/존재하지_않는_노드_업데이트 (0.00s)
+=== RUN   TestNodeRepository_Delete
+=== RUN   TestNodeRepository_Delete/성공적인_노드_삭제
+=== RUN   TestNodeRepository_Delete/존재하지_않는_노드_삭제
+--- PASS: TestNodeRepository_Delete (0.00s)
+    --- PASS: TestNodeRepository_Delete/성공적인_노드_삭제 (0.00s)
+    --- PASS: TestNodeRepository_Delete/존재하지_않는_노드_삭제 (0.00s)
+=== RUN   TestNodeRepository_ExistsByDomainAndContent
+=== RUN   TestNodeRepository_ExistsByDomainAndContent/존재하는_노드
+=== RUN   TestNodeRepository_ExistsByDomainAndContent/존재하지_않는_노드
+--- PASS: TestNodeRepository_ExistsByDomainAndContent (0.00s)
+    --- PASS: TestNodeRepository_ExistsByDomainAndContent/존재하는_노드 (0.00s)
+    --- PASS: TestNodeRepository_ExistsByDomainAndContent/존재하지_않는_노드 (0.00s)
+=== RUN   TestNodeRepository_BatchOperations
+=== RUN   TestNodeRepository_BatchOperations/배치_생성
+=== RUN   TestNodeRepository_BatchOperations/배치_삭제
+--- PASS: TestNodeRepository_BatchOperations (0.00s)
+    --- PASS: TestNodeRepository_BatchOperations/배치_생성 (0.00s)
+    --- PASS: TestNodeRepository_BatchOperations/배치_삭제 (0.00s)
+PASS
+coverage: 22.1% of statements
+ok  	url-db/internal/repositories	2.027s	coverage: 22.1% of statements
+	url-db/internal/services		coverage: 0.0% of statements
+FAIL

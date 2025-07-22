@@ -17,9 +17,9 @@ type JSONRPCRequest struct {
 
 // JSONRPCResponse represents a JSON-RPC 2.0 response
 type JSONRPCResponse struct {
-	JSONRPC string      `json:"jsonrpc"`
-	ID      interface{} `json:"id,omitempty"`
-	Result  interface{} `json:"result,omitempty"`
+	JSONRPC string        `json:"jsonrpc"`
+	ID      interface{}   `json:"id,omitempty"`
+	Result  interface{}   `json:"result,omitempty"`
 	Error   *JSONRPCError `json:"error,omitempty"`
 }
 
@@ -43,9 +43,9 @@ const (
 
 // InitializeRequest represents the MCP initialize request
 type InitializeRequest struct {
-	ProtocolVersion string                 `json:"protocolVersion"`
-	Capabilities    ClientCapabilities     `json:"capabilities"`
-	ClientInfo      ClientInfo             `json:"clientInfo"`
+	ProtocolVersion string             `json:"protocolVersion"`
+	Capabilities    ClientCapabilities `json:"capabilities"`
+	ClientInfo      ClientInfo         `json:"clientInfo"`
 }
 
 // ClientCapabilities represents client capabilities
@@ -199,11 +199,11 @@ func ParseJSONRPCRequest(data []byte) (*JSONRPCRequest, error) {
 	if err := json.Unmarshal(data, &req); err != nil {
 		return nil, fmt.Errorf("failed to parse JSON-RPC request: %w", err)
 	}
-	
+
 	if req.JSONRPC != "2.0" {
 		return nil, fmt.Errorf("invalid JSON-RPC version: %s", req.JSONRPC)
 	}
-	
+
 	return &req, nil
 }
 

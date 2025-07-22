@@ -59,7 +59,10 @@
       "Bash(./setup-mcp.sh:*)",
       "WebFetch(domain:raw.githubusercontent.com)",
       "Bash(grep:*)",
-      "Bash(pip3 install:*)"
+      "Bash(pip3 install:*)",
+      "Bash(export PATH=$PATH:~/go/bin)",
+      "Bash(./scripts/test.sh:*)",
+      "Bash(sed:*)"
     ],
     "deny": []
   }

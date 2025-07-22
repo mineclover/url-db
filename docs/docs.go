@@ -24,6 +24,762 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/api/dependencies/{id}": {
+            "get": {
+                "description": "Get a dependency by ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "dependencies"
+                ],
+                "summary": "Get dependency",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Dependency ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.NodeDependency"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete a dependency relationship",
+                "tags": [
+                    "dependencies"
+                ],
+                "summary": "Delete dependency",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Dependency ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/events": {
+            "get": {
+                "description": "Get events by type within a date range",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "events"
+                ],
+                "summary": "Get events by type",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Event type",
+                        "name": "type",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Start date (RFC3339)",
+                        "name": "start",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "End date (RFC3339)",
+                        "name": "end",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.NodeEvent"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/events/cleanup": {
+            "post": {
+                "description": "Delete processed events older than specified days",
+                "tags": [
+                    "events"
+                ],
+                "summary": "Cleanup old events",
+                "parameters": [
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "description": "Number of days to retain events",
+                        "name": "days",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/events/pending": {
+            "get": {
+                "description": "Get unprocessed events for processing",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "events"
+                ],
+                "summary": "Get pending events",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "default": 100,
+                        "description": "Maximum number of events to return",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.NodeEvent"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/events/stats": {
+            "get": {
+                "description": "Get statistics about events in the system",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "events"
+                ],
+                "summary": "Get event statistics",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/events/{eventId}/process": {
+            "post": {
+                "description": "Mark an event as processed",
+                "tags": [
+                    "events"
+                ],
+                "summary": "Process event",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Event ID",
+                        "name": "eventId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/nodes/{nodeId}/dependencies": {
+            "get": {
+                "description": "Get all dependencies where the node is dependent",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "dependencies"
+                ],
+                "summary": "Get node dependencies",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Node ID",
+                        "name": "nodeId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.NodeDependency"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Create a new dependency relationship between nodes",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "dependencies"
+                ],
+                "summary": "Create dependency",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Dependent Node ID",
+                        "name": "nodeId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Dependency details",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.CreateNodeDependencyRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/models.NodeDependency"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "Circular dependency detected",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/nodes/{nodeId}/dependents": {
+            "get": {
+                "description": "Get all nodes that depend on this node",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "dependencies"
+                ],
+                "summary": "Get node dependents",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Node ID",
+                        "name": "nodeId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.NodeDependency"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/nodes/{nodeId}/events": {
+            "get": {
+                "description": "Get events for a specific node",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "events"
+                ],
+                "summary": "Get node events",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Node ID",
+                        "name": "nodeId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "default": 50,
+                        "description": "Maximum number of events to return",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.NodeEvent"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/nodes/{nodeId}/subscriptions": {
+            "get": {
+                "description": "Get all subscriptions for a specific node",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "subscriptions"
+                ],
+                "summary": "Get node subscriptions",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Node ID",
+                        "name": "nodeId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.NodeSubscription"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Create a new subscription for node events",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "subscriptions"
+                ],
+                "summary": "Create subscription",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Node ID",
+                        "name": "nodeId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Subscription details",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.CreateNodeSubscriptionRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/models.NodeSubscription"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/subscriptions": {
+            "get": {
+                "description": "Get all subscriptions for a specific service",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "subscriptions"
+                ],
+                "summary": "Get service subscriptions",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Service name",
+                        "name": "service",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.NodeSubscription"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/subscriptions/{id}": {
+            "get": {
+                "description": "Get a subscription by ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "subscriptions"
+                ],
+                "summary": "Get subscription",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Subscription ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.NodeSubscription"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Update a subscription",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "subscriptions"
+                ],
+                "summary": "Update subscription",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Subscription ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Update details",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.UpdateNodeSubscriptionRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.NodeSubscription"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete a subscription",
+                "tags": [
+                    "subscriptions"
+                ],
+                "summary": "Delete subscription",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Subscription ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/attributes/{id}": {
             "get": {
                 "description": "Get attribute by ID",
@@ -747,6 +1503,165 @@ const docTemplate = `{
                 }
             }
         },
+        "/mcp/attributes/{composite_id}": {
+            "get": {
+                "description": "Get a specific attribute definition by composite ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "mcp"
+                ],
+                "summary": "Get domain attribute",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Composite ID (domain:attribute_id)",
+                        "name": "composite_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.MCPDomainAttribute"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Update an attribute definition by composite ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "mcp"
+                ],
+                "summary": "Update domain attribute",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Composite ID (domain:attribute_id)",
+                        "name": "composite_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Attribute update data",
+                        "name": "attribute",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.UpdateAttributeRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.MCPDomainAttribute"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete an attribute definition by composite ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "mcp"
+                ],
+                "summary": "Delete domain attribute",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Composite ID (domain:attribute_id)",
+                        "name": "composite_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
         "/mcp/domains": {
             "get": {
                 "description": "Get all domains with their node counts in MCP format",
@@ -806,6 +1721,123 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/mcp/domains/{domain_name}/attributes": {
+            "get": {
+                "description": "Get all attribute definitions for a domain",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "mcp"
+                ],
+                "summary": "List domain attributes",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Domain name",
+                        "name": "domain_name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.MCPDomainAttributeListResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Create a new attribute definition for a domain",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "mcp"
+                ],
+                "summary": "Create domain attribute",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Domain name",
+                        "name": "domain_name",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Attribute data",
+                        "name": "attribute",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.CreateAttributeRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/models.MCPDomainAttribute"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
                         "schema": {
                             "type": "object",
                             "additionalProperties": true
@@ -1802,6 +2834,18 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "handlers.ErrorResponse": {
+            "type": "object",
+            "properties": {
+                "details": {},
+                "error": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
         "models.Attribute": {
             "type": "object",
             "properties": {
@@ -1823,6 +2867,18 @@ const docTemplate = `{
                 "type": {
                     "$ref": "#/definitions/models.AttributeType"
                 }
+            }
+        },
+        "models.AttributeFilter": {
+            "type": "object",
+            "properties": {
+                "attribute_name": {
+                    "type": "string"
+                },
+                "operator": {
+                    "type": "string"
+                },
+                "value": {}
             }
         },
         "models.AttributeListResponse": {
@@ -1888,6 +2944,23 @@ const docTemplate = `{
                     }
                 },
                 "not_found": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "models.ChangeFilter": {
+            "type": "object",
+            "properties": {
+                "fields": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "ignore_fields": {
                     "type": "array",
                     "items": {
                         "type": "string"
@@ -1990,6 +3063,35 @@ const docTemplate = `{
                 }
             }
         },
+        "models.CreateNodeDependencyRequest": {
+            "type": "object",
+            "required": [
+                "dependency_node_id",
+                "dependency_type"
+            ],
+            "properties": {
+                "cascade_delete": {
+                    "type": "boolean"
+                },
+                "cascade_update": {
+                    "type": "boolean"
+                },
+                "dependency_node_id": {
+                    "type": "integer"
+                },
+                "dependency_type": {
+                    "type": "string",
+                    "enum": [
+                        "hard",
+                        "soft",
+                        "reference"
+                    ]
+                },
+                "metadata": {
+                    "$ref": "#/definitions/models.DependencyMetadata"
+                }
+            }
+        },
         "models.CreateNodeRequest": {
             "type": "object",
             "required": [
@@ -2007,6 +3109,42 @@ const docTemplate = `{
                 "url": {
                     "type": "string",
                     "maxLength": 2048
+                }
+            }
+        },
+        "models.CreateNodeSubscriptionRequest": {
+            "type": "object",
+            "required": [
+                "event_types",
+                "subscriber_service"
+            ],
+            "properties": {
+                "event_types": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "filter_conditions": {
+                    "$ref": "#/definitions/models.FilterCondition"
+                },
+                "subscriber_endpoint": {
+                    "type": "string"
+                },
+                "subscriber_service": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.DependencyMetadata": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "relationship": {
+                    "type": "string"
                 }
             }
         },
@@ -2050,6 +3188,57 @@ const docTemplate = `{
                 },
                 "total_pages": {
                     "type": "integer"
+                }
+            }
+        },
+        "models.EventChanges": {
+            "type": "object",
+            "properties": {
+                "after": {
+                    "type": "object",
+                    "additionalProperties": true
+                },
+                "before": {
+                    "type": "object",
+                    "additionalProperties": true
+                }
+            }
+        },
+        "models.EventData": {
+            "type": "object",
+            "properties": {
+                "changes": {
+                    "$ref": "#/definitions/models.EventChanges"
+                },
+                "event_id": {
+                    "type": "string"
+                },
+                "event_type": {
+                    "type": "string"
+                },
+                "metadata": {
+                    "type": "object",
+                    "additionalProperties": true
+                },
+                "node_id": {
+                    "type": "integer"
+                },
+                "timestamp": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.FilterCondition": {
+            "type": "object",
+            "properties": {
+                "attribute_filters": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.AttributeFilter"
+                    }
+                },
+                "change_filters": {
+                    "$ref": "#/definitions/models.ChangeFilter"
                 }
             }
         },
@@ -2112,6 +3301,46 @@ const docTemplate = `{
                 },
                 "updated_at": {
                     "type": "string"
+                }
+            }
+        },
+        "models.MCPDomainAttribute": {
+            "type": "object",
+            "properties": {
+                "composite_id": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "type": {
+                    "$ref": "#/definitions/models.AttributeType"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.MCPDomainAttributeListResponse": {
+            "type": "object",
+            "properties": {
+                "attributes": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.MCPDomainAttribute"
+                    }
+                },
+                "domain_name": {
+                    "type": "string"
+                },
+                "total_count": {
+                    "type": "integer"
                 }
             }
         },
@@ -2297,6 +3526,58 @@ const docTemplate = `{
                 }
             }
         },
+        "models.NodeDependency": {
+            "type": "object",
+            "properties": {
+                "cascade_delete": {
+                    "type": "boolean"
+                },
+                "cascade_update": {
+                    "type": "boolean"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "dependency_node_id": {
+                    "type": "integer"
+                },
+                "dependency_type": {
+                    "type": "string"
+                },
+                "dependent_node_id": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "metadata": {
+                    "$ref": "#/definitions/models.DependencyMetadata"
+                }
+            }
+        },
+        "models.NodeEvent": {
+            "type": "object",
+            "properties": {
+                "event_data": {
+                    "$ref": "#/definitions/models.EventData"
+                },
+                "event_type": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "node_id": {
+                    "type": "integer"
+                },
+                "occurred_at": {
+                    "type": "string"
+                },
+                "processed_at": {
+                    "type": "string"
+                }
+            }
+        },
         "models.NodeListResponse": {
             "type": "object",
             "properties": {
@@ -2320,6 +3601,41 @@ const docTemplate = `{
                 }
             }
         },
+        "models.NodeSubscription": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "event_types": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "filter_conditions": {
+                    "$ref": "#/definitions/models.FilterCondition"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "is_active": {
+                    "type": "boolean"
+                },
+                "subscribed_node_id": {
+                    "type": "integer"
+                },
+                "subscriber_endpoint": {
+                    "type": "string"
+                },
+                "subscriber_service": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
         "models.SetMCPNodeAttributesRequest": {
             "type": "object",
             "required": [
@@ -2337,6 +3653,9 @@ const docTemplate = `{
                         "properties": {
                             "name": {
                                 "type": "string"
+                            },
+                            "order_index": {
+                                "type": "integer"
                             },
                             "value": {
                                 "type": "string"
@@ -2402,6 +3721,26 @@ const docTemplate = `{
                 "title": {
                     "type": "string",
                     "maxLength": 255
+                }
+            }
+        },
+        "models.UpdateNodeSubscriptionRequest": {
+            "type": "object",
+            "properties": {
+                "event_types": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "filter_conditions": {
+                    "$ref": "#/definitions/models.FilterCondition"
+                },
+                "is_active": {
+                    "type": "boolean"
+                },
+                "subscriber_endpoint": {
+                    "type": "string"
                 }
             }
         }

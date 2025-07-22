@@ -28,7 +28,7 @@ func (e *EventTypeList) Scan(value interface{}) error {
 		*e = EventTypeList{}
 		return nil
 	}
-	
+
 	switch v := value.(type) {
 	case string:
 		return json.Unmarshal([]byte(v), e)
@@ -72,7 +72,7 @@ func (f *FilterCondition) Scan(value interface{}) error {
 	if value == nil {
 		return nil
 	}
-	
+
 	switch v := value.(type) {
 	case string:
 		return json.Unmarshal([]byte(v), f)

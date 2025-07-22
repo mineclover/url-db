@@ -43,7 +43,7 @@ func (h *SubscriptionHandler) CreateSubscription(c *gin.Context) {
 		})
 		return
 	}
-	
+
 	var req models.CreateNodeSubscriptionRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, ErrorResponse{
@@ -52,7 +52,7 @@ func (h *SubscriptionHandler) CreateSubscription(c *gin.Context) {
 		})
 		return
 	}
-	
+
 	subscription, err := h.subscriptionService.CreateSubscription(nodeID, &req)
 	if err != nil {
 		if err.Error() == "node not found" {
@@ -68,7 +68,7 @@ func (h *SubscriptionHandler) CreateSubscription(c *gin.Context) {
 		})
 		return
 	}
-	
+
 	c.JSON(http.StatusCreated, subscription)
 }
 
@@ -91,7 +91,7 @@ func (h *SubscriptionHandler) GetSubscription(c *gin.Context) {
 		})
 		return
 	}
-	
+
 	subscription, err := h.subscriptionService.GetSubscription(id)
 	if err != nil {
 		if err.Error() == "subscription not found" {
@@ -107,7 +107,7 @@ func (h *SubscriptionHandler) GetSubscription(c *gin.Context) {
 		})
 		return
 	}
-	
+
 	c.JSON(http.StatusOK, subscription)
 }
 
@@ -133,7 +133,7 @@ func (h *SubscriptionHandler) UpdateSubscription(c *gin.Context) {
 		})
 		return
 	}
-	
+
 	var req models.UpdateNodeSubscriptionRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, ErrorResponse{
@@ -142,7 +142,7 @@ func (h *SubscriptionHandler) UpdateSubscription(c *gin.Context) {
 		})
 		return
 	}
-	
+
 	subscription, err := h.subscriptionService.UpdateSubscription(id, &req)
 	if err != nil {
 		if err.Error() == "subscription not found" {
@@ -158,7 +158,7 @@ func (h *SubscriptionHandler) UpdateSubscription(c *gin.Context) {
 		})
 		return
 	}
-	
+
 	c.JSON(http.StatusOK, subscription)
 }
 
@@ -180,7 +180,7 @@ func (h *SubscriptionHandler) DeleteSubscription(c *gin.Context) {
 		})
 		return
 	}
-	
+
 	err = h.subscriptionService.DeleteSubscription(id)
 	if err != nil {
 		if err.Error() == "subscription not found" {
@@ -196,7 +196,7 @@ func (h *SubscriptionHandler) DeleteSubscription(c *gin.Context) {
 		})
 		return
 	}
-	
+
 	c.Status(http.StatusNoContent)
 }
 
@@ -219,7 +219,7 @@ func (h *SubscriptionHandler) GetNodeSubscriptions(c *gin.Context) {
 		})
 		return
 	}
-	
+
 	subscriptions, err := h.subscriptionService.GetNodeSubscriptions(nodeID)
 	if err != nil {
 		if err.Error() == "node not found" {
@@ -235,7 +235,7 @@ func (h *SubscriptionHandler) GetNodeSubscriptions(c *gin.Context) {
 		})
 		return
 	}
-	
+
 	c.JSON(http.StatusOK, subscriptions)
 }
 
@@ -255,7 +255,7 @@ func (h *SubscriptionHandler) GetServiceSubscriptions(c *gin.Context) {
 		// Get all subscriptions with pagination
 		page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 		pageSize, _ := strconv.Atoi(c.DefaultQuery("page_size", "20"))
-		
+
 		subscriptions, total, err := h.subscriptionService.GetAllSubscriptions(page, pageSize)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, ErrorResponse{
@@ -264,16 +264,16 @@ func (h *SubscriptionHandler) GetServiceSubscriptions(c *gin.Context) {
 			})
 			return
 		}
-		
+
 		c.JSON(http.StatusOK, gin.H{
 			"subscriptions": subscriptions,
-			"total":        total,
-			"page":         page,
-			"page_size":    pageSize,
+			"total":         total,
+			"page":          page,
+			"page_size":     pageSize,
 		})
 		return
 	}
-	
+
 	subscriptions, err := h.subscriptionService.GetServiceSubscriptions(service)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, ErrorResponse{
@@ -282,6 +282,6 @@ func (h *SubscriptionHandler) GetServiceSubscriptions(c *gin.Context) {
 		})
 		return
 	}
-	
+
 	c.JSON(http.StatusOK, subscriptions)
 }

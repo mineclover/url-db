@@ -55,7 +55,7 @@ type AttributeService interface {
 	SetNodeAttribute(ctx context.Context, nodeID int, req *models.CreateNodeAttributeRequest) (*models.NodeAttributeWithInfo, error)
 	GetAttributeByName(ctx context.Context, domainID int, name string) (*models.Attribute, error)
 	DeleteNodeAttribute(ctx context.Context, nodeID, attributeID int) error
-	
+
 	// Domain attribute management methods
 	ListAttributes(ctx context.Context, domainID int) (*models.AttributeListResponse, error)
 	CreateAttribute(ctx context.Context, domainID int, req *models.CreateAttributeRequest) (*models.Attribute, error)

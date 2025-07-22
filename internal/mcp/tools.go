@@ -83,7 +83,7 @@ func (tr *ToolRegistry) registerTools() {
 			Name:        "list_domains",
 			Description: "Get all domains",
 			InputSchema: map[string]interface{}{
-				"type": "object",
+				"type":       "object",
 				"properties": map[string]interface{}{},
 			},
 		},
@@ -281,7 +281,7 @@ func (tr *ToolRegistry) registerTools() {
 			Name:        "get_server_info",
 			Description: "Get server info",
 			InputSchema: map[string]interface{}{
-				"type": "object",
+				"type":       "object",
 				"properties": map[string]interface{}{},
 			},
 		},
@@ -397,7 +397,7 @@ func (tr *ToolRegistry) registerTools() {
 						"description": "Domain name to search in",
 					},
 					"filters": map[string]interface{}{
-						"type": "array",
+						"type":        "array",
 						"description": "Array of attribute filters",
 						"items": map[string]interface{}{
 							"type": "object",
@@ -692,7 +692,7 @@ func (tr *ToolRegistry) callSetNodeAttributes(ctx context.Context, arguments int
 	}
 
 	compositeID := argsMap["composite_id"].(string)
-	
+
 	// Parse attributes array
 	attributesRaw, exists := argsMap["attributes"]
 	if !exists {
@@ -720,7 +720,7 @@ func (tr *ToolRegistry) callSetNodeAttributes(ctx context.Context, arguments int
 		if !ok {
 			continue
 		}
-		
+
 		var orderIndex *int
 		if orderIndexRaw, exists := attrMap["order_index"]; exists {
 			if orderIndexFloat, ok := orderIndexRaw.(float64); ok {
@@ -728,7 +728,7 @@ func (tr *ToolRegistry) callSetNodeAttributes(ctx context.Context, arguments int
 				orderIndex = &orderIndexInt
 			}
 		}
-		
+
 		attributes = append(attributes, struct {
 			Name       string `json:"name" binding:"required"`
 			Value      string `json:"value" binding:"required"`

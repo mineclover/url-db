@@ -40,7 +40,7 @@ func NewStdioServer(service MCPService) *StdioServer {
 // Start begins the stdio MCP session with JSON-RPC 2.0 protocol
 func (s *StdioServer) Start() error {
 	// log.Println("Starting MCP JSON-RPC 2.0 stdio server...") // Disabled for clean JSON output
-	
+
 	for {
 		line, err := s.reader.ReadString('\n')
 		if err != nil {
@@ -50,12 +50,12 @@ func (s *StdioServer) Start() error {
 			}
 			return fmt.Errorf("error reading input: %w", err)
 		}
-		
+
 		line = strings.TrimSpace(line)
 		if line == "" {
 			continue
 		}
-		
+
 		// Parse JSON-RPC request
 		req, err := ParseJSONRPCRequest([]byte(line))
 		if err != nil {
@@ -64,7 +64,7 @@ func (s *StdioServer) Start() error {
 			s.sendResponse(errorResp)
 			continue
 		}
-		
+
 		// Handle the request
 		resp := s.handleJSONRPCRequest(req)
 		if resp != nil {
@@ -76,7 +76,7 @@ func (s *StdioServer) Start() error {
 // handleJSONRPCRequest processes a JSON-RPC 2.0 request
 func (s *StdioServer) handleJSONRPCRequest(req *JSONRPCRequest) *JSONRPCResponse {
 	ctx := context.Background()
-	
+
 	switch req.Method {
 	case "initialize":
 		return s.handleInitialize(ctx, req)
@@ -109,7 +109,7 @@ func (s *StdioServer) sendResponse(resp *JSONRPCResponse) {
 		log.Printf("Error marshaling response: %v", err)
 		return
 	}
-	
+
 	fmt.Fprintf(s.writer, "%s\n", string(data))
 }
 
@@ -123,7 +123,7 @@ func (s *StdioServer) handleInitialize(ctx context.Context, req *JSONRPCRequest)
 			return NewJSONRPCError(req.ID, InvalidParams, "Invalid initialize parameters", err.Error())
 		}
 	}
-	
+
 	// Create response
 	result := InitializeResult{
 		ProtocolVersion: "2024-11-05",
@@ -141,7 +141,7 @@ func (s *StdioServer) handleInitialize(ctx context.Context, req *JSONRPCRequest)
 			Version: "1.0.0",
 		},
 	}
-	
+
 	return NewJSONRPCResponse(req.ID, result)
 }
 
@@ -149,12 +149,12 @@ func (s *StdioServer) handleInitialize(ctx context.Context, req *JSONRPCRequest)
 func (s *StdioServer) handleInitialized(ctx context.Context, req *JSONRPCRequest) *JSONRPCResponse {
 	s.initialized = true
 	log.Println("MCP server initialized successfully")
-	
+
 	// Notification - no response needed for initialized
 	if req.ID == nil {
 		return nil
 	}
-	
+
 	return NewJSONRPCResponse(req.ID, nil)
 }
 
@@ -163,12 +163,12 @@ func (s *StdioServer) handleToolsList(ctx context.Context, req *JSONRPCRequest) 
 	if !s.initialized {
 		return NewJSONRPCError(req.ID, InvalidRequest, "Server not initialized", nil)
 	}
-	
+
 	tools := s.toolRegistry.GetTools()
 	result := ToolsListResult{
 		Tools: tools,
 	}
-	
+
 	return NewJSONRPCResponse(req.ID, result)
 }
 
@@ -177,7 +177,7 @@ func (s *StdioServer) handleToolsCall(ctx context.Context, req *JSONRPCRequest) 
 	if !s.initialized {
 		return NewJSONRPCError(req.ID, InvalidRequest, "Server not initialized", nil)
 	}
-	
+
 	// Parse tool call request
 	var callReq CallToolRequest
 	if req.Params != nil {
@@ -186,13 +186,13 @@ func (s *StdioServer) handleToolsCall(ctx context.Context, req *JSONRPCRequest) 
 			return NewJSONRPCError(req.ID, InvalidParams, "Invalid tool call parameters", err.Error())
 		}
 	}
-	
+
 	// Call the tool
 	result, err := s.toolRegistry.CallTool(ctx, callReq.Name, callReq.Arguments)
 	if err != nil {
 		return NewJSONRPCError(req.ID, InternalError, "Tool execution failed", err.Error())
 	}
-	
+
 	return NewJSONRPCResponse(req.ID, result)
 }
 
@@ -201,12 +201,12 @@ func (s *StdioServer) handleResourcesList(ctx context.Context, req *JSONRPCReque
 	if !s.initialized {
 		return NewJSONRPCError(req.ID, InvalidRequest, "Server not initialized", nil)
 	}
-	
+
 	result, err := s.resourceRegistry.GetResources(ctx)
 	if err != nil {
 		return NewJSONRPCError(req.ID, InternalError, "Failed to get resources", err.Error())
 	}
-	
+
 	return NewJSONRPCResponse(req.ID, result)
 }
 
@@ -215,7 +215,7 @@ func (s *StdioServer) handleResourcesRead(ctx context.Context, req *JSONRPCReque
 	if !s.initialized {
 		return NewJSONRPCError(req.ID, InvalidRequest, "Server not initialized", nil)
 	}
-	
+
 	// Parse resource read request
 	var readReq ReadResourceRequest
 	if req.Params != nil {
@@ -224,13 +224,12 @@ func (s *StdioServer) handleResourcesRead(ctx context.Context, req *JSONRPCReque
 			return NewJSONRPCError(req.ID, InvalidParams, "Invalid resource read parameters", err.Error())
 		}
 	}
-	
+
 	// Read the resource
 	result, err := s.resourceRegistry.ReadResource(ctx, readReq.URI)
 	if err != nil {
 		return NewJSONRPCError(req.ID, InternalError, "Failed to read resource", err.Error())
 	}
-	
+
 	return NewJSONRPCResponse(req.ID, result)
 }
-

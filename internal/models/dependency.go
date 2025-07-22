@@ -8,14 +8,14 @@ import (
 
 // NodeDependency represents a dependency relationship between nodes
 type NodeDependency struct {
-	ID               int64              `db:"id" json:"id"`
-	DependentNodeID  int64              `db:"dependent_node_id" json:"dependent_node_id"`
-	DependencyNodeID int64              `db:"dependency_node_id" json:"dependency_node_id"`
-	DependencyType   string             `db:"dependency_type" json:"dependency_type"`
-	CascadeDelete    bool               `db:"cascade_delete" json:"cascade_delete"`
-	CascadeUpdate    bool               `db:"cascade_update" json:"cascade_update"`
+	ID               int64               `db:"id" json:"id"`
+	DependentNodeID  int64               `db:"dependent_node_id" json:"dependent_node_id"`
+	DependencyNodeID int64               `db:"dependency_node_id" json:"dependency_node_id"`
+	DependencyType   string              `db:"dependency_type" json:"dependency_type"`
+	CascadeDelete    bool                `db:"cascade_delete" json:"cascade_delete"`
+	CascadeUpdate    bool                `db:"cascade_update" json:"cascade_update"`
 	Metadata         *DependencyMetadata `db:"metadata" json:"metadata,omitempty"`
-	CreatedAt        time.Time          `db:"created_at" json:"created_at"`
+	CreatedAt        time.Time           `db:"created_at" json:"created_at"`
 }
 
 // DependencyMetadata represents additional metadata for a dependency
@@ -29,7 +29,7 @@ func (m *DependencyMetadata) Scan(value interface{}) error {
 	if value == nil {
 		return nil
 	}
-	
+
 	switch v := value.(type) {
 	case string:
 		return json.Unmarshal([]byte(v), m)
@@ -58,10 +58,10 @@ const (
 
 // CreateNodeDependencyRequest represents a request to create a dependency
 type CreateNodeDependencyRequest struct {
-	DependencyNodeID int64              `json:"dependency_node_id" validate:"required"`
-	DependencyType   string             `json:"dependency_type" validate:"required,oneof=hard soft reference"`
-	CascadeDelete    bool               `json:"cascade_delete"`
-	CascadeUpdate    bool               `json:"cascade_update"`
+	DependencyNodeID int64               `json:"dependency_node_id" validate:"required"`
+	DependencyType   string              `json:"dependency_type" validate:"required,oneof=hard soft reference"`
+	CascadeDelete    bool                `json:"cascade_delete"`
+	CascadeUpdate    bool                `json:"cascade_update"`
 	Metadata         *DependencyMetadata `json:"metadata,omitempty"`
 }
 
@@ -96,7 +96,7 @@ func (e *EventData) Scan(value interface{}) error {
 	if value == nil {
 		return nil
 	}
-	
+
 	switch v := value.(type) {
 	case string:
 		return json.Unmarshal([]byte(v), e)
@@ -118,9 +118,9 @@ func (e *EventData) Value() (driver.Value, error) {
 
 // Event type constants
 const (
-	EventTypeCreated          = "created"
-	EventTypeUpdated          = "updated"
-	EventTypeDeleted          = "deleted"
-	EventTypeAttributeChanged = "attribute_changed"
+	EventTypeCreated           = "created"
+	EventTypeUpdated           = "updated"
+	EventTypeDeleted           = "deleted"
+	EventTypeAttributeChanged  = "attribute_changed"
 	EventTypeConnectionChanged = "connection_changed"
 )

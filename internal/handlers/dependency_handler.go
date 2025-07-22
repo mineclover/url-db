@@ -44,7 +44,7 @@ func (h *DependencyHandler) CreateDependency(c *gin.Context) {
 		})
 		return
 	}
-	
+
 	var req models.CreateNodeDependencyRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, ErrorResponse{
@@ -53,7 +53,7 @@ func (h *DependencyHandler) CreateDependency(c *gin.Context) {
 		})
 		return
 	}
-	
+
 	dependency, err := h.dependencyService.CreateDependency(nodeID, &req)
 	if err != nil {
 		if err.Error() == "dependent node not found" || err.Error() == "dependency node not found" {
@@ -76,7 +76,7 @@ func (h *DependencyHandler) CreateDependency(c *gin.Context) {
 		})
 		return
 	}
-	
+
 	c.JSON(http.StatusCreated, dependency)
 }
 
@@ -99,7 +99,7 @@ func (h *DependencyHandler) GetDependency(c *gin.Context) {
 		})
 		return
 	}
-	
+
 	dependency, err := h.dependencyService.GetDependency(id)
 	if err != nil {
 		if err.Error() == "dependency not found" {
@@ -115,7 +115,7 @@ func (h *DependencyHandler) GetDependency(c *gin.Context) {
 		})
 		return
 	}
-	
+
 	c.JSON(http.StatusOK, dependency)
 }
 
@@ -137,7 +137,7 @@ func (h *DependencyHandler) DeleteDependency(c *gin.Context) {
 		})
 		return
 	}
-	
+
 	err = h.dependencyService.DeleteDependency(id)
 	if err != nil {
 		if err.Error() == "dependency not found" {
@@ -153,7 +153,7 @@ func (h *DependencyHandler) DeleteDependency(c *gin.Context) {
 		})
 		return
 	}
-	
+
 	c.Status(http.StatusNoContent)
 }
 
@@ -176,7 +176,7 @@ func (h *DependencyHandler) GetNodeDependencies(c *gin.Context) {
 		})
 		return
 	}
-	
+
 	dependencies, err := h.dependencyService.GetNodeDependencies(nodeID)
 	if err != nil {
 		if err.Error() == "node not found" {
@@ -192,7 +192,7 @@ func (h *DependencyHandler) GetNodeDependencies(c *gin.Context) {
 		})
 		return
 	}
-	
+
 	c.JSON(http.StatusOK, dependencies)
 }
 
@@ -215,7 +215,7 @@ func (h *DependencyHandler) GetNodeDependents(c *gin.Context) {
 		})
 		return
 	}
-	
+
 	dependents, err := h.dependencyService.GetNodeDependents(nodeID)
 	if err != nil {
 		if err.Error() == "node not found" {
@@ -231,6 +231,6 @@ func (h *DependencyHandler) GetNodeDependents(c *gin.Context) {
 		})
 		return
 	}
-	
+
 	c.JSON(http.StatusOK, dependents)
 }

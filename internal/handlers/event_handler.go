@@ -41,9 +41,9 @@ func (h *EventHandler) GetNodeEvents(c *gin.Context) {
 		})
 		return
 	}
-	
+
 	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "50"))
-	
+
 	events, err := h.eventService.GetNodeEvents(nodeID, limit)
 	if err != nil {
 		if err.Error() == "node not found" {
@@ -59,7 +59,7 @@ func (h *EventHandler) GetNodeEvents(c *gin.Context) {
 		})
 		return
 	}
-	
+
 	c.JSON(http.StatusOK, events)
 }
 
@@ -74,7 +74,7 @@ func (h *EventHandler) GetNodeEvents(c *gin.Context) {
 // @Router /api/events/pending [get]
 func (h *EventHandler) GetPendingEvents(c *gin.Context) {
 	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "100"))
-	
+
 	events, err := h.eventService.GetPendingEvents(limit)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, ErrorResponse{
@@ -83,7 +83,7 @@ func (h *EventHandler) GetPendingEvents(c *gin.Context) {
 		})
 		return
 	}
-	
+
 	c.JSON(http.StatusOK, events)
 }
 
@@ -106,7 +106,7 @@ func (h *EventHandler) ProcessEvent(c *gin.Context) {
 		})
 		return
 	}
-	
+
 	err = h.eventService.ProcessEvent(eventID)
 	if err != nil {
 		if err.Error() == "event not found" {
@@ -129,7 +129,7 @@ func (h *EventHandler) ProcessEvent(c *gin.Context) {
 		})
 		return
 	}
-	
+
 	c.Status(http.StatusNoContent)
 }
 
@@ -154,10 +154,10 @@ func (h *EventHandler) GetEventsByType(c *gin.Context) {
 		})
 		return
 	}
-	
+
 	startStr := c.Query("start")
 	endStr := c.Query("end")
-	
+
 	start, err := time.Parse(time.RFC3339, startStr)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, ErrorResponse{
@@ -166,7 +166,7 @@ func (h *EventHandler) GetEventsByType(c *gin.Context) {
 		})
 		return
 	}
-	
+
 	end, err := time.Parse(time.RFC3339, endStr)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, ErrorResponse{
@@ -175,7 +175,7 @@ func (h *EventHandler) GetEventsByType(c *gin.Context) {
 		})
 		return
 	}
-	
+
 	events, err := h.eventService.GetEventsByTypeAndDateRange(eventType, start, end)
 	if err != nil {
 		if err.Error() == "end date must be after start date" {
@@ -191,7 +191,7 @@ func (h *EventHandler) GetEventsByType(c *gin.Context) {
 		})
 		return
 	}
-	
+
 	c.JSON(http.StatusOK, events)
 }
 
@@ -212,7 +212,7 @@ func (h *EventHandler) GetEventStats(c *gin.Context) {
 		})
 		return
 	}
-	
+
 	c.JSON(http.StatusOK, stats)
 }
 
@@ -234,7 +234,7 @@ func (h *EventHandler) CleanupEvents(c *gin.Context) {
 		})
 		return
 	}
-	
+
 	retention := time.Duration(days) * 24 * time.Hour
 	deleted, err := h.eventService.CleanupOldEvents(retention)
 	if err != nil {
@@ -251,9 +251,9 @@ func (h *EventHandler) CleanupEvents(c *gin.Context) {
 		})
 		return
 	}
-	
+
 	c.JSON(http.StatusOK, gin.H{
 		"deleted_events": deleted,
-		"message":       "Events cleaned up successfully",
+		"message":        "Events cleaned up successfully",
 	})
 }

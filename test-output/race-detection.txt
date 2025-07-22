@@ -1,0 +1,98 @@
+# url-db/docs
+docs/docs.go:3765:2: unknown field LeftDelim in struct literal of type "github.com/swaggo/swag".Spec
+docs/docs.go:3766:2: unknown field RightDelim in struct literal of type "github.com/swaggo/swag".Spec
+# url-db/internal/mcp [url-db/internal/mcp.test]
+internal/mcp/resources_test.go:14:34: cannot use mockService (variable of type *MockMCPService) as MCPService value in argument to NewResourceRegistry: *MockMCPService does not implement MCPService (missing method FilterNodesByAttributes)
+internal/mcp/resources_test.go:56:34: cannot use mockService (variable of type *MockMCPService) as MCPService value in argument to NewResourceRegistry: *MockMCPService does not implement MCPService (missing method FilterNodesByAttributes)
+internal/mcp/resources_test.go:85:34: cannot use mockService (variable of type *MockMCPService) as MCPService value in argument to NewResourceRegistry: *MockMCPService does not implement MCPService (missing method FilterNodesByAttributes)
+internal/mcp/resources_test.go:111:34: cannot use mockService (variable of type *MockMCPService) as MCPService value in argument to NewResourceRegistry: *MockMCPService does not implement MCPService (missing method FilterNodesByAttributes)
+internal/mcp/resources_test.go:138:34: cannot use mockService (variable of type *MockMCPService) as MCPService value in argument to NewResourceRegistry: *MockMCPService does not implement MCPService (missing method FilterNodesByAttributes)
+internal/mcp/resources_test.go:166:34: cannot use mockService (variable of type *MockMCPService) as MCPService value in argument to NewResourceRegistry: *MockMCPService does not implement MCPService (missing method FilterNodesByAttributes)
+internal/mcp/resources_test.go:177:34: cannot use mockService (variable of type *MockMCPService) as MCPService value in argument to NewResourceRegistry: *MockMCPService does not implement MCPService (missing method FilterNodesByAttributes)
+internal/mcp/tools_additional_test.go:14:30: cannot use mockService (variable of type *MockMCPService) as MCPService value in argument to NewToolRegistry: *MockMCPService does not implement MCPService (missing method FilterNodesByAttributes)
+internal/mcp/tools_additional_test.go:45:30: cannot use mockService (variable of type *MockMCPService) as MCPService value in argument to NewToolRegistry: *MockMCPService does not implement MCPService (missing method FilterNodesByAttributes)
+internal/mcp/tools_additional_test.go:74:30: cannot use mockService (variable of type *MockMCPService) as MCPService value in argument to NewToolRegistry: *MockMCPService does not implement MCPService (missing method FilterNodesByAttributes)
+internal/mcp/tools_additional_test.go:74:30: too many errors
+# url-db.test
+ld: warning: '/private/var/folders/t4/5cn643kn7ls_6vyl6y51gnnm0000gn/T/go-link-2016524197/000023.o' has malformed LC_DYSYMTAB, expected 98 undefined symbols to start at index 1626, found 95 undefined symbols starting at index 1626
+# url-db/internal/database.test
+ld: warning: '/private/var/folders/t4/5cn643kn7ls_6vyl6y51gnnm0000gn/T/go-link-2255881117/000023.o' has malformed LC_DYSYMTAB, expected 98 undefined symbols to start at index 1626, found 95 undefined symbols starting at index 1626
+# url-db/internal/attributes.test
+ld: warning: '/private/var/folders/t4/5cn643kn7ls_6vyl6y51gnnm0000gn/T/go-link-3292515843/000023.o' has malformed LC_DYSYMTAB, expected 98 undefined symbols to start at index 1626, found 95 undefined symbols starting at index 1626
+# url-db/internal/handlers.test
+ld: warning: '/private/var/folders/t4/5cn643kn7ls_6vyl6y51gnnm0000gn/T/go-link-1925459738/000023.o' has malformed LC_DYSYMTAB, expected 98 undefined symbols to start at index 1626, found 95 undefined symbols starting at index 1626
+# url-db/internal/nodes.test
+ld: warning: '/private/var/folders/t4/5cn643kn7ls_6vyl6y51gnnm0000gn/T/go-link-3947994637/000023.o' has malformed LC_DYSYMTAB, expected 98 undefined symbols to start at index 1626, found 95 undefined symbols starting at index 1626
+# url-db/internal/repositories.test
+ld: warning: '/private/var/folders/t4/5cn643kn7ls_6vyl6y51gnnm0000gn/T/go-link-3747135503/000023.o' has malformed LC_DYSYMTAB, expected 98 undefined symbols to start at index 1626, found 95 undefined symbols starting at index 1626
+ok  	url-db	1.244s
+FAIL	url-db/cmd/server [build failed]
+FAIL	url-db/docs [build failed]
+--- FAIL: TestImageValidator_Validate (0.00s)
+    --- FAIL: TestImageValidator_Validate/too_long_value (0.00s)
+        validators_test.go:331: 
+            	Error Trace:	/Users/junwoobang/mcp/url-db/internal/attributes/validators_test.go:331
+            	Error:      	Target error should be in err chain:
+            	            	expected: "value too long"
+            	            	in chain: "invalid URL"
+            	Test:       	TestImageValidator_Validate/too_long_value
+FAIL
+FAIL	url-db/internal/attributes	0.495s
+ok  	url-db/internal/compositekey	1.259s
+?   	url-db/internal/config	[no test files]
+--- FAIL: TestConfigureDatabase (0.00s)
+    database_test.go:179: 
+        	Error Trace:	/Users/junwoobang/mcp/url-db/internal/database/database_test.go:179
+        	Error:      	Not equal: 
+        	            	expected: "DELETE"
+        	            	actual  : "memory"
+        	            	
+        	            	Diff:
+        	            	--- Expected
+        	            	+++ Actual
+        	            	@@ -1 +1 @@
+        	            	-DELETE
+        	            	+memory
+        	Test:       	TestConfigureDatabase
+FAIL
+FAIL	url-db/internal/database	0.694s
+?   	url-db/internal/domains	[no test files]
+ok  	url-db/internal/handlers	1.649s
+FAIL	url-db/internal/mcp [build failed]
+?   	url-db/internal/models	[no test files]
+ok  	url-db/internal/nodeattributes	1.878s
+--- FAIL: TestGenerateTitleFromURL (0.00s)
+    --- FAIL: TestGenerateTitleFromURL/URL_with_trailing_slash (0.00s)
+        url_utils_test.go:75: 
+            	Error Trace:	/Users/junwoobang/mcp/url-db/internal/nodes/url_utils_test.go:75
+            	Error:      	Not equal: 
+            	            	expected: "example.com"
+            	            	actual  : "Article - example.com"
+            	            	
+            	            	Diff:
+            	            	--- Expected
+            	            	+++ Actual
+            	            	@@ -1 +1 @@
+            	            	-example.com
+            	            	+Article - example.com
+            	Test:       	TestGenerateTitleFromURL/URL_with_trailing_slash
+--- FAIL: TestExtractTitleFromRawURL (0.00s)
+    --- FAIL: TestExtractTitleFromRawURL/URL_without_path (0.00s)
+        url_utils_test.go:111: 
+            	Error Trace:	/Users/junwoobang/mcp/url-db/internal/nodes/url_utils_test.go:111
+            	Error:      	Not equal: 
+            	            	expected: "example.com"
+            	            	actual  : "https://example.com"
+            	            	
+            	            	Diff:
+            	            	--- Expected
+            	            	+++ Actual
+            	            	@@ -1 +1 @@
+            	            	-example.com
+            	            	+https://example.com
+            	Test:       	TestExtractTitleFromRawURL/URL_without_path
+FAIL
+FAIL	url-db/internal/nodes	0.834s
+ok  	url-db/internal/repositories	1.975s
+?   	url-db/internal/services	[no test files]
+FAIL

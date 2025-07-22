@@ -35,11 +35,11 @@ func (s *EventService) GetNodeEvents(nodeID int64, limit int) ([]*models.NodeEve
 	if node == nil {
 		return nil, fmt.Errorf("node not found")
 	}
-	
+
 	if limit <= 0 || limit > 100 {
 		limit = 50
 	}
-	
+
 	return s.eventRepo.GetByNode(nodeID, limit)
 }
 
@@ -48,7 +48,7 @@ func (s *EventService) GetPendingEvents(limit int) ([]*models.NodeEvent, error) 
 	if limit <= 0 || limit > 1000 {
 		limit = 100
 	}
-	
+
 	return s.eventRepo.GetPendingEvents(limit)
 }
 
@@ -62,11 +62,11 @@ func (s *EventService) ProcessEvent(eventID int64) error {
 	if event == nil {
 		return fmt.Errorf("event not found")
 	}
-	
+
 	if event.ProcessedAt != nil {
 		return fmt.Errorf("event already processed")
 	}
-	
+
 	return s.eventRepo.MarkAsProcessed(eventID)
 }
 
@@ -76,7 +76,7 @@ func (s *EventService) GetEventsByTypeAndDateRange(eventType string, start, end 
 	if end.Before(start) {
 		return nil, fmt.Errorf("end date must be after start date")
 	}
-	
+
 	return s.eventRepo.GetByTypeAndDateRange(eventType, start, end)
 }
 
@@ -85,7 +85,7 @@ func (s *EventService) CleanupOldEvents(olderThan time.Duration) (int64, error) 
 	if olderThan < 24*time.Hour {
 		return 0, fmt.Errorf("minimum retention period is 24 hours")
 	}
-	
+
 	return s.eventRepo.DeleteOldEvents(olderThan)
 }
 
@@ -104,7 +104,7 @@ func (s *EventService) CreateNodeEvent(nodeID int64, eventType string, changes *
 	if node == nil {
 		return fmt.Errorf("node not found")
 	}
-	
+
 	// Create event data
 	eventData := &models.EventData{
 		NodeID:    nodeID,
@@ -115,13 +115,13 @@ func (s *EventService) CreateNodeEvent(nodeID int64, eventType string, changes *
 			"domain_id": node.DomainID,
 		},
 	}
-	
+
 	// Create event
 	event := &models.NodeEvent{
 		NodeID:    nodeID,
 		EventType: eventType,
 		EventData: eventData,
 	}
-	
+
 	return s.eventRepo.Create(event)
 }

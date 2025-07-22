@@ -37,7 +37,7 @@ func (s *SubscriptionService) CreateSubscription(nodeID int64, req *models.Creat
 	if node == nil {
 		return nil, fmt.Errorf("node not found")
 	}
-	
+
 	// Create subscription
 	subscription := &models.NodeSubscription{
 		SubscriberService:  req.SubscriberService,
@@ -47,12 +47,12 @@ func (s *SubscriptionService) CreateSubscription(nodeID int64, req *models.Creat
 		FilterConditions:   req.FilterConditions,
 		IsActive:           true,
 	}
-	
+
 	err = s.subscriptionRepo.Create(subscription)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create subscription: %w", err)
 	}
-	
+
 	return subscription, nil
 }
 
@@ -65,7 +65,7 @@ func (s *SubscriptionService) GetSubscription(id int64) (*models.NodeSubscriptio
 	if subscription == nil {
 		return nil, fmt.Errorf("subscription not found")
 	}
-	
+
 	return subscription, nil
 }
 
@@ -79,32 +79,32 @@ func (s *SubscriptionService) UpdateSubscription(id int64, req *models.UpdateNod
 	if subscription == nil {
 		return nil, fmt.Errorf("subscription not found")
 	}
-	
+
 	// Build updates
 	updates := make(map[string]interface{})
-	
+
 	if req.SubscriberEndpoint != nil {
 		updates["subscriber_endpoint"] = req.SubscriberEndpoint
 	}
-	
+
 	if len(req.EventTypes) > 0 {
 		updates["event_types"] = models.EventTypeList(req.EventTypes)
 	}
-	
+
 	if req.FilterConditions != nil {
 		updates["filter_conditions"] = req.FilterConditions
 	}
-	
+
 	if req.IsActive != nil {
 		updates["is_active"] = *req.IsActive
 	}
-	
+
 	// Update subscription
 	err = s.subscriptionRepo.Update(id, updates)
 	if err != nil {
 		return nil, fmt.Errorf("failed to update subscription: %w", err)
 	}
-	
+
 	// Get updated subscription
 	return s.subscriptionRepo.GetByID(id)
 }
@@ -115,7 +115,7 @@ func (s *SubscriptionService) DeleteSubscription(id int64) error {
 	if err != nil {
 		return fmt.Errorf("failed to delete subscription: %w", err)
 	}
-	
+
 	return nil
 }
 
@@ -129,7 +129,7 @@ func (s *SubscriptionService) GetNodeSubscriptions(nodeID int64) ([]*models.Node
 	if node == nil {
 		return nil, fmt.Errorf("node not found")
 	}
-	
+
 	return s.subscriptionRepo.GetByNode(nodeID)
 }
 
@@ -146,7 +146,7 @@ func (s *SubscriptionService) GetAllSubscriptions(page, pageSize int) ([]*models
 	if pageSize < 1 || pageSize > 100 {
 		pageSize = 20
 	}
-	
+
 	offset := (page - 1) * pageSize
 	return s.subscriptionRepo.GetAll(offset, pageSize)
 }
@@ -159,18 +159,18 @@ func (s *SubscriptionService) TriggerNodeEvent(nodeID int64, eventType string, e
 		EventType: eventType,
 		EventData: eventData,
 	}
-	
+
 	err := s.eventRepo.Create(event)
 	if err != nil {
 		return fmt.Errorf("failed to create event: %w", err)
 	}
-	
+
 	// Get active subscriptions for this node
 	subscriptions, err := s.subscriptionRepo.GetByNode(nodeID)
 	if err != nil {
 		return fmt.Errorf("failed to get subscriptions: %w", err)
 	}
-	
+
 	// Filter subscriptions by event type
 	for _, sub := range subscriptions {
 		shouldNotify := false
@@ -180,13 +180,13 @@ func (s *SubscriptionService) TriggerNodeEvent(nodeID int64, eventType string, e
 				break
 			}
 		}
-		
+
 		if shouldNotify {
 			// TODO: Implement webhook notification
 			// This would typically be done asynchronously in a production system
 			_ = sub
 		}
 	}
-	
+
 	return nil
 }

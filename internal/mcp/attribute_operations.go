@@ -114,9 +114,9 @@ func (s *mcpService) ListDomainAttributes(ctx context.Context, domainName string
 	}
 
 	return &models.MCPDomainAttributeListResponse{
-		DomainName:  domainName,
-		Attributes:  mcpAttributes,
-		TotalCount:  len(mcpAttributes),
+		DomainName: domainName,
+		Attributes: mcpAttributes,
+		TotalCount: len(mcpAttributes),
 	}, nil
 }
 
