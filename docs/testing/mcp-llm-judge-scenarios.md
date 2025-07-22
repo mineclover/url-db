@@ -1,416 +1,549 @@
-# MCP Server LLM-as-a-Judge Testing Scenarios
+# MCP LLM Judge Scenarios - External Dependency API Testing
 
-> **Test Status**: ✅ COMPLETED (2025-07-22)  
-> **Overall Score**: 92% (46/50) - Excellent  
-> **Test Report**: See [mcp-test-results.md](./mcp-test-results.md)
+> **Test Status**: 🚧 READY FOR TESTING (2025-07-22)  
+> **API Coverage**: External Dependency API (Subscriptions, Dependencies, Events)  
+> **Test Suite**: Comprehensive validation scenarios for new external dependency functionality
 
 ## Overview
 
-This document defines comprehensive testing scenarios for the URL-DB MCP server using the LLM-as-a-Judge methodology. Each scenario includes detailed criteria, expected behaviors, and evaluation rubrics.
+This document provides comprehensive testing scenarios for evaluating the newly implemented external dependency API through LLM-based testing. These scenarios validate the subscription management, dependency relationships, and event tracking systems integrated into the URL-DB MCP server.
 
-## Testing Context
+## New API Components
 
-**Server Under Test**: URL-DB MCP Server (JSON-RPC 2.0)
-**Test Client**: Python MCP client (`test_mcp_client.py`)
-**MCP Tool Registration**: Assumed to be registered with Claude Desktop or compatible MCP client
-**Reference Context**: [MCP Go SDK](https://github.com/modelcontextprotocol/go-sdk)
+The external dependency API adds three main components to URL-DB:
 
-## Domain Schema System
+### 1. **Subscription Management**
+- Event-based notifications when nodes change
+- Webhook endpoints for external service integration
+- Filtered event subscriptions by event type and criteria
 
-URL-DB implements a domain schema system where:
-- Each domain defines a schema of allowed attributes with specific types
-- Nodes can only have attributes that are defined in their domain's schema
-- This ensures data consistency and type safety across the system
-- Schema changes are managed through domain attribute definitions
+### 2. **Dependency Management** 
+- Directed relationships between nodes (A depends on B)
+- Cascade delete and update behaviors
+- Support for different dependency types (hard, soft, reference)
 
-## Test Scenarios
+### 3. **Event Tracking**
+- Automatic event generation for all node CRUD operations
+- Event processing and status tracking
+- Historical audit trail with before/after state capture
 
-### Scenario 1: MCP Protocol Handshake Compliance
+## Test Environment Setup
 
-**Objective**: Verify complete MCP protocol initialization sequence
+```bash
+# Start MCP server with external dependency support
+./bin/url-db -mcp-mode=stdio -db-path=test_external_deps.db
 
-**Test Steps**:
-1. Send `initialize` request with protocol version "2024-11-05"
-2. Verify server responds with proper capabilities and server info
-3. Send `initialized` notification
-4. Verify server transitions to ready state
-
-**Expected Behavior**:
-- Initialize response includes: `protocolVersion`, `capabilities`, `serverInfo`
-- Server capabilities include `tools` and `resources`
-- Server name is "url-db-mcp-server" with version "1.0.0"
-- No errors during handshake sequence
-
-**Evaluation Criteria** (Score 1-10):
-- **Protocol Compliance** (3 points): Exact adherence to MCP handshake specification
-- **Response Format** (2 points): Proper JSON-RPC 2.0 response structure
-- **Capability Declaration** (3 points): Accurate capability advertisement
-- **Error Handling** (2 points): Graceful handling of malformed requests
-
-**Pass Threshold**: 8/10
-
----
-
-### Scenario 2: Tool Discovery and Schema Validation
-
-**Objective**: Verify all 11 MCP tools are properly registered with valid schemas
-
-**Test Steps**:
-1. Call `tools/list` after initialization
-2. Verify all expected tools are present
-3. Validate input schemas for each tool
-4. Check tool descriptions and metadata
-
-**Expected Tools**:
-1. `list_domains` - List all domains
-2. `create_domain` - Create new domain
-3. `list_nodes` - List nodes in domain
-4. `create_node` - Create new node/URL
-5. `get_node` - Get node by composite ID
-6. `update_node` - Update node metadata
-7. `delete_node` - Delete node
-8. `find_node_by_url` - Find node by URL
-9. `get_node_attributes` - Get node attributes
-10. `set_node_attributes` - Set node attributes
-11. `get_server_info` - Get server information
-12. `list_domain_attributes` - List all attribute definitions for a domain
-13. `create_domain_attribute` - Create a new attribute definition for a domain
-14. `get_domain_attribute` - Get a specific attribute definition
-15. `update_domain_attribute` - Update attribute description
-16. `delete_domain_attribute` - Delete an attribute definition
-
-**Evaluation Criteria** (Score 1-10):
-- **Tool Completeness** (3 points): All 16 tools present and accessible
-- **Schema Validity** (3 points): Valid JSON schemas with proper types and constraints
-- **Documentation Quality** (2 points): Clear, helpful tool descriptions
-- **Parameter Validation** (2 points): Required/optional parameters correctly specified
-
-**Pass Threshold**: 8/10
-
----
-
-### Scenario 3: Domain Management Workflow
-
-**Objective**: Test complete domain lifecycle management
-
-**Test Steps**:
-1. List initial domains (should be empty)
-2. Create test domain "test-scenario-domain"
-3. Verify domain creation with proper metadata
-4. List domains again to confirm presence
-5. Attempt to create duplicate domain (should fail gracefully)
-
-**Expected Behavior**:
-- Initial domain list returns empty array
-- Domain creation returns domain object with timestamps
-- Duplicate creation returns appropriate error
-- Domain appears in subsequent listings
-
-**Evaluation Criteria** (Score 1-10):
-- **CRUD Operations** (4 points): Create, read operations work correctly
-- **Data Integrity** (2 points): Proper timestamps, metadata handling
-- **Error Handling** (2 points): Duplicate prevention, clear error messages
-- **State Consistency** (2 points): Domain persists across operations
-
-**Pass Threshold**: 7/10
-
----
-
-### Scenario 4: Node/URL Management with Composite Keys
-
-**Objective**: Verify URL storage and retrieval using composite key system
-
-**Test Steps**:
-1. Create domain "url-test-domain"
-2. Create node with URL "https://example.com/test-page"
-3. Verify composite key format "url-db:url-test-domain:N"
-4. Retrieve node by composite key
-5. Update node title and description
-6. Find node by URL search
-7. Delete node and verify removal
-
-**Expected Behavior**:
-- Node creation returns composite key in correct format
-- Node retrieval by composite key returns full metadata
-- Updates persist and are reflected in subsequent retrievals
-- URL search finds the correct node
-- Deletion removes node completely
-
-**Evaluation Criteria** (Score 1-10):
-- **Composite Key System** (3 points): Proper format and uniqueness
-- **CRUD Completeness** (3 points): All operations work correctly
-- **Data Persistence** (2 points): Updates persist across operations
-- **Search Functionality** (2 points): URL-based search works accurately
-
-**Pass Threshold**: 8/10
-
----
-
-### Scenario 5: Resource System Integration
-
-**Objective**: Test MCP resource discovery and access
-
-**Test Steps**:
-1. Call `resources/list` to discover available resources
-2. Verify expected resource URIs are present
-3. Read server info resource: `mcp://server/info`
-4. Read domain resource: `mcp://domains/{domain_name}`
-5. Read domain nodes resource: `mcp://domains/{domain_name}/nodes`
-
-**Expected Resources**:
-- `mcp://server/info` - Server metadata and capabilities
-- `mcp://domains/{domain}` - Domain information
-- `mcp://domains/{domain}/nodes` - Domain node listings
-
-**Evaluation Criteria** (Score 1-10):
-- **Resource Discovery** (3 points): All expected resources are listed
-- **Resource Access** (3 points): Resources return proper JSON content
-- **URI Format** (2 points): Consistent, predictable URI patterns
-- **Content Quality** (2 points): Resources contain useful, accurate data
-
-**Pass Threshold**: 7/10
-
----
-
-### Scenario 6: Attribute Management System
-
-**Objective**: Test node attribute assignment and retrieval
-
-**Test Steps**:
-1. Create domain and node for attribute testing
-2. Set multiple attributes on the node
-3. Retrieve node attributes
-4. Verify attribute types and values
-5. Update attribute values
-6. Remove attributes
-
-**Test Attributes**:
-- `category`: "testing"
-- `priority`: "high"
-- `description`: "Test node for attribute validation"
-
-**Expected Behavior**:
-- Attributes can be set in batch operations
-- Attribute retrieval returns all assigned attributes
-- Attribute updates modify existing values
-- Invalid attribute operations return clear errors
-
-**Evaluation Criteria** (Score 1-10):
-- **Attribute Operations** (4 points): Set, get, update operations work
-- **Data Types** (2 points): Proper handling of different value types
-- **Batch Processing** (2 points): Multiple attributes handled efficiently
-- **Error Handling** (2 points): Clear errors for invalid operations
-
-**Pass Threshold**: 7/10
-
----
-
-### Scenario 7: Error Handling and Edge Cases
-
-**Objective**: Verify robust error handling across all operations
-
-**Test Steps**:
-1. Send malformed JSON-RPC requests
-2. Call non-existent tools
-3. Provide invalid parameters to tools
-4. Access non-existent resources
-5. Attempt operations on non-existent entities
-
-**Expected Behavior**:
-- Malformed requests return proper JSON-RPC error responses
-- Unknown tools return "Method not found" errors
-- Invalid parameters return validation errors
-- Non-existent resources return appropriate 404-style errors
-- All errors include helpful error messages
-
-**Evaluation Criteria** (Score 1-10):
-- **JSON-RPC Compliance** (3 points): Proper error response format
-- **Error Specificity** (3 points): Specific, actionable error messages
-- **Edge Case Coverage** (2 points): Handles various edge cases
-- **System Stability** (2 points): Errors don't crash or corrupt state
-
-**Pass Threshold**: 8/10
-
----
-
-### Scenario 8: Performance and Scalability
-
-**Objective**: Evaluate server performance under realistic loads
-
-**Test Steps**:
-1. Create 10 domains rapidly
-2. Create 100 nodes across domains
-3. Perform batch attribute operations
-4. Execute concurrent tool calls
-5. Measure response times and resource usage
-
-**Expected Behavior**:
-- Operations complete within reasonable timeframes
-- No memory leaks or resource exhaustion
-- Concurrent operations handled correctly
-- Database operations remain performant
-
-**Evaluation Criteria** (Score 1-10):
-- **Response Times** (3 points): Sub-second response for typical operations
-- **Concurrency** (3 points): Handles concurrent requests correctly
-- **Resource Usage** (2 points): Reasonable memory and CPU usage
-- **Scalability** (2 points): Performance doesn't degrade significantly
-
-**Pass Threshold**: 6/10
-
----
-
-### Scenario 9: Domain Schema Management
-
-**Objective**: Test domain schema definition and enforcement
-
-**Test Steps**:
-1. Create a domain "schema-test-domain"
-2. Define attribute schema for the domain:
-   - `category` (tag)
-   - `priority` (ordered_tag)
-   - `score` (number)
-   - `notes` (string)
-   - `description` (markdown)
-   - `thumbnail` (image)
-3. Create a node in the domain
-4. Set attributes that conform to schema
-5. Attempt to set attributes not in schema (should fail)
-6. Update attribute definitions
-7. Delete unused attribute definitions
-
-**Expected Behavior**:
-- Domain attribute definitions create a schema
-- Nodes can only have attributes defined in domain schema
-- Invalid attribute operations return clear errors
-- Schema updates affect future operations
-- Attribute definitions with existing values cannot be deleted
-
-**Evaluation Criteria** (Score 1-10):
-- **Schema Definition** (3 points): Attribute types properly defined
-- **Schema Enforcement** (3 points): Only schema attributes allowed
-- **Type Validation** (2 points): Attribute values match defined types
-- **Schema Evolution** (2 points): Schema can be modified safely
-
-**Pass Threshold**: 8/10
-
----
-
-### Scenario 10: Advanced Attribute Operations
-
-**Objective**: Test complex attribute operations and edge cases
-
-**Test Steps**:
-1. Create domain with ordered_tag attributes
-2. Set multiple ordered_tag attributes with order_index
-3. Verify ordering is preserved
-4. Update order_index values
-5. Test batch attribute operations
-6. Test attribute value updates
-7. Test removing specific attributes
-
-**Expected Behavior**:
-- Ordered tags maintain their order_index
-- Batch operations are atomic
-- Updates preserve existing attributes
-- Partial updates work correctly
-- Invalid operations fail gracefully
-
-**Evaluation Criteria** (Score 1-10):
-- **Ordered Tags** (3 points): Order preservation and updates
-- **Batch Operations** (3 points): Atomic batch processing
-- **Update Semantics** (2 points): Proper partial updates
-- **Data Integrity** (2 points): No data corruption
-
-**Pass Threshold**: 7/10
-
----
-
-### Scenario 11: Cross-Domain Operations
-
-**Objective**: Test operations across multiple domains
-
-**Test Steps**:
-1. Create multiple domains with different schemas
-2. Create nodes in each domain
-3. Verify schema isolation between domains
-4. Test moving nodes between domains (if supported)
-5. Test cross-domain searches
-6. Verify composite key uniqueness
-
-**Expected Behavior**:
-- Each domain maintains independent schema
-- Nodes respect their domain's schema
-- Composite keys are globally unique
-- Cross-domain operations fail appropriately
-
-**Evaluation Criteria** (Score 1-10):
-- **Schema Isolation** (3 points): Domains have independent schemas
-- **Data Integrity** (3 points): No cross-contamination
-- **Key Uniqueness** (2 points): Composite keys work correctly
-- **Error Handling** (2 points): Clear cross-domain errors
-
-**Pass Threshold**: 7/10
-
----
-
-## Overall Evaluation Rubric
-
-### Scoring System
-- **Excellent** (9-10): Exceeds expectations, production-ready
-- **Good** (7-8): Meets requirements with minor issues
-- **Acceptable** (5-6): Basic functionality works, has limitations
-- **Poor** (3-4): Significant issues, not production-ready
-- **Failing** (1-2): Major failures, unusable
-
-### Aggregate Scoring
-- **Total Possible**: 110 points (11 scenarios × 10 points each)
-- **Passing Grade**: 77 points (70%)
-- **Production Ready**: 88 points (80%)
-- **Excellence**: 99 points (90%)
-
-### Test Report Template
-
-```markdown
-# MCP Server Test Report
-
-**Date**: [Test Date]
-**Server Version**: url-db-mcp-server v1.0.0
-**Test Environment**: [Environment Details]
-
-## Scenario Results
-
-### Scenario 1: Protocol Handshake
-- **Score**: X/10
-- **Status**: PASS/FAIL
-- **Notes**: [Detailed observations]
-
-[Repeat for all scenarios]
-
-## Summary
-- **Total Score**: X/80
-- **Overall Grade**: [Excellent/Good/Acceptable/Poor/Failing]
-- **Production Readiness**: [Assessment]
-
-## Recommendations
-[Specific recommendations for improvements]
+# Or HTTP mode for REST API verification
+./bin/url-db -mcp-mode=sse -port=8080 -db-path=test_external_deps.db
 ```
 
-## Test Execution Instructions
+## New MCP Tools Available
 
-1. Ensure URL-DB MCP server is built and ready
-2. Run test client: `python3 test_mcp_client.py`
-3. Execute each scenario systematically
-4. Record detailed observations and scores
-5. Calculate aggregate scores and overall assessment
-6. Generate recommendations based on results
+**Subscription Management**:
+- `create_subscription` - Subscribe to node events
+- `list_subscriptions` - List subscriptions by service
+- `get_node_subscriptions` - Get subscriptions for specific node
+- `delete_subscription` - Cancel subscription
 
-## Notes for LLM Judge
+**Dependency Management**:
+- `create_dependency` - Create dependency relationship
+- `list_node_dependencies` - Get node's dependencies
+- `list_node_dependents` - Get nodes that depend on this node
+- `delete_dependency` - Remove dependency relationship
 
-When evaluating test results:
-1. Consider MCP specification compliance as highest priority
-2. Weight protocol correctness over performance optimizations
-3. Evaluate error messages for clarity and actionability
-4. Assess overall user experience from AI assistant perspective
-5. Consider production deployment readiness
-6. Factor in maintainability and extensibility of implementation
+**Event Management**:
+- `get_node_events` - Get event history for node
+- `get_pending_events` - Get unprocessed events
+- `process_event` - Mark event as processed
+- `get_event_stats` - Get system event statistics
+
+## Scenario Categories
+
+### 1. Basic External Dependency Functionality
+
+#### Scenario 1.1: Subscription Lifecycle Management
+**Objective**: Test complete subscription creation, management, and deletion workflow
+**LLM Instructions**: Create subscriptions, verify filtering, and test cleanup
+
+```
+Test Steps:
+1. Create domain "microservices" and add nodes: api-gateway, user-service, payment-service
+2. Create subscription to monitor "api-gateway" for all event types
+   - Service: "monitoring-system"
+   - Events: ["created", "updated", "deleted"]
+3. Create filtered subscription for "user-service" monitoring only "updated" events
+   - Service: "alert-system" 
+   - Events: ["updated"]
+   - Include webhook endpoint: "https://alerts.example.com/webhook"
+4. List all subscriptions and verify both were created
+5. Get node-specific subscriptions for "api-gateway"
+6. Delete the first subscription and verify removal
+```
+
+**Expected MCP Tools Used**:
+- `create_domain`, `create_node`
+- `create_subscription`
+- `list_subscriptions`
+- `get_node_subscriptions`
+- `delete_subscription`
+
+**Success Criteria**:
+- Subscriptions created with correct event type filters
+- Service-based subscription listing works
+- Node-specific subscription queries return accurate results
+- Subscription deletion removes records without affecting others
+
+#### Scenario 1.2: Dependency Relationship Creation and Querying
+**Objective**: Test creation and management of various dependency types
+**LLM Instructions**: Create complex dependency relationships and verify bidirectional queries
+
+```
+Test Steps:
+1. Use nodes from previous scenario: api-gateway, user-service, payment-service
+2. Create hard dependency: api-gateway depends on user-service
+   - Type: "hard"
+   - Cascade delete: true
+   - Cascade update: true
+3. Create soft dependency: user-service depends on payment-service
+   - Type: "soft"
+   - Cascade delete: false
+   - Cascade update: true
+4. Create reference dependency: api-gateway references payment-service
+   - Type: "reference"
+   - Include metadata: {"relationship": "external API", "description": "Payment processing endpoint"}
+5. List dependencies for api-gateway (should show 2)
+6. List dependents for user-service (should show api-gateway)
+7. List dependents for payment-service (should show user-service and api-gateway)
+```
+
+**Expected MCP Tools Used**:
+- `create_dependency`
+- `list_node_dependencies`
+- `list_node_dependents`
+
+**Success Criteria**:
+- All dependency types created successfully
+- Cascade options stored correctly
+- Metadata preserved in reference dependency
+- Bidirectional dependency queries work correctly
+
+#### Scenario 1.3: Automatic Event Generation and Tracking
+**Objective**: Verify automatic event creation during node operations
+**LLM Instructions**: Perform node operations and verify events are automatically captured
+
+```
+Test Steps:
+1. Create new node "database-service" in "microservices" domain
+2. Immediately check for "node.created" event using get_node_events
+3. Update the node title to "Primary Database Service"
+4. Check for "node.updated" event with before/after data
+5. Update description to "Main PostgreSQL database instance"
+6. Verify second "node.updated" event was created
+7. Get all pending events to see unprocessed events
+8. Process one event and verify it's marked as processed
+9. Delete the node and check for "node.deleted" event
+```
+
+**Expected MCP Tools Used**:
+- `create_node`
+- `update_node`
+- `delete_node`
+- `get_node_events`
+- `get_pending_events`
+- `process_event`
+
+**Success Criteria**:
+- Events automatically generated for create, update, delete operations
+- Event data contains proper before/after state information
+- Events appear in both node-specific and pending event lists
+- Event processing correctly marks events as processed
+- Deleted node events still accessible in history
+
+### 2. Advanced Integration Scenarios
+
+#### Scenario 2.1: Complex Dependency Chains with Cascade Behavior
+**Objective**: Test multi-level dependencies and cascade operations
+**LLM Instructions**: Create dependency chains and test cascade behavior
+
+```
+Test Steps:
+1. Create domain "infrastructure" with nodes: load-balancer, web-server, app-server, database
+2. Create dependency chain with cascade delete enabled:
+   - load-balancer depends on web-server (cascade delete: true)
+   - web-server depends on app-server (cascade delete: true)  
+   - app-server depends on database (cascade delete: false)
+3. Create additional cross-dependencies:
+   - load-balancer depends on database (type: "reference", cascade delete: false)
+4. Verify dependency structure:
+   - List dependencies for each node
+   - List dependents for each node
+   - Verify cascade settings are correct
+5. Test dependency integrity:
+   - Attempt to delete database (should succeed as no cascade delete dependencies)
+   - Verify dependent services remain intact
+   - Check events generated during dependency operations
+```
+
+**Expected MCP Tools Used**:
+- `create_dependency` (multiple calls)
+- `list_node_dependencies`
+- `list_node_dependents`
+- `delete_node`
+- `get_node_events`
+
+**Success Criteria**:
+- Complex dependency chain created successfully
+- Cascade settings properly configured and enforced
+- Cross-dependencies handled correctly
+- Dependency integrity maintained during operations
+- Appropriate events generated for all dependency changes
+
+#### Scenario 2.2: Event Processing and System Statistics
+**Objective**: Test event processing workflows and system monitoring
+**LLM Instructions**: Generate events, process them systematically, and analyze statistics
+
+```
+Test Steps:
+1. Perform multiple node operations to generate events:
+   - Create 5 new nodes in different domains
+   - Update each node 2 times (title and description changes)
+   - Delete 2 nodes
+2. Get comprehensive system event statistics
+3. Analyze statistics for:
+   - Total event counts by type
+   - Processing status distribution
+   - Event generation rate
+4. Get list of all pending events (should be substantial)
+5. Process events in batches:
+   - Process first 5 events individually
+   - Verify each is marked as processed
+6. Get updated statistics and verify processed counts increased
+7. Get remaining pending events and verify count decreased
+```
+
+**Expected MCP Tools Used**:
+- `create_node`, `update_node`, `delete_node` (multiple calls)
+- `get_event_stats`
+- `get_pending_events`
+- `process_event` (multiple calls)
+
+**Success Criteria**:
+- Event statistics provide accurate counts and breakdowns
+- Pending event lists reflect current processing status
+- Event processing updates statistics in real-time
+- Processing timestamps recorded correctly
+- System handles batch processing efficiently
+
+### 3. Integration and Workflow Tests
+
+#### Scenario 3.1: Complete Project Management Workflow
+**Objective**: Simulate realistic project management using all external dependency features
+**LLM Instructions**: Execute end-to-end project lifecycle with monitoring and dependencies
+
+```
+Workflow Steps:
+1. **Project Setup**:
+   - Create domain "project-alpha" 
+   - Add nodes: frontend, backend, database, docs, config
+   
+2. **Dependency Architecture**:
+   - frontend depends on backend (hard, cascade update: true)
+   - backend depends on database (hard, cascade delete: false)
+   - frontend references docs (reference type)
+   - All services reference config (reference type)
+   
+3. **Monitoring Setup**:
+   - Create subscription for "devops-team" monitoring all components
+   - Create subscription for "qa-team" monitoring only update events
+   - Create subscription for "docs-team" monitoring docs changes only
+   
+4. **Development Simulation**:
+   - Update backend API (should trigger cascade update event to frontend)
+   - Update database schema (should generate dependency-related events)
+   - Update documentation (should notify docs-team subscription)
+   - Add new configuration (should affect all services via reference dependencies)
+   
+5. **Audit and Reporting**:
+   - Generate comprehensive event history for entire project
+   - Show subscription activity and notifications
+   - Document dependency relationships and their cascade behaviors
+   - Provide system statistics for the workflow
+```
+
+**Integration Verification**:
+- All three external dependency systems work together seamlessly
+- Events capture complete audit trail of project changes
+- Subscriptions provide appropriate notifications for different teams
+- Dependencies maintain referential integrity throughout workflow
+- Cascade behaviors work correctly across dependency types
+
+#### Scenario 3.2: Cross-Domain Resource Management
+**Objective**: Test external dependencies across multiple organizational domains
+**LLM Instructions**: Manage resources and dependencies spanning different domains
+
+```
+Workflow Steps:
+1. **Multi-Domain Setup**:
+   - Create domain "applications" with nodes: web-app, mobile-app
+   - Create domain "infrastructure" with nodes: auth-service, cdn, monitoring
+   - Create domain "data" with nodes: user-db, analytics-db, cache
+   
+2. **Cross-Domain Dependencies**:
+   - web-app depends on auth-service (cross-domain hard dependency)
+   - mobile-app depends on auth-service (cross-domain hard dependency)
+   - Both apps depend on cdn (cross-domain soft dependency)
+   - auth-service depends on user-db (cross-domain hard dependency)
+   - monitoring references all apps and infrastructure (cross-domain references)
+   
+3. **Distributed Monitoring**:
+   - Create subscriptions for "app-team" monitoring applications domain
+   - Create subscriptions for "infra-team" monitoring infrastructure domain
+   - Create subscriptions for "data-team" monitoring data domain
+   - Create cross-domain subscription for "architect-team" monitoring all domains
+   
+4. **Cross-Domain Operations**:
+   - Update auth-service (should affect multiple dependent apps)
+   - Scale cdn configuration (soft dependency, should notify apps)
+   - Database maintenance on user-db (hard dependency, should cascade to auth-service)
+   - Monitor event propagation across domain boundaries
+   
+5. **System Analysis**:
+   - Verify cross-domain dependency resolution
+   - Check event tracking across all domains
+   - Validate subscription notifications for relevant teams
+   - Analyze cascade behavior across domain boundaries
+```
+
+**Cross-Domain Verification**:
+- Dependencies work correctly across different domains
+- Event tracking maintains domain context while enabling cross-domain analysis
+- Subscription filtering respects domain boundaries when configured
+- Cascade operations work across domains with proper safeguards
+
+### 4. Error Handling and Edge Cases
+
+#### Scenario 4.1: Invalid Input Handling
+**Objective**: Test robust error handling for malformed requests
+**LLM Instructions**: Attempt various invalid operations and verify error responses
+
+```
+Error Test Cases:
+1. **Invalid Composite IDs**:
+   - Create subscription with malformed composite ID "invalid-format"
+   - Create dependency with non-existent node "url-db:fake:999"
+   - Get events for empty composite ID ""
+   
+2. **Invalid Parameters**:
+   - Create subscription with empty event types array
+   - Create dependency with invalid dependency type "invalid-type"
+   - Process non-existent event ID 99999
+   
+3. **Circular Dependencies**:
+   - Create dependency A → B
+   - Create dependency B → C
+   - Attempt to create dependency C → A (should fail)
+   - Attempt direct self-dependency A → A (should fail)
+   
+4. **Resource Conflicts**:
+   - Delete node that has active subscriptions
+   - Delete node that has dependencies with cascade delete enabled
+   - Create duplicate subscriptions for same service and node
+```
+
+**Error Validation**:
+- All invalid requests return appropriate error codes
+- Error messages are informative and actionable
+- System maintains stability under error conditions
+- No data corruption occurs from failed operations
+
+#### Scenario 4.2: Concurrency and Race Conditions
+**Objective**: Test system behavior under concurrent operations
+**LLM Instructions**: Simulate concurrent access and verify data consistency
+
+```
+Concurrency Test Cases:
+1. **Simultaneous Node Operations**:
+   - Create multiple subscriptions for same node simultaneously
+   - Update same node from multiple operations concurrently
+   - Process same events from multiple clients
+   
+2. **Dependency Race Conditions**:
+   - Create competing dependencies simultaneously
+   - Delete node while creating dependencies for it
+   - Update node while processing its events
+   
+3. **Event System Stress**:
+   - Generate high volume of events rapidly
+   - Process events while new ones are being created
+   - Verify event ordering and consistency
+```
+
+**Concurrency Validation**:
+- Data consistency maintained under concurrent access
+- Event ordering preserved correctly
+- No race conditions cause data corruption
+- System performance remains stable under load
+
+### 5. Performance and Scalability
+
+#### Scenario 5.1: High-Volume Event Processing
+**Objective**: Test system performance with large numbers of events
+**LLM Instructions**: Generate substantial event volumes and measure performance
+
+```
+Performance Test Steps:
+1. **Event Generation Load Test**:
+   - Create 100 nodes rapidly across multiple domains
+   - Perform bulk updates (200+ operations)
+   - Create 50+ dependency relationships
+   - Create 20+ subscriptions for various services
+   
+2. **Event Processing Performance**:
+   - Measure event generation latency per operation
+   - Process events in large batches (50+ events)
+   - Monitor memory and CPU usage during processing
+   - Test event querying performance with large datasets
+   
+3. **Subscription System Scale**:
+   - Create subscriptions for many services (100+ subscriptions)
+   - Test subscription listing performance
+   - Verify event filtering performance with complex criteria
+   
+4. **Dependency Network Performance**:
+   - Create complex dependency networks (500+ relationships)
+   - Test dependency traversal performance
+   - Measure response times for dependency queries
+   - Test cascade operation performance
+```
+
+**Performance Metrics**:
+- Event generation adds <50ms latency to node operations
+- Event processing throughput >100 events/second
+- Dependency queries complete within 100ms for networks <1000 nodes
+- Memory usage remains stable under sustained load
+- Database performance scales appropriately with data volume
+
+### 6. Integration Verification
+
+#### Scenario 6.1: MCP Tool Consistency and Completeness
+**Objective**: Verify all external dependency MCP tools work correctly
+**LLM Instructions**: Test every new MCP tool systematically
+
+```
+Tool Verification Steps:
+1. **Subscription Tools**:
+   - create_subscription: Test all parameter combinations
+   - list_subscriptions: Verify pagination and filtering
+   - get_node_subscriptions: Test with various node types
+   - delete_subscription: Verify cleanup and error handling
+   
+2. **Dependency Tools**:
+   - create_dependency: Test all dependency types and cascade options
+   - list_node_dependencies: Verify complete dependency resolution
+   - list_node_dependents: Test bidirectional relationship queries
+   - delete_dependency: Verify safe dependency removal
+   
+3. **Event Tools**:
+   - get_node_events: Test event filtering and pagination
+   - get_pending_events: Verify processing status accuracy
+   - process_event: Test batch and individual processing
+   - get_event_stats: Verify statistical accuracy and completeness
+```
+
+**Tool Verification Criteria**:
+- All tools respond with correct data structures
+- Parameter validation works correctly
+- Error responses follow MCP standards
+- Tool documentation matches actual behavior
+- Composite ID handling consistent across all tools
+
+## Success Criteria and Evaluation Framework
+
+### Functional Requirements ✅
+- **Event Integration**: Events automatically generated for all node CRUD operations
+- **Subscription Management**: Complete lifecycle management with filtering support
+- **Dependency Relationships**: All dependency types work with proper cascade behavior
+- **Cross-Domain Support**: External dependencies work across different domains
+- **Data Consistency**: Referential integrity maintained throughout all operations
+
+### Performance Requirements ✅
+- **Low Latency**: Event generation adds minimal overhead to node operations
+- **High Throughput**: Event processing handles substantial event volumes
+- **Scalable Queries**: Dependency and event queries perform well at scale
+- **Memory Efficiency**: System remains stable under sustained load
+
+### Integration Requirements ✅
+- **MCP Compliance**: All new tools follow MCP protocol standards
+- **REST API Parity**: External dependency features available via both MCP and REST
+- **Composite ID Consistency**: Uniform composite ID handling across all tools
+- **Event System Integration**: Seamless integration with existing node operations
+
+### Error Handling Requirements ✅
+- **Graceful Degradation**: System handles errors without data corruption
+- **Informative Messages**: Error responses provide actionable information
+- **Input Validation**: Robust validation prevents invalid state creation
+- **Consistency**: Error behavior consistent across all components
+
+## LLM Judge Configuration
+
+### Evaluation Criteria
+```yaml
+evaluation_criteria:
+  functional_correctness: 30%    # Do the tools work as specified?
+  integration_quality: 25%      # How well do components work together?
+  error_handling: 20%           # How robust is error handling?
+  performance: 15%              # Does the system perform adequately?
+  consistency: 10%              # Is behavior consistent across tools?
+```
+
+### Scoring Rubric
+- **10/10**: Exceptional - Exceeds all requirements
+- **8-9/10**: Excellent - Meets all requirements with minor issues
+- **6-7/10**: Good - Meets most requirements with some gaps
+- **4-5/10**: Fair - Basic functionality works but has significant issues
+- **1-3/10**: Poor - Major functionality broken or missing
+- **0/10**: Failing - Does not work at all
+
+### Expected Output Format
+```json
+{
+  "test_suite": "external_dependency_api",
+  "execution_date": "2025-07-22",
+  "scenarios_executed": 18,
+  "scenarios_passed": 17,
+  "scenarios_failed": 1,
+  "overall_score": 94.4,
+  "detailed_results": [
+    {
+      "scenario_id": "1.1",
+      "name": "Subscription Lifecycle Management",
+      "status": "PASSED",
+      "score": 9.2,
+      "execution_time": 3.4,
+      "tools_tested": ["create_subscription", "list_subscriptions", "delete_subscription"],
+      "issues": [],
+      "performance_metrics": {
+        "avg_response_time": 45,
+        "max_response_time": 120
+      }
+    }
+  ],
+  "recommendations": [
+    "Optimize event query performance for large datasets",
+    "Add batch processing capabilities for dependency creation",
+    "Improve error message specificity for validation failures"
+  ]
+}
+```
+
+## Conclusion
+
+This comprehensive testing framework ensures the external dependency API meets production standards and integrates seamlessly with the existing URL-DB system. The scenarios cover:
+
+- **Complete Feature Coverage**: All subscription, dependency, and event functionality
+- **Realistic Workflows**: End-to-end scenarios that mirror actual usage patterns  
+- **Robust Error Handling**: Edge cases and error conditions thoroughly tested
+- **Performance Validation**: System performance under various load conditions
+- **Integration Quality**: Seamless integration with existing MCP and REST APIs
+
+The LLM judge approach provides thorough evaluation while simulating real-world usage patterns, ensuring the external dependency API is ready for production deployment with confidence in its reliability, performance, and usability.
