@@ -89,8 +89,9 @@ type MCPNodeAttributeResponse struct {
 
 type SetMCPNodeAttributesRequest struct {
 	Attributes []struct {
-		Name  string `json:"name" binding:"required"`
-		Value string `json:"value" binding:"required"`
+		Name       string `json:"name" binding:"required"`
+		Value      string `json:"value" binding:"required"`
+		OrderIndex *int   `json:"order_index"`
 	} `json:"attributes" binding:"required"`
 }
 

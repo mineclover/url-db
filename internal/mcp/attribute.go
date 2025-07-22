@@ -111,6 +111,7 @@ func (am *AttributeManager) SetNodeAttributes(ctx context.Context, compositeID s
 		createReq := &models.CreateNodeAttributeRequest{
 			AttributeID: attribute.ID,
 			Value:       attrReq.Value,
+			OrderIndex:  attrReq.OrderIndex,
 		}
 
 		if _, err := am.attributeService.SetNodeAttribute(ctx, nodeID, createReq); err != nil {
@@ -224,8 +225,9 @@ func (am *AttributeManager) GetNodeAttributesByType(ctx context.Context, composi
 }
 
 func (am *AttributeManager) validateAttributeRequests(attributes []struct {
-	Name  string `json:"name" binding:"required"`
-	Value string `json:"value" binding:"required"`
+	Name       string `json:"name" binding:"required"`
+	Value      string `json:"value" binding:"required"`
+	OrderIndex *int   `json:"order_index"`
 }) error {
 	if len(attributes) == 0 {
 		return fmt.Errorf("attributes cannot be empty")

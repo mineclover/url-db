@@ -358,6 +358,7 @@ func (s *mcpService) SetNodeAttributes(ctx context.Context, compositeID string, 
 		createReq := &models.CreateNodeAttributeRequest{
 			AttributeID: attribute.ID,
 			Value:       attrReq.Value,
+			OrderIndex:  attrReq.OrderIndex,
 		}
 
 		if _, err := s.attributeService.SetNodeAttribute(ctx, nodeID, createReq); err != nil {

@@ -260,6 +260,10 @@ func (tr *ToolRegistry) registerTools() {
 									"type":        "string",
 									"description": "Attribute value",
 								},
+								"order_index": map[string]interface{}{
+									"type":        "integer",
+									"description": "Order index (required for ordered_tag type)",
+								},
 							},
 							"required": []string{"name", "value"},
 						},
@@ -641,8 +645,9 @@ func (tr *ToolRegistry) callSetNodeAttributes(ctx context.Context, arguments int
 	}
 
 	var attributes []struct {
-		Name  string `json:"name" binding:"required"`
-		Value string `json:"value" binding:"required"`
+		Name       string `json:"name" binding:"required"`
+		Value      string `json:"value" binding:"required"`
+		OrderIndex *int   `json:"order_index"`
 	}
 	for _, attrRaw := range attributesArray {
 		attrMap, ok := attrRaw.(map[string]interface{})
@@ -650,12 +655,22 @@ func (tr *ToolRegistry) callSetNodeAttributes(ctx context.Context, arguments int
 			continue
 		}
 		
+		var orderIndex *int
+		if orderIndexRaw, exists := attrMap["order_index"]; exists {
+			if orderIndexFloat, ok := orderIndexRaw.(float64); ok {
+				orderIndexInt := int(orderIndexFloat)
+				orderIndex = &orderIndexInt
+			}
+		}
+		
 		attributes = append(attributes, struct {
-			Name  string `json:"name" binding:"required"`
-			Value string `json:"value" binding:"required"`
+			Name       string `json:"name" binding:"required"`
+			Value      string `json:"value" binding:"required"`
+			OrderIndex *int   `json:"order_index"`
 		}{
-			Name:  attrMap["name"].(string),
-			Value: attrMap["value"].(string),
+			Name:       attrMap["name"].(string),
+			Value:      attrMap["value"].(string),
+			OrderIndex: orderIndex,
 		})
 	}
 
