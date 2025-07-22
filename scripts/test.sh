@@ -473,4 +473,4 @@ main() {
 trap cleanup EXIT
 
 # Run main function with all arguments
-main "$@"
+main "$@" 

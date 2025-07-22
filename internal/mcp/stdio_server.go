@@ -8,20 +8,20 @@ import (
 	"io"
 	"log"
 	"os"
-	"os/signal"
 	"strings"
 	"sync"
-	"syscall"
 )
 
 // StdioServer implements MCP protocol over stdin/stdout with JSON-RPC 2.0
 type StdioServer struct {
-	service      MCPService
-	reader       *bufio.Reader
-	writer       io.Writer
-	toolRegistry *ToolRegistry
+	service          MCPService
+	reader           *bufio.Reader
+	writer           io.Writer
+	toolRegistry     *ToolRegistry
 	resourceRegistry *ResourceRegistry
-	initialized  bool
+	initialized      bool
+	shutdownOnce     sync.Once
+	shutdown         chan struct{}
 }
 
 // NewStdioServer creates a new MCP stdio server
@@ -33,6 +33,7 @@ func NewStdioServer(service MCPService) *StdioServer {
 		toolRegistry:     NewToolRegistry(service),
 		resourceRegistry: NewResourceRegistry(service),
 		initialized:      false,
+		shutdown:         make(chan struct{}),
 	}
 }
 
