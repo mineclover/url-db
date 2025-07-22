@@ -7,6 +7,8 @@ import (
 	"io"
 	"log"
 	"os"
+	"path/filepath"
+	"strings"
 
 	"url-db/internal/attributes"
 	"url-db/internal/compositekey"
@@ -50,6 +52,9 @@ func main() {
 	// Parse command line flags
 	var (
 		mcpMode = flag.String("mcp-mode", "sse", "MCP server mode: 'stdio' for stdin/stdout, 'sse' for HTTP server")
+		dbPath = flag.String("db-path", "", "Path to the database file (overrides DATABASE_URL)")
+		toolName = flag.String("tool-name", "", "Tool name for composite keys (default: url-db)")
+		port = flag.String("port", "", "Port for HTTP server (default: 8080)")
 		showHelp = flag.Bool("help", false, "Show help message")
 		version = flag.Bool("version", false, "Show version information")
 	)
@@ -63,15 +68,22 @@ func main() {
 		fmt.Println("Options:")
 		fmt.Println("  -mcp-mode string")
 		fmt.Println("        MCP server mode: 'stdio' for stdin/stdout, 'sse' for HTTP server (default \"sse\")")
+		fmt.Println("  -db-path string")
+		fmt.Println("        Path to the database file (e.g., ~/url-db.db)")
+		fmt.Println("  -tool-name string")
+		fmt.Println("        Tool name for composite keys (default: url-db)")
+		fmt.Println("  -port string")
+		fmt.Println("        Port for HTTP server (default: 8080)")
 		fmt.Println("  -help")
 		fmt.Println("        Show help message")
 		fmt.Println("  -version")
 		fmt.Println("        Show version information")
 		fmt.Println()
 		fmt.Println("Examples:")
-		fmt.Println("  url-db                    # Start HTTP server with MCP SSE support")
-		fmt.Println("  url-db -mcp-mode=stdio    # Start MCP stdio mode (for local integrations)")
-		fmt.Println("  url-db -help              # Show this help")
+		fmt.Println("  url-db                                          # Start HTTP server")
+		fmt.Println("  url-db -mcp-mode=stdio -db-path=~/url-db.db    # MCP stdio mode")
+		fmt.Println("  url-db -mcp-mode=stdio -db-path=~/work.db -tool-name=work")
+		fmt.Println("  url-db -help                                    # Show this help")
 		os.Exit(0)
 	}
 
@@ -88,6 +100,29 @@ func main() {
 	}
 
 	cfg := config.Load()
+
+	// Override configuration with command-line flags
+	if *dbPath != "" {
+		// If tool name is not specified, extract from db filename
+		if *toolName == "" {
+			// Extract base name from path (e.g., "work.db" -> "work")
+			baseName := filepath.Base(*dbPath)
+			if ext := filepath.Ext(baseName); ext != "" {
+				baseName = strings.TrimSuffix(baseName, ext)
+			}
+			// Use the base name as tool name if valid
+			if baseName != "" && baseName != "." {
+				*toolName = baseName
+			}
+		}
+		cfg.DatabaseURL = "file:" + *dbPath
+	}
+	if *toolName != "" {
+		cfg.ToolName = *toolName
+	}
+	if *port != "" {
+		cfg.Port = *port
+	}
 
 	db, err := database.InitDB(cfg.DatabaseURL)
 	if err != nil {

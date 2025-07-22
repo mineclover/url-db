@@ -33,14 +33,14 @@ build.bat   # Windows
 
 ### 2. MCP stdio 모드 실행
 ```bash
-# Unix/Linux/macOS
-./url-db -mcp-mode=stdio
+# 기본 사용법
+./bin/url-db -mcp-mode=stdio -db-path=~/url-db.db
+
+# 커스텀 tool name 사용
+./bin/url-db -mcp-mode=stdio -db-path=~/work.db -tool-name=work
 
 # Windows
-url-db.exe -mcp-mode=stdio
-
-# DATABASE_URL을 인자로 전달하는 경우
-./url-db -mcp-mode=stdio DATABASE_URL=file:~/mcp/url-db/url-db.db
+bin\url-db.exe -mcp-mode=stdio -db-path=C:\Users\user\url-db.db
 ```
 
 ### 3. MCP SSE 모드 실행 (기본값)
@@ -59,23 +59,21 @@ bin\url-db.exe -mcp-mode=sse
 가장 간단한 방법은 Claude MCP 명령어를 사용하는 것입니다:
 
 ```bash
-# 기본 설정
-claude mcp add url-db /path/to/url-db/bin/url-db --args="-mcp-mode=stdio"
-
-# 환경변수 포함 설정
+# 기본 설정 (새로운 방식 - 권장)
 claude mcp add url-db /path/to/url-db/bin/url-db \
   --args="-mcp-mode=stdio" \
-  --env="DATABASE_URL=file:/path/to/url-db/url-db.db" \
-  --env="TOOL_NAME=url-db"
+  --args="-db-path=/path/to/url-db/url-db.db"
 
 # 현재 프로젝트 경로 예시
 claude mcp add url-db /Users/junwoobang/mcp/url-db/bin/url-db \
   --args="-mcp-mode=stdio" \
-  --env="DATABASE_URL=file:/Users/junwoobang/mcp/url-db/url-db.db"
+  --args="-db-path=/Users/junwoobang/mcp/url-db/url-db.db"
 
-# 실행 파일과 인자를 함께 전달하는 방법 (권장)
-# 중요: -- 를 사용하여 claude mcp add의 옵션과 프로그램의 인자를 구분
-claude mcp add url-db -- ~/mcp/url-db/url-db -mcp-mode=stdio DATABASE_URL=file:~/mcp/url-db/url-db.db
+# 커스텀 tool name으로 여러 인스턴스 설정
+claude mcp add url-db-work /path/to/url-db/bin/url-db \
+  --args="-mcp-mode=stdio" \
+  --args="-db-path=/path/to/work.db" \
+  --args="-tool-name=work"
 ```
 
 ### 2. 수동 설정 파일 편집 방식
@@ -92,17 +90,31 @@ claude mcp add url-db -- ~/mcp/url-db/url-db -mcp-mode=stdio DATABASE_URL=file:~
 ~/.config/Claude/claude_desktop_config.json
 ```
 
-#### stdio 모드 설정
+#### stdio 모드 설정 (Claude Desktop)
 ```json
 {
   "mcpServers": {
     "url-db": {
-      "command": "/path/to/url-db/bin/url-db",
-      "args": ["-mcp-mode=stdio"],
-      "env": {
-        "DATABASE_URL": "file:/path/to/url-db/url-db.db",
-        "TOOL_NAME": "url-db"
-      }
+      "command": "/Users/junwoobang/mcp/url-db/bin/url-db",
+      "args": [
+        "-mcp-mode=stdio",
+        "-db-path=/Users/junwoobang/mcp/url-db/url-db.db"
+      ]
+    }
+  }
+}
+```
+
+#### stdio 모드 설정 (Cursor)
+```json
+{
+  "mcpServers": {
+    "url-db": {
+      "command": "/Users/junwoobang/mcp/url-db/bin/url-db",
+      "args": [
+        "-mcp-mode=stdio",
+        "-db-path=/Users/junwoobang/mcp/url-db/url-db.db"
+      ]
     }
   }
 }

@@ -4,18 +4,31 @@ A powerful URL database management system with MCP (Model Context Protocol) inte
 
 ## 🚀 Quick Start
 
-### Install URL-DB as MCP Server in Claude Desktop
+### Install URL-DB as MCP Server
 
 ```bash
 # Run the setup script
 ./setup-mcp.sh
 
-# Copy and run the displayed command, for example:
+# For Claude Desktop:
 claude mcp add url-db "/Users/junwoobang/mcp/url-db/bin/url-db" \
   --args="-mcp-mode=stdio" \
-  --env="DATABASE_URL=file:/Users/junwoobang/mcp/url-db/url-db.db"
+  --args="-db-path=/Users/junwoobang/mcp/url-db/url-db.db"
 
-# Restart Claude Desktop
+# For Cursor: Add to ~/.cursor/mcp.json
+{
+  "mcpServers": {
+    "url-db": {
+      "command": "/Users/junwoobang/mcp/url-db/bin/url-db",
+      "args": [
+        "-mcp-mode=stdio",
+        "-db-path=/Users/junwoobang/mcp/url-db/url-db.db"
+      ]
+    }
+  }
+}
+
+# Restart your application
 ```
 
 ## ✅ Features
