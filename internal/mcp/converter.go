@@ -2,6 +2,8 @@ package mcp
 
 import (
 	"fmt"
+	"strconv"
+	"strings"
 	"time"
 
 	"url-db/internal/models"
@@ -9,6 +11,7 @@ import (
 
 type Converter struct {
 	compositeKeyService CompositeKeyService
+	toolName            string
 }
 
 type CompositeKeyService interface {
@@ -23,9 +26,10 @@ type CompositeKey struct {
 	ID         int
 }
 
-func NewConverter(compositeKeyService CompositeKeyService) *Converter {
+func NewConverter(compositeKeyService CompositeKeyService, toolName string) *Converter {
 	return &Converter{
 		compositeKeyService: compositeKeyService,
+		toolName:            toolName,
 	}
 }
 
@@ -155,13 +159,33 @@ func (c *Converter) ValidateCompositeID(compositeID string) error {
 
 // Attribute composite key methods
 func (c *Converter) CreateAttributeCompositeID(domainName string, attributeID int) string {
-	// Use the same format as node composite keys for consistency
-	return c.compositeKeyService.Create(domainName, attributeID)
+	// Use a different format for attributes: tool-name:domain:attr-{id}
+	return fmt.Sprintf("%s:%s:attr-%d", c.toolName, domainName, attributeID)
 }
 
 func (c *Converter) ExtractAttributeIDFromCompositeID(compositeID string) (int, error) {
-	// Attributes use the same format as nodes, so we can reuse the node ID extraction
-	return c.ExtractNodeIDFromCompositeID(compositeID)
+	if err := c.ValidateCompositeID(compositeID); err != nil {
+		return 0, err
+	}
+
+	parts := strings.Split(compositeID, ":")
+	if len(parts) != 3 {
+		return 0, fmt.Errorf("invalid composite ID format")
+	}
+
+	// Check if this is an attribute ID (has "attr-" prefix)
+	if !strings.HasPrefix(parts[2], "attr-") {
+		return 0, fmt.Errorf("not an attribute composite ID")
+	}
+
+	// Extract the numeric ID after "attr-"
+	idStr := strings.TrimPrefix(parts[2], "attr-")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		return 0, fmt.Errorf("invalid attribute ID: %v", err)
+	}
+
+	return id, nil
 }
 
 type MCPDomain struct {

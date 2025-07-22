@@ -326,7 +326,7 @@ func (tr *ToolRegistry) registerTools() {
 				"properties": map[string]interface{}{
 					"composite_id": map[string]interface{}{
 						"type":        "string",
-						"description": "Composite ID (format: tool-name:domain:attribute-id)",
+						"description": "Composite ID (format: tool-name:domain:attr-{id})",
 					},
 				},
 				"required": []string{"composite_id"},
@@ -340,7 +340,7 @@ func (tr *ToolRegistry) registerTools() {
 				"properties": map[string]interface{}{
 					"composite_id": map[string]interface{}{
 						"type":        "string",
-						"description": "Composite ID (format: tool-name:domain:attribute-id)",
+						"description": "Composite ID (format: tool-name:domain:attr-{id})",
 					},
 					"description": map[string]interface{}{
 						"type":        "string",
@@ -358,7 +358,7 @@ func (tr *ToolRegistry) registerTools() {
 				"properties": map[string]interface{}{
 					"composite_id": map[string]interface{}{
 						"type":        "string",
-						"description": "Composite ID (format: tool-name:domain:attribute-id)",
+						"description": "Composite ID (format: tool-name:domain:attr-{id})",
 					},
 				},
 				"required": []string{"composite_id"},

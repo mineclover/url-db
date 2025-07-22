@@ -178,7 +178,7 @@ func main() {
 	compositeKeyAdapter := mcp.NewCompositeKeyAdapter(compositeKeyService)
 
 	// Initialize MCP converter and service
-	mcpConverter := mcp.NewConverter(compositeKeyAdapter)
+	mcpConverter := mcp.NewConverter(compositeKeyAdapter, cfg.ToolName)
 	mcpService := mcp.NewMCPService(mcpNodeService, mcpDomainService, mcpAttributeService, nodeCountService, mcpConverter)
 
 	// Initialize handlers
