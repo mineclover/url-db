@@ -60,14 +60,14 @@ type UpdateNodeAttributeRequest struct {
 }
 
 type NodeAttributeWithInfo struct {
-	ID          int           `json:"id"`
-	NodeID      int           `json:"node_id"`
-	AttributeID int           `json:"attribute_id"`
-	Name        string        `json:"name"`
-	Type        AttributeType `json:"type"`
-	Value       string        `json:"value"`
-	OrderIndex  *int          `json:"order_index"`
-	CreatedAt   time.Time     `json:"created_at"`
+	ID          int           `json:"id" db:"id"`
+	NodeID      int           `json:"node_id" db:"node_id"`
+	AttributeID int           `json:"attribute_id" db:"attribute_id"`
+	Name        string        `json:"name" db:"name"`
+	Type        AttributeType `json:"type" db:"type"`
+	Value       string        `json:"value" db:"value"`
+	OrderIndex  *int          `json:"order_index" db:"order_index"`
+	CreatedAt   time.Time     `json:"created_at" db:"created_at"`
 }
 
 type NodeAttributeListResponse struct {

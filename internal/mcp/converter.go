@@ -164,13 +164,15 @@ func (c *Converter) CreateAttributeCompositeID(domainName string, attributeID in
 }
 
 func (c *Converter) ExtractAttributeIDFromCompositeID(compositeID string) (int, error) {
-	if err := c.ValidateCompositeID(compositeID); err != nil {
-		return 0, err
-	}
-
+	// Don't use the standard validation because it expects numeric IDs
 	parts := strings.Split(compositeID, ":")
 	if len(parts) != 3 {
 		return 0, fmt.Errorf("invalid composite ID format")
+	}
+
+	// Validate tool name
+	if parts[0] != c.toolName {
+		return 0, fmt.Errorf("invalid tool name in composite ID")
 	}
 
 	// Check if this is an attribute ID (has "attr-" prefix)
@@ -185,7 +187,32 @@ func (c *Converter) ExtractAttributeIDFromCompositeID(compositeID string) (int, 
 		return 0, fmt.Errorf("invalid attribute ID: %v", err)
 	}
 
+	if id <= 0 {
+		return 0, fmt.Errorf("attribute ID must be positive")
+	}
+
 	return id, nil
+}
+
+func (c *Converter) ValidateAttributeCompositeID(compositeID string) error {
+	parts := strings.Split(compositeID, ":")
+	if len(parts) != 3 {
+		return fmt.Errorf("invalid composite ID format")
+	}
+
+	if parts[0] != c.toolName {
+		return fmt.Errorf("invalid tool name in composite ID")
+	}
+
+	if parts[1] == "" {
+		return fmt.Errorf("domain name is empty")
+	}
+
+	if !strings.HasPrefix(parts[2], "attr-") {
+		return fmt.Errorf("not an attribute composite ID")
+	}
+
+	return nil
 }
 
 type MCPDomain struct {

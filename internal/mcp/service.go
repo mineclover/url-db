@@ -437,7 +437,7 @@ func (s *mcpService) CreateDomainAttribute(ctx context.Context, domainName strin
 }
 
 func (s *mcpService) GetDomainAttribute(ctx context.Context, compositeID string) (*models.MCPDomainAttribute, error) {
-	if err := s.converter.ValidateCompositeID(compositeID); err != nil {
+	if err := s.converter.ValidateAttributeCompositeID(compositeID); err != nil {
 		return nil, NewInvalidCompositeKeyError(compositeID)
 	}
 
@@ -462,7 +462,7 @@ func (s *mcpService) GetDomainAttribute(ctx context.Context, compositeID string)
 }
 
 func (s *mcpService) UpdateDomainAttribute(ctx context.Context, compositeID string, req *models.UpdateAttributeRequest) (*models.MCPDomainAttribute, error) {
-	if err := s.converter.ValidateCompositeID(compositeID); err != nil {
+	if err := s.converter.ValidateAttributeCompositeID(compositeID); err != nil {
 		return nil, NewInvalidCompositeKeyError(compositeID)
 	}
 
@@ -487,7 +487,7 @@ func (s *mcpService) UpdateDomainAttribute(ctx context.Context, compositeID stri
 }
 
 func (s *mcpService) DeleteDomainAttribute(ctx context.Context, compositeID string) error {
-	if err := s.converter.ValidateCompositeID(compositeID); err != nil {
+	if err := s.converter.ValidateAttributeCompositeID(compositeID); err != nil {
 		return NewInvalidCompositeKeyError(compositeID)
 	}
 
