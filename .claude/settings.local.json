@@ -63,7 +63,8 @@
       "Bash(export PATH=$PATH:~/go/bin)",
       "Bash(./scripts/test.sh:*)",
       "Bash(sed:*)",
-      "Bash(./run_python_tests.sh)"
+      "Bash(./run_python_tests.sh)",
+      "Bash(cp:*)"
     ],
     "deny": []
   }
