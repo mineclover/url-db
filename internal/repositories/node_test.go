@@ -168,7 +168,7 @@ func TestNodeRepository_ListByDomain(t *testing.T) {
 	require.NoError(t, domainRepo.Create(domain2))
 
 	// 도메인1에 노드들 생성
-	node1 := CreateTestNode(t, nodeRepo, domain1.ID)
+	_ = CreateTestNode(t, nodeRepo, domain1.ID)
 	node2 := NewTestNodeBuilder().WithDomainID(domain1.ID).WithContent("https://example2.com").Build()
 	require.NoError(t, nodeRepo.Create(node2))
 
