@@ -44,12 +44,13 @@ All major components have been implemented and integrated successfully. The URL-
 
 ### 5. **MCP Integration** 
 - ✅ **TESTED**: Complete MCP JSON-RPC 2.0 protocol implementation
-- ✅ **VERIFIED**: All 16 MCP tools working correctly
+- ✅ **VERIFIED**: All 18 MCP tools working correctly
 - ✅ MCP server with stdio and SSE modes
 - ✅ Composite key system (tool-name:domain:id format)
 - ✅ Resource system with URI-based access (mcp://)
 - ✅ Domain attribute management tools (5 tools for schema definition)
 - ✅ Domain schema enforcement (nodes can only have defined attributes)
+- ✅ Enhanced query tools (get node with attributes, filter by attributes)
 - ✅ Batch operations for performance
 - ✅ Converter for data transformation
 - ✅ **Test Score**: 92% LLM-as-a-Judge, 100% integration tests
@@ -72,7 +73,7 @@ All major components have been implemented and integrated successfully. The URL-
 - ✅ Go module configuration
 - ✅ Dependency management
 
-## 📋 MCP Tools Available (16 tools)
+## 📋 MCP Tools Available (18 tools)
 
 ### Domain Management
 1. **list_domains** - List all domains in the database
@@ -97,8 +98,12 @@ All major components have been implemented and integrated successfully. The URL-
 14. **update_domain_attribute** - Update attribute description
 15. **delete_domain_attribute** - Delete unused attribute definition
 
+### Enhanced Queries
+16. **get_node_with_attributes** - Get node details with all attributes in one call
+17. **filter_nodes_by_attributes** - Find nodes by filtering on attribute values
+
 ### Server Information
-16. **get_server_info** - Get MCP server information and capabilities
+18. **get_server_info** - Get MCP server information and capabilities
 
 ## 🔧 Key Fixes Applied
 

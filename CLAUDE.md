@@ -114,10 +114,11 @@ The MCP server supports two modes:
 - **stdio**: For AI assistants (Claude Desktop, Cursor)
 - **sse**: For HTTP-based integration
 
-MCP provides 16 tools following strict JSON-RPC 2.0 protocol:
+MCP provides 18 tools following strict JSON-RPC 2.0 protocol:
 - Domain management: `list_domains`, `create_domain`
 - Node operations: `list_nodes`, `create_node`, `get_node`, `update_node`, `delete_node`, `find_node_by_url`
 - Attribute management: `get_node_attributes`, `set_node_attributes`
+- Enhanced queries: `get_node_with_attributes`, `filter_nodes_by_attributes`
 - Domain schema: `list_domain_attributes`, `create_domain_attribute`, `get_domain_attribute`, `update_domain_attribute`, `delete_domain_attribute`
 - Server info: `get_server_info`
 

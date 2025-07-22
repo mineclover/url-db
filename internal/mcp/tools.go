@@ -62,6 +62,10 @@ func (tr *ToolRegistry) CallTool(ctx context.Context, name string, arguments int
 		return tr.callUpdateDomainAttribute(ctx, arguments)
 	case "delete_domain_attribute":
 		return tr.callDeleteDomainAttribute(ctx, arguments)
+	case "get_node_with_attributes":
+		return tr.callGetNodeWithAttributes(ctx, arguments)
+	case "filter_nodes_by_attributes":
+		return tr.callFilterNodesByAttributes(ctx, arguments)
 	case "get_server_info":
 		return tr.callGetServerInfo(ctx, arguments)
 	default:
@@ -366,6 +370,68 @@ func (tr *ToolRegistry) registerTools() {
 					},
 				},
 				"required": []string{"composite_id"},
+			},
+		},
+		{
+			Name:        "get_node_with_attributes",
+			Description: "Get node details along with all its attributes in a single call",
+			InputSchema: map[string]interface{}{
+				"type": "object",
+				"properties": map[string]interface{}{
+					"composite_id": map[string]interface{}{
+						"type":        "string",
+						"description": "Composite ID (format: tool-name:domain:id)",
+					},
+				},
+				"required": []string{"composite_id"},
+			},
+		},
+		{
+			Name:        "filter_nodes_by_attributes",
+			Description: "Find nodes by filtering on attribute values",
+			InputSchema: map[string]interface{}{
+				"type": "object",
+				"properties": map[string]interface{}{
+					"domain_name": map[string]interface{}{
+						"type":        "string",
+						"description": "Domain name to search in",
+					},
+					"filters": map[string]interface{}{
+						"type": "array",
+						"description": "Array of attribute filters",
+						"items": map[string]interface{}{
+							"type": "object",
+							"properties": map[string]interface{}{
+								"name": map[string]interface{}{
+									"type":        "string",
+									"description": "Attribute name",
+								},
+								"value": map[string]interface{}{
+									"type":        "string",
+									"description": "Attribute value to match",
+								},
+								"operator": map[string]interface{}{
+									"type":        "string",
+									"description": "Comparison operator: equals, contains, starts_with, ends_with",
+									"enum":        []string{"equals", "contains", "starts_with", "ends_with"},
+									"default":     "equals",
+								},
+							},
+							"required": []string{"name", "value"},
+						},
+					},
+					"page": map[string]interface{}{
+						"type":        "integer",
+						"description": "Page number (default: 1)",
+						"default":     1,
+					},
+					"size": map[string]interface{}{
+						"type":        "integer",
+						"description": "Page size (default: 20)",
+						"default":     20,
+					},
+				},
+				"required": []string{"domain_name", "filters"},
 			},
 		},
 	}
@@ -885,5 +951,153 @@ func (tr *ToolRegistry) callDeleteDomainAttribute(ctx context.Context, arguments
 
 	return &CallToolResult{
 		Content: []Content{{Type: "text", Text: "Domain attribute deleted successfully"}},
+	}, nil
+}
+
+func (tr *ToolRegistry) callGetNodeWithAttributes(ctx context.Context, arguments interface{}) (*CallToolResult, error) {
+	argsMap, ok := arguments.(map[string]interface{})
+	if !ok {
+		return &CallToolResult{
+			Content: []Content{{Type: "text", Text: "Invalid arguments format"}},
+			IsError: true,
+		}, nil
+	}
+
+	compositeID := getStringArg(argsMap, "composite_id")
+	if compositeID == "" {
+		return &CallToolResult{
+			Content: []Content{{Type: "text", Text: "Missing composite_id parameter"}},
+			IsError: true,
+		}, nil
+	}
+
+	// Get node information
+	node, err := tr.service.GetNode(ctx, compositeID)
+	if err != nil {
+		return &CallToolResult{
+			Content: []Content{{Type: "text", Text: fmt.Sprintf("Error getting node: %v", err)}},
+			IsError: true,
+		}, nil
+	}
+
+	// Get node attributes
+	attributes, err := tr.service.GetNodeAttributes(ctx, compositeID)
+	if err != nil {
+		return &CallToolResult{
+			Content: []Content{{Type: "text", Text: fmt.Sprintf("Error getting node attributes: %v", err)}},
+			IsError: true,
+		}, nil
+	}
+
+	// Combine node and attributes into a single response
+	response := map[string]interface{}{
+		"node":       node,
+		"attributes": attributes.Attributes,
+	}
+
+	result, _ := json.MarshalIndent(response, "", "  ")
+	return &CallToolResult{
+		Content: []Content{{Type: "text", Text: string(result)}},
+	}, nil
+}
+
+func (tr *ToolRegistry) callFilterNodesByAttributes(ctx context.Context, arguments interface{}) (*CallToolResult, error) {
+	argsMap, ok := arguments.(map[string]interface{})
+	if !ok {
+		return &CallToolResult{
+			Content: []Content{{Type: "text", Text: "Invalid arguments format"}},
+			IsError: true,
+		}, nil
+	}
+
+	domainName := getStringArg(argsMap, "domain_name")
+	if domainName == "" {
+		return &CallToolResult{
+			Content: []Content{{Type: "text", Text: "Missing domain_name parameter"}},
+			IsError: true,
+		}, nil
+	}
+
+	// Parse filters
+	filtersRaw, exists := argsMap["filters"]
+	if !exists {
+		return &CallToolResult{
+			Content: []Content{{Type: "text", Text: "Missing filters parameter"}},
+			IsError: true,
+		}, nil
+	}
+
+	filtersArray, ok := filtersRaw.([]interface{})
+	if !ok {
+		return &CallToolResult{
+			Content: []Content{{Type: "text", Text: "Invalid filters format"}},
+			IsError: true,
+		}, nil
+	}
+
+	type attributeFilter struct {
+		Name     string `json:"name"`
+		Value    string `json:"value"`
+		Operator string `json:"operator"`
+	}
+
+	var filters []attributeFilter
+	for _, filterRaw := range filtersArray {
+		filterMap, ok := filterRaw.(map[string]interface{})
+		if !ok {
+			continue
+		}
+
+		operator := getStringArg(filterMap, "operator")
+		if operator == "" {
+			operator = "equals"
+		}
+
+		filter := attributeFilter{
+			Name:     getStringArg(filterMap, "name"),
+			Value:    getStringArg(filterMap, "value"),
+			Operator: operator,
+		}
+
+		filters = append(filters, filter)
+	}
+
+	// Parse pagination
+	page := 1
+	size := 20
+	if p, exists := argsMap["page"]; exists {
+		if pFloat, ok := p.(float64); ok {
+			page = int(pFloat)
+		}
+	}
+	if s, exists := argsMap["size"]; exists {
+		if sFloat, ok := s.(float64); ok {
+			size = int(sFloat)
+		}
+	}
+
+	// Convert filters to interface slice as maps
+	var filterInterfaces []interface{}
+	for _, f := range filters {
+		filterMap := map[string]interface{}{
+			"name":     f.Name,
+			"value":    f.Value,
+			"operator": f.Operator,
+		}
+		filterInterfaces = append(filterInterfaces, filterMap)
+	}
+
+	// Call service method to filter nodes
+	response, err := tr.service.FilterNodesByAttributes(ctx, domainName, filterInterfaces, page, size)
+	if err != nil {
+		return &CallToolResult{
+			Content: []Content{{Type: "text", Text: fmt.Sprintf("Error filtering nodes: %v", err)}},
+			IsError: true,
+		}, nil
+	}
+
+	result, _ := json.MarshalIndent(response, "", "  ")
+	return &CallToolResult{
+		Content: []Content{{Type: "text", Text: string(result)}},
 	}, nil
 }
