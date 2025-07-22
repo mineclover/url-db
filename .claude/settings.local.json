@@ -66,7 +66,9 @@
       "Bash(./run_python_tests.sh)",
       "Bash(cp:*)",
       "Bash(python run_tests.py:*)",
-      "Bash(python scripts/generate-tool-constants.py:*)"
+      "Bash(python scripts/generate-tool-constants.py:*)",
+      "Bash(python test:*)",
+      "Bash(python:*)"
     ],
     "deny": []
   }
