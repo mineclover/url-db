@@ -4,9 +4,10 @@ import (
 	"context"
 	"testing"
 
+	"url-db/internal/models"
+
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
-	"url-db/internal/models"
 )
 
 // Mock MCP Service for testing
@@ -99,6 +100,44 @@ func (m *MockMCPService) GetServerInfo(ctx context.Context) (*MCPServerInfo, err
 	return args.Get(0).(*MCPServerInfo), args.Error(1)
 }
 
+// Domain attribute management methods
+func (m *MockMCPService) ListDomainAttributes(ctx context.Context, domainName string) (*models.MCPDomainAttributeListResponse, error) {
+	args := m.Called(ctx, domainName)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).(*models.MCPDomainAttributeListResponse), args.Error(1)
+}
+
+func (m *MockMCPService) CreateDomainAttribute(ctx context.Context, domainName string, req *models.CreateAttributeRequest) (*models.MCPDomainAttribute, error) {
+	args := m.Called(ctx, domainName, req)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).(*models.MCPDomainAttribute), args.Error(1)
+}
+
+func (m *MockMCPService) GetDomainAttribute(ctx context.Context, compositeID string) (*models.MCPDomainAttribute, error) {
+	args := m.Called(ctx, compositeID)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).(*models.MCPDomainAttribute), args.Error(1)
+}
+
+func (m *MockMCPService) UpdateDomainAttribute(ctx context.Context, compositeID string, req *models.UpdateAttributeRequest) (*models.MCPDomainAttribute, error) {
+	args := m.Called(ctx, compositeID, req)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).(*models.MCPDomainAttribute), args.Error(1)
+}
+
+func (m *MockMCPService) DeleteDomainAttribute(ctx context.Context, compositeID string) error {
+	args := m.Called(ctx, compositeID)
+	return args.Error(0)
+}
+
 func (m *MockMCPService) BatchGetNodes(ctx context.Context, req *models.BatchMCPNodeRequest) (*models.BatchMCPNodeResponse, error) {
 	args := m.Called(ctx, req)
 	if args.Get(0) == nil {
@@ -119,6 +158,9 @@ func TestToolRegistry_GetTools(t *testing.T) {
 		"create_mcp_node", "get_mcp_node", "update_mcp_node",
 		"delete_mcp_node", "find_mcp_node_by_url", "get_mcp_node_attributes",
 		"set_mcp_node_attributes", "get_mcp_server_info",
+		"list_mcp_domain_attributes", "create_mcp_domain_attribute",
+		"get_mcp_domain_attribute", "update_mcp_domain_attribute",
+		"delete_mcp_domain_attribute",
 	}
 	
 	assert.Len(t, tools, len(expectedTools))
@@ -203,24 +245,155 @@ func TestToolRegistry_CallTool_UnknownTool(t *testing.T) {
 
 func TestGetStringArg(t *testing.T) {
 	args := map[string]interface{}{
-		"existing_string": "test_value",
-		"existing_int":    42,
-		"nil_value":       nil,
+		"test": "value",
+		"num":  123,
 	}
 	
-	// Test existing string
-	result := getStringArg(args, "existing_string")
-	assert.Equal(t, "test_value", result)
+	assert.Equal(t, "value", getStringArg(args, "test"))
+	assert.Equal(t, "", getStringArg(args, "missing"))
+	assert.Equal(t, "", getStringArg(args, "num"))
+}
+
+// Domain attribute management tests
+func TestToolRegistry_CallTool_ListDomainAttributes(t *testing.T) {
+	mockService := new(MockMCPService)
+	registry := NewToolRegistry(mockService)
 	
-	// Test non-string value
-	result = getStringArg(args, "existing_int")
-	assert.Equal(t, "", result)
+	expectedResponse := &models.MCPDomainAttributeListResponse{
+		DomainName: "test-domain",
+		Attributes: []models.MCPDomainAttribute{
+			{
+				CompositeID: "url-db:test-domain:1",
+				Name:        "status",
+				Type:        "tag",
+				Description: "Project status",
+			},
+		},
+		TotalCount: 1,
+	}
 	
-	// Test missing key
-	result = getStringArg(args, "missing_key")
-	assert.Equal(t, "", result)
+	mockService.On("ListDomainAttributes", mock.Anything, "test-domain").Return(expectedResponse, nil)
 	
-	// Test nil value
-	result = getStringArg(args, "nil_value")
-	assert.Equal(t, "", result)
+	arguments := map[string]interface{}{
+		"domain_name": "test-domain",
+	}
+	
+	result, err := registry.CallTool(context.Background(), "list_mcp_domain_attributes", arguments)
+	
+	assert.NoError(t, err)
+	assert.NotNil(t, result)
+	assert.False(t, result.IsError)
+	assert.Len(t, result.Content, 1)
+	assert.Contains(t, result.Content[0].Text, "test-domain")
+	
+	mockService.AssertExpectations(t)
+}
+
+func TestToolRegistry_CallTool_CreateDomainAttribute(t *testing.T) {
+	mockService := new(MockMCPService)
+	registry := NewToolRegistry(mockService)
+	
+	expectedAttribute := &models.MCPDomainAttribute{
+		CompositeID: "url-db:test-domain:1",
+		Name:        "priority",
+		Type:        "ordered_tag",
+		Description: "Project priority",
+	}
+	
+	mockService.On("CreateDomainAttribute", mock.Anything, "test-domain", mock.AnythingOfType("*models.CreateAttributeRequest")).Return(expectedAttribute, nil)
+	
+	arguments := map[string]interface{}{
+		"domain_name": "test-domain",
+		"name":        "priority",
+		"type":        "ordered_tag",
+		"description": "Project priority",
+	}
+	
+	result, err := registry.CallTool(context.Background(), "create_mcp_domain_attribute", arguments)
+	
+	assert.NoError(t, err)
+	assert.NotNil(t, result)
+	assert.False(t, result.IsError)
+	assert.Len(t, result.Content, 1)
+	assert.Contains(t, result.Content[0].Text, "url-db:test-domain:1")
+	
+	mockService.AssertExpectations(t)
+}
+
+func TestToolRegistry_CallTool_GetDomainAttribute(t *testing.T) {
+	mockService := new(MockMCPService)
+	registry := NewToolRegistry(mockService)
+	
+	expectedAttribute := &models.MCPDomainAttribute{
+		CompositeID: "url-db:test-domain:1",
+		Name:        "status",
+		Type:        "tag",
+		Description: "Project status",
+	}
+	
+	mockService.On("GetDomainAttribute", mock.Anything, "url-db:test-domain:1").Return(expectedAttribute, nil)
+	
+	arguments := map[string]interface{}{
+		"composite_id": "url-db:test-domain:1",
+	}
+	
+	result, err := registry.CallTool(context.Background(), "get_mcp_domain_attribute", arguments)
+	
+	assert.NoError(t, err)
+	assert.NotNil(t, result)
+	assert.False(t, result.IsError)
+	assert.Len(t, result.Content, 1)
+	assert.Contains(t, result.Content[0].Text, "status")
+	
+	mockService.AssertExpectations(t)
+}
+
+func TestToolRegistry_CallTool_UpdateDomainAttribute(t *testing.T) {
+	mockService := new(MockMCPService)
+	registry := NewToolRegistry(mockService)
+	
+	expectedAttribute := &models.MCPDomainAttribute{
+		CompositeID: "url-db:test-domain:1",
+		Name:        "status",
+		Type:        "tag",
+		Description: "Updated project status",
+	}
+	
+	mockService.On("UpdateDomainAttribute", mock.Anything, "url-db:test-domain:1", mock.AnythingOfType("*models.UpdateAttributeRequest")).Return(expectedAttribute, nil)
+	
+	arguments := map[string]interface{}{
+		"composite_id": "url-db:test-domain:1",
+		"description":  "Updated project status",
+	}
+	
+	result, err := registry.CallTool(context.Background(), "update_mcp_domain_attribute", arguments)
+	
+	assert.NoError(t, err)
+	assert.NotNil(t, result)
+	assert.False(t, result.IsError)
+	assert.Len(t, result.Content, 1)
+	assert.Contains(t, result.Content[0].Text, "Updated project status")
+	
+	mockService.AssertExpectations(t)
+}
+
+func TestToolRegistry_CallTool_DeleteDomainAttribute(t *testing.T) {
+	mockService := new(MockMCPService)
+	registry := NewToolRegistry(mockService)
+	
+	mockService.On("DeleteDomainAttribute", mock.Anything, "url-db:test-domain:1").Return(nil)
+	
+	arguments := map[string]interface{}{
+		"composite_id": "url-db:test-domain:1",
+	}
+	
+	result, err := registry.CallTool(context.Background(), "delete_mcp_domain_attribute", arguments)
+	
+	assert.NoError(t, err)
+	assert.NotNil(t, result)
+	assert.False(t, result.IsError)
+	assert.Len(t, result.Content, 1)
+	assert.Contains(t, result.Content[0].Text, "deleted successfully")
+	
+	mockService.AssertExpectations(t)
 }

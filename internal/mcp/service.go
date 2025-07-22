@@ -22,6 +22,13 @@ type MCPService interface {
 	GetNodeAttributes(ctx context.Context, compositeID string) (*models.MCPNodeAttributeResponse, error)
 	SetNodeAttributes(ctx context.Context, compositeID string, req *models.SetMCPNodeAttributesRequest) (*models.MCPNodeAttributeResponse, error)
 
+	// Domain attribute management methods
+	ListDomainAttributes(ctx context.Context, domainName string) (*models.MCPDomainAttributeListResponse, error)
+	CreateDomainAttribute(ctx context.Context, domainName string, req *models.CreateAttributeRequest) (*models.MCPDomainAttribute, error)
+	GetDomainAttribute(ctx context.Context, compositeID string) (*models.MCPDomainAttribute, error)
+	UpdateDomainAttribute(ctx context.Context, compositeID string, req *models.UpdateAttributeRequest) (*models.MCPDomainAttribute, error)
+	DeleteDomainAttribute(ctx context.Context, compositeID string) error
+
 	GetServerInfo(ctx context.Context) (*MCPServerInfo, error)
 }
 
@@ -48,6 +55,13 @@ type AttributeService interface {
 	SetNodeAttribute(ctx context.Context, nodeID int, req *models.CreateNodeAttributeRequest) (*models.NodeAttributeWithInfo, error)
 	GetAttributeByName(ctx context.Context, domainID int, name string) (*models.Attribute, error)
 	DeleteNodeAttribute(ctx context.Context, nodeID, attributeID int) error
+	
+	// Domain attribute management methods
+	ListAttributes(ctx context.Context, domainID int) (*models.AttributeListResponse, error)
+	CreateAttribute(ctx context.Context, domainID int, req *models.CreateAttributeRequest) (*models.Attribute, error)
+	GetAttribute(ctx context.Context, id int) (*models.Attribute, error)
+	UpdateAttribute(ctx context.Context, id int, req *models.UpdateAttributeRequest) (*models.Attribute, error)
+	DeleteAttribute(ctx context.Context, id int) error
 }
 
 type NodeCountService interface {
@@ -366,4 +380,125 @@ func (s *mcpService) GetServerInfo(ctx context.Context) (*MCPServerInfo, error) 
 		},
 		CompositeKeyFormat: "url-db:domain_name:id",
 	}, nil
+}
+
+// Domain attribute management methods
+func (s *mcpService) ListDomainAttributes(ctx context.Context, domainName string) (*models.MCPDomainAttributeListResponse, error) {
+	domain, err := s.domainService.GetDomainByName(ctx, domainName)
+	if err != nil {
+		return nil, NewDomainNotFoundError(domainName)
+	}
+
+	response, err := s.attributeService.ListAttributes(ctx, domain.ID)
+	if err != nil {
+		return nil, NewInternalServerError(fmt.Sprintf("failed to list attributes: %v", err))
+	}
+
+	mcpAttributes := make([]models.MCPDomainAttribute, len(response.Attributes))
+	for i, attr := range response.Attributes {
+		compositeID := s.converter.CreateAttributeCompositeID(domain.Name, attr.ID)
+		mcpAttributes[i] = models.MCPDomainAttribute{
+			CompositeID: compositeID,
+			Name:        attr.Name,
+			Type:        attr.Type,
+			Description: attr.Description,
+			CreatedAt:   attr.CreatedAt,
+			UpdatedAt:   attr.CreatedAt, // Assuming no updated_at field in Attribute model
+		}
+	}
+
+	return &models.MCPDomainAttributeListResponse{
+		DomainName:  domainName,
+		Attributes:  mcpAttributes,
+		TotalCount:  len(mcpAttributes),
+	}, nil
+}
+
+func (s *mcpService) CreateDomainAttribute(ctx context.Context, domainName string, req *models.CreateAttributeRequest) (*models.MCPDomainAttribute, error) {
+	domain, err := s.domainService.GetDomainByName(ctx, domainName)
+	if err != nil {
+		return nil, NewDomainNotFoundError(domainName)
+	}
+
+	attribute, err := s.attributeService.CreateAttribute(ctx, domain.ID, req)
+	if err != nil {
+		return nil, NewInternalServerError(fmt.Sprintf("failed to create attribute: %v", err))
+	}
+
+	compositeID := s.converter.CreateAttributeCompositeID(domain.Name, attribute.ID)
+	return &models.MCPDomainAttribute{
+		CompositeID: compositeID,
+		Name:        attribute.Name,
+		Type:        attribute.Type,
+		Description: attribute.Description,
+		CreatedAt:   attribute.CreatedAt,
+		UpdatedAt:   attribute.CreatedAt,
+	}, nil
+}
+
+func (s *mcpService) GetDomainAttribute(ctx context.Context, compositeID string) (*models.MCPDomainAttribute, error) {
+	if err := s.converter.ValidateCompositeID(compositeID); err != nil {
+		return nil, NewInvalidCompositeKeyError(compositeID)
+	}
+
+	attributeID, err := s.converter.ExtractAttributeIDFromCompositeID(compositeID)
+	if err != nil {
+		return nil, NewInvalidCompositeKeyError(compositeID)
+	}
+
+	attribute, err := s.attributeService.GetAttribute(ctx, attributeID)
+	if err != nil {
+		return nil, NewInternalServerError(fmt.Sprintf("failed to get attribute: %v", err))
+	}
+
+	return &models.MCPDomainAttribute{
+		CompositeID: compositeID,
+		Name:        attribute.Name,
+		Type:        attribute.Type,
+		Description: attribute.Description,
+		CreatedAt:   attribute.CreatedAt,
+		UpdatedAt:   attribute.CreatedAt,
+	}, nil
+}
+
+func (s *mcpService) UpdateDomainAttribute(ctx context.Context, compositeID string, req *models.UpdateAttributeRequest) (*models.MCPDomainAttribute, error) {
+	if err := s.converter.ValidateCompositeID(compositeID); err != nil {
+		return nil, NewInvalidCompositeKeyError(compositeID)
+	}
+
+	attributeID, err := s.converter.ExtractAttributeIDFromCompositeID(compositeID)
+	if err != nil {
+		return nil, NewInvalidCompositeKeyError(compositeID)
+	}
+
+	attribute, err := s.attributeService.UpdateAttribute(ctx, attributeID, req)
+	if err != nil {
+		return nil, NewInternalServerError(fmt.Sprintf("failed to update attribute: %v", err))
+	}
+
+	return &models.MCPDomainAttribute{
+		CompositeID: compositeID,
+		Name:        attribute.Name,
+		Type:        attribute.Type,
+		Description: attribute.Description,
+		CreatedAt:   attribute.CreatedAt,
+		UpdatedAt:   attribute.CreatedAt,
+	}, nil
+}
+
+func (s *mcpService) DeleteDomainAttribute(ctx context.Context, compositeID string) error {
+	if err := s.converter.ValidateCompositeID(compositeID); err != nil {
+		return NewInvalidCompositeKeyError(compositeID)
+	}
+
+	attributeID, err := s.converter.ExtractAttributeIDFromCompositeID(compositeID)
+	if err != nil {
+		return NewInvalidCompositeKeyError(compositeID)
+	}
+
+	if err := s.attributeService.DeleteAttribute(ctx, attributeID); err != nil {
+		return NewInternalServerError(fmt.Sprintf("failed to delete attribute: %v", err))
+	}
+
+	return nil
 }

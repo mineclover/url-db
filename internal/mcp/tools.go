@@ -52,6 +52,16 @@ func (tr *ToolRegistry) CallTool(ctx context.Context, name string, arguments int
 		return tr.callGetNodeAttributes(ctx, arguments)
 	case "set_mcp_node_attributes":
 		return tr.callSetNodeAttributes(ctx, arguments)
+	case "list_mcp_domain_attributes":
+		return tr.callListDomainAttributes(ctx, arguments)
+	case "create_mcp_domain_attribute":
+		return tr.callCreateDomainAttribute(ctx, arguments)
+	case "get_mcp_domain_attribute":
+		return tr.callGetDomainAttribute(ctx, arguments)
+	case "update_mcp_domain_attribute":
+		return tr.callUpdateDomainAttribute(ctx, arguments)
+	case "delete_mcp_domain_attribute":
+		return tr.callDeleteDomainAttribute(ctx, arguments)
 	case "get_mcp_server_info":
 		return tr.callGetServerInfo(ctx, arguments)
 	default:
@@ -265,6 +275,93 @@ func (tr *ToolRegistry) registerTools() {
 			InputSchema: map[string]interface{}{
 				"type": "object",
 				"properties": map[string]interface{}{},
+			},
+		},
+		{
+			Name:        "list_mcp_domain_attributes",
+			Description: "List all attribute definitions for a domain",
+			InputSchema: map[string]interface{}{
+				"type": "object",
+				"properties": map[string]interface{}{
+					"domain_name": map[string]interface{}{
+						"type":        "string",
+						"description": "The domain to list attributes for",
+					},
+				},
+				"required": []string{"domain_name"},
+			},
+		},
+		{
+			Name:        "create_mcp_domain_attribute",
+			Description: "Create a new attribute definition for a domain",
+			InputSchema: map[string]interface{}{
+				"type": "object",
+				"properties": map[string]interface{}{
+					"domain_name": map[string]interface{}{
+						"type":        "string",
+						"description": "The domain to add attribute to",
+					},
+					"name": map[string]interface{}{
+						"type":        "string",
+						"description": "Attribute name",
+					},
+					"type": map[string]interface{}{
+						"type":        "string",
+						"description": "One of: tag, ordered_tag, number, string, markdown, image",
+						"enum":        []string{"tag", "ordered_tag", "number", "string", "markdown", "image"},
+					},
+					"description": map[string]interface{}{
+						"type":        "string",
+						"description": "Human-readable description (optional)",
+					},
+				},
+				"required": []string{"domain_name", "name", "type"},
+			},
+		},
+		{
+			Name:        "get_mcp_domain_attribute",
+			Description: "Get a specific attribute definition",
+			InputSchema: map[string]interface{}{
+				"type": "object",
+				"properties": map[string]interface{}{
+					"composite_id": map[string]interface{}{
+						"type":        "string",
+						"description": "Composite ID (format: tool-name:domain:attribute-id)",
+					},
+				},
+				"required": []string{"composite_id"},
+			},
+		},
+		{
+			Name:        "update_mcp_domain_attribute",
+			Description: "Update attribute description",
+			InputSchema: map[string]interface{}{
+				"type": "object",
+				"properties": map[string]interface{}{
+					"composite_id": map[string]interface{}{
+						"type":        "string",
+						"description": "Composite ID (format: tool-name:domain:attribute-id)",
+					},
+					"description": map[string]interface{}{
+						"type":        "string",
+						"description": "New description",
+					},
+				},
+				"required": []string{"composite_id", "description"},
+			},
+		},
+		{
+			Name:        "delete_mcp_domain_attribute",
+			Description: "Delete an attribute definition (if no values exist)",
+			InputSchema: map[string]interface{}{
+				"type": "object",
+				"properties": map[string]interface{}{
+					"composite_id": map[string]interface{}{
+						"type":        "string",
+						"description": "Composite ID (format: tool-name:domain:attribute-id)",
+					},
+				},
+				"required": []string{"composite_id"},
 			},
 		},
 	}
@@ -603,4 +700,175 @@ func getStringArg(args map[string]interface{}, key string) string {
 		}
 	}
 	return ""
+}
+
+// Domain attribute management methods
+func (tr *ToolRegistry) callListDomainAttributes(ctx context.Context, arguments interface{}) (*CallToolResult, error) {
+	argsMap, ok := arguments.(map[string]interface{})
+	if !ok {
+		return &CallToolResult{
+			Content: []Content{{Type: "text", Text: "Invalid arguments format"}},
+			IsError: true,
+		}, nil
+	}
+
+	domainName := getStringArg(argsMap, "domain_name")
+	if domainName == "" {
+		return &CallToolResult{
+			Content: []Content{{Type: "text", Text: "Missing domain_name parameter"}},
+			IsError: true,
+		}, nil
+	}
+
+	response, err := tr.service.ListDomainAttributes(ctx, domainName)
+	if err != nil {
+		return &CallToolResult{
+			Content: []Content{{Type: "text", Text: fmt.Sprintf("Error listing domain attributes: %v", err)}},
+			IsError: true,
+		}, nil
+	}
+
+	result, _ := json.MarshalIndent(response, "", "  ")
+	return &CallToolResult{
+		Content: []Content{{Type: "text", Text: string(result)}},
+	}, nil
+}
+
+func (tr *ToolRegistry) callCreateDomainAttribute(ctx context.Context, arguments interface{}) (*CallToolResult, error) {
+	argsMap, ok := arguments.(map[string]interface{})
+	if !ok {
+		return &CallToolResult{
+			Content: []Content{{Type: "text", Text: "Invalid arguments format"}},
+			IsError: true,
+		}, nil
+	}
+
+	domainName := getStringArg(argsMap, "domain_name")
+	name := getStringArg(argsMap, "name")
+	typeStr := getStringArg(argsMap, "type")
+	description := getStringArg(argsMap, "description")
+
+	if domainName == "" || name == "" || typeStr == "" {
+		return &CallToolResult{
+			Content: []Content{{Type: "text", Text: "Missing required parameters: domain_name, name, type"}},
+			IsError: true,
+		}, nil
+	}
+
+	req := &models.CreateAttributeRequest{
+		Name:        name,
+		Type:        models.AttributeType(typeStr),
+		Description: description,
+	}
+
+	response, err := tr.service.CreateDomainAttribute(ctx, domainName, req)
+	if err != nil {
+		return &CallToolResult{
+			Content: []Content{{Type: "text", Text: fmt.Sprintf("Error creating domain attribute: %v", err)}},
+			IsError: true,
+		}, nil
+	}
+
+	result, _ := json.MarshalIndent(response, "", "  ")
+	return &CallToolResult{
+		Content: []Content{{Type: "text", Text: string(result)}},
+	}, nil
+}
+
+func (tr *ToolRegistry) callGetDomainAttribute(ctx context.Context, arguments interface{}) (*CallToolResult, error) {
+	argsMap, ok := arguments.(map[string]interface{})
+	if !ok {
+		return &CallToolResult{
+			Content: []Content{{Type: "text", Text: "Invalid arguments format"}},
+			IsError: true,
+		}, nil
+	}
+
+	compositeID := getStringArg(argsMap, "composite_id")
+	if compositeID == "" {
+		return &CallToolResult{
+			Content: []Content{{Type: "text", Text: "Missing composite_id parameter"}},
+			IsError: true,
+		}, nil
+	}
+
+	response, err := tr.service.GetDomainAttribute(ctx, compositeID)
+	if err != nil {
+		return &CallToolResult{
+			Content: []Content{{Type: "text", Text: fmt.Sprintf("Error getting domain attribute: %v", err)}},
+			IsError: true,
+		}, nil
+	}
+
+	result, _ := json.MarshalIndent(response, "", "  ")
+	return &CallToolResult{
+		Content: []Content{{Type: "text", Text: string(result)}},
+	}, nil
+}
+
+func (tr *ToolRegistry) callUpdateDomainAttribute(ctx context.Context, arguments interface{}) (*CallToolResult, error) {
+	argsMap, ok := arguments.(map[string]interface{})
+	if !ok {
+		return &CallToolResult{
+			Content: []Content{{Type: "text", Text: "Invalid arguments format"}},
+			IsError: true,
+		}, nil
+	}
+
+	compositeID := getStringArg(argsMap, "composite_id")
+	description := getStringArg(argsMap, "description")
+
+	if compositeID == "" || description == "" {
+		return &CallToolResult{
+			Content: []Content{{Type: "text", Text: "Missing required parameters: composite_id, description"}},
+			IsError: true,
+		}, nil
+	}
+
+	req := &models.UpdateAttributeRequest{
+		Description: description,
+	}
+
+	response, err := tr.service.UpdateDomainAttribute(ctx, compositeID, req)
+	if err != nil {
+		return &CallToolResult{
+			Content: []Content{{Type: "text", Text: fmt.Sprintf("Error updating domain attribute: %v", err)}},
+			IsError: true,
+		}, nil
+	}
+
+	result, _ := json.MarshalIndent(response, "", "  ")
+	return &CallToolResult{
+		Content: []Content{{Type: "text", Text: string(result)}},
+	}, nil
+}
+
+func (tr *ToolRegistry) callDeleteDomainAttribute(ctx context.Context, arguments interface{}) (*CallToolResult, error) {
+	argsMap, ok := arguments.(map[string]interface{})
+	if !ok {
+		return &CallToolResult{
+			Content: []Content{{Type: "text", Text: "Invalid arguments format"}},
+			IsError: true,
+		}, nil
+	}
+
+	compositeID := getStringArg(argsMap, "composite_id")
+	if compositeID == "" {
+		return &CallToolResult{
+			Content: []Content{{Type: "text", Text: "Missing composite_id parameter"}},
+			IsError: true,
+		}, nil
+	}
+
+	err := tr.service.DeleteDomainAttribute(ctx, compositeID)
+	if err != nil {
+		return &CallToolResult{
+			Content: []Content{{Type: "text", Text: fmt.Sprintf("Error deleting domain attribute: %v", err)}},
+			IsError: true,
+		}, nil
+	}
+
+	return &CallToolResult{
+		Content: []Content{{Type: "text", Text: "Domain attribute deleted successfully"}},
+	}, nil
 }

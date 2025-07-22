@@ -3,8 +3,9 @@ package handlers
 import (
 	"net/http"
 
-	"github.com/gin-gonic/gin"
 	"url-db/internal/models"
+
+	"github.com/gin-gonic/gin"
 )
 
 type MCPService interface {
@@ -20,6 +21,12 @@ type MCPService interface {
 	GetMCPNodeAttributes(compositeID string) (*models.MCPNodeAttributesResponse, error)
 	SetMCPNodeAttributes(compositeID string, req *models.SetMCPNodeAttributesRequest) (*models.MCPNodeAttributesResponse, error)
 	GetMCPServerInfo() (*models.MCPServerInfo, error)
+	// Domain attribute management methods
+	ListDomainAttributes(domainName string) (*models.MCPDomainAttributeListResponse, error)
+	CreateDomainAttribute(domainName string, req *models.CreateAttributeRequest) (*models.MCPDomainAttribute, error)
+	GetDomainAttribute(compositeID string) (*models.MCPDomainAttribute, error)
+	UpdateDomainAttribute(compositeID string, req *models.UpdateAttributeRequest) (*models.MCPDomainAttribute, error)
+	DeleteDomainAttribute(compositeID string) error
 }
 
 type MCPHandler struct {
@@ -365,6 +372,158 @@ func (h *MCPHandler) GetMCPServerInfo(c *gin.Context) {
 	c.JSON(http.StatusOK, info)
 }
 
+// ListDomainAttributes godoc
+// @Summary      List domain attributes
+// @Description  Get all attribute definitions for a domain
+// @Tags         mcp
+// @Produce      json
+// @Param        domain_name  path      string  true  "Domain name"
+// @Success      200          {object}  models.MCPDomainAttributeListResponse
+// @Failure      400          {object}  map[string]interface{}
+// @Failure      404          {object}  map[string]interface{}
+// @Failure      500          {object}  map[string]interface{}
+// @Router       /mcp/domains/{domain_name}/attributes [get]
+func (h *MCPHandler) ListDomainAttributes(c *gin.Context) {
+	domainName := c.Param("domain_name")
+	if domainName == "" {
+		h.HandleError(c, NewValidationError("Missing domain_name parameter", nil))
+		return
+	}
+
+	response, err := h.mcpService.ListDomainAttributes(domainName)
+	if err != nil {
+		h.HandleError(c, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, response)
+}
+
+// CreateDomainAttribute godoc
+// @Summary      Create domain attribute
+// @Description  Create a new attribute definition for a domain
+// @Tags         mcp
+// @Accept       json
+// @Produce      json
+// @Param        domain_name  path      string                        true  "Domain name"
+// @Param        attribute    body      models.CreateAttributeRequest  true  "Attribute data"
+// @Success      201          {object}  models.MCPDomainAttribute
+// @Failure      400          {object}  map[string]interface{}
+// @Failure      404          {object}  map[string]interface{}
+// @Failure      409          {object}  map[string]interface{}
+// @Failure      500          {object}  map[string]interface{}
+// @Router       /mcp/domains/{domain_name}/attributes [post]
+func (h *MCPHandler) CreateDomainAttribute(c *gin.Context) {
+	domainName := c.Param("domain_name")
+	if domainName == "" {
+		h.HandleError(c, NewValidationError("Missing domain_name parameter", nil))
+		return
+	}
+
+	var req models.CreateAttributeRequest
+	if err := h.BindJSON(c, &req); err != nil {
+		h.HandleError(c, err)
+		return
+	}
+
+	attribute, err := h.mcpService.CreateDomainAttribute(domainName, &req)
+	if err != nil {
+		h.HandleError(c, err)
+		return
+	}
+
+	c.JSON(http.StatusCreated, attribute)
+}
+
+// GetDomainAttribute godoc
+// @Summary      Get domain attribute
+// @Description  Get a specific attribute definition by composite ID
+// @Tags         mcp
+// @Produce      json
+// @Param        composite_id  path      string  true  "Composite ID (domain:attribute_id)"
+// @Success      200           {object}  models.MCPDomainAttribute
+// @Failure      400           {object}  map[string]interface{}
+// @Failure      404           {object}  map[string]interface{}
+// @Failure      500           {object}  map[string]interface{}
+// @Router       /mcp/attributes/{composite_id} [get]
+func (h *MCPHandler) GetDomainAttribute(c *gin.Context) {
+	compositeID := c.Param("composite_id")
+	if compositeID == "" {
+		h.HandleError(c, NewValidationError("Missing composite_id parameter", nil))
+		return
+	}
+
+	attribute, err := h.mcpService.GetDomainAttribute(compositeID)
+	if err != nil {
+		h.HandleError(c, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, attribute)
+}
+
+// UpdateDomainAttribute godoc
+// @Summary      Update domain attribute
+// @Description  Update an attribute definition by composite ID
+// @Tags         mcp
+// @Accept       json
+// @Produce      json
+// @Param        composite_id  path      string                        true  "Composite ID (domain:attribute_id)"
+// @Param        attribute     body      models.UpdateAttributeRequest  true  "Attribute update data"
+// @Success      200           {object}  models.MCPDomainAttribute
+// @Failure      400           {object}  map[string]interface{}
+// @Failure      404           {object}  map[string]interface{}
+// @Failure      500           {object}  map[string]interface{}
+// @Router       /mcp/attributes/{composite_id} [put]
+func (h *MCPHandler) UpdateDomainAttribute(c *gin.Context) {
+	compositeID := c.Param("composite_id")
+	if compositeID == "" {
+		h.HandleError(c, NewValidationError("Missing composite_id parameter", nil))
+		return
+	}
+
+	var req models.UpdateAttributeRequest
+	if err := h.BindJSON(c, &req); err != nil {
+		h.HandleError(c, err)
+		return
+	}
+
+	attribute, err := h.mcpService.UpdateDomainAttribute(compositeID, &req)
+	if err != nil {
+		h.HandleError(c, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, attribute)
+}
+
+// DeleteDomainAttribute godoc
+// @Summary      Delete domain attribute
+// @Description  Delete an attribute definition by composite ID
+// @Tags         mcp
+// @Produce      json
+// @Param        composite_id  path      string  true  "Composite ID (domain:attribute_id)"
+// @Success      200           {object}  map[string]interface{}
+// @Failure      400           {object}  map[string]interface{}
+// @Failure      404           {object}  map[string]interface{}
+// @Failure      500           {object}  map[string]interface{}
+// @Router       /mcp/attributes/{composite_id} [delete]
+func (h *MCPHandler) DeleteDomainAttribute(c *gin.Context) {
+	compositeID := c.Param("composite_id")
+	if compositeID == "" {
+		h.HandleError(c, NewValidationError("Missing composite_id parameter", nil))
+		return
+	}
+
+	err := h.mcpService.DeleteDomainAttribute(compositeID)
+	if err != nil {
+		h.HandleError(c, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Attribute deleted successfully"})
+}
+
 func (h *MCPHandler) RegisterRoutes(r *gin.Engine) {
 	api := r.Group("/api")
 	{
@@ -391,6 +550,16 @@ func (h *MCPHandler) RegisterRoutes(r *gin.Engine) {
 			{
 				domains.GET("", h.GetMCPDomains)
 				domains.POST("", h.CreateMCPDomain)
+				domains.GET("/:domain_name/attributes", h.ListDomainAttributes)
+				domains.POST("/:domain_name/attributes", h.CreateDomainAttribute)
+			}
+
+			// Domain attributes (by composite ID)
+			attributes := mcp.Group("/attributes")
+			{
+				attributes.GET("/:composite_id", h.GetDomainAttribute)
+				attributes.PUT("/:composite_id", h.UpdateDomainAttribute)
+				attributes.DELETE("/:composite_id", h.DeleteDomainAttribute)
 			}
 
 			// Server info

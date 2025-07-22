@@ -104,3 +104,19 @@ type MCPNodeAttributesResponse struct {
 	CompositeID string         `json:"composite_id"`
 	Attributes  []MCPAttribute `json:"attributes"`
 }
+
+// MCP Domain Attribute models
+type MCPDomainAttribute struct {
+	CompositeID string        `json:"composite_id"`
+	Name        string        `json:"name"`
+	Type        AttributeType `json:"type"`
+	Description string        `json:"description"`
+	CreatedAt   time.Time     `json:"created_at"`
+	UpdatedAt   time.Time     `json:"updated_at"`
+}
+
+type MCPDomainAttributeListResponse struct {
+	DomainName  string                `json:"domain_name"`
+	Attributes  []MCPDomainAttribute  `json:"attributes"`
+	TotalCount  int                   `json:"total_count"`
+}

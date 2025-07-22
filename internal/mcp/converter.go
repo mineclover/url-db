@@ -153,6 +153,17 @@ func (c *Converter) ValidateCompositeID(compositeID string) error {
 	return c.compositeKeyService.Validate(compositeID)
 }
 
+// Attribute composite key methods
+func (c *Converter) CreateAttributeCompositeID(domainName string, attributeID int) string {
+	// Use the same format as node composite keys for consistency
+	return c.compositeKeyService.Create(domainName, attributeID)
+}
+
+func (c *Converter) ExtractAttributeIDFromCompositeID(compositeID string) (int, error) {
+	// Attributes use the same format as nodes, so we can reuse the node ID extraction
+	return c.ExtractNodeIDFromCompositeID(compositeID)
+}
+
 type MCPDomain struct {
 	Name        string    `json:"name"`
 	Description string    `json:"description"`
