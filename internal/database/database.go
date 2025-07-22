@@ -128,6 +128,34 @@ func (d *Database) createSchema() error {
 		UNIQUE(source_node_id, target_node_id, relationship_type)
 	);
 
+	-- 노드 구독 테이블 (이벤트 구독 관리)
+	CREATE TABLE IF NOT EXISTS node_subscriptions (
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		subscriber_service TEXT NOT NULL,
+		subscriber_endpoint TEXT,
+		subscribed_node_id INTEGER NOT NULL,
+		event_types TEXT NOT NULL, -- JSON array of event types
+		filter_conditions TEXT,    -- JSON object for filter conditions
+		is_active BOOLEAN DEFAULT 1,
+		created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+		updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+		FOREIGN KEY (subscribed_node_id) REFERENCES nodes(id) ON DELETE CASCADE
+	);
+
+	-- 노드 의존성 테이블 (노드 간 의존성 관리)
+	CREATE TABLE IF NOT EXISTS node_dependencies (
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		dependent_node_id INTEGER NOT NULL,
+		dependency_node_id INTEGER NOT NULL,
+		dependency_type TEXT NOT NULL,
+		description TEXT,
+		is_required BOOLEAN DEFAULT 1,
+		created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+		FOREIGN KEY (dependent_node_id) REFERENCES nodes(id) ON DELETE CASCADE,
+		FOREIGN KEY (dependency_node_id) REFERENCES nodes(id) ON DELETE CASCADE,
+		UNIQUE(dependent_node_id, dependency_node_id, dependency_type)
+	);
+
 	-- 인덱스 생성
 	CREATE INDEX IF NOT EXISTS idx_nodes_domain ON nodes(domain_id);
 	CREATE INDEX IF NOT EXISTS idx_nodes_content ON nodes(content);
@@ -136,6 +164,10 @@ func (d *Database) createSchema() error {
 	CREATE INDEX IF NOT EXISTS idx_node_attributes_attribute ON node_attributes(attribute_id);
 	CREATE INDEX IF NOT EXISTS idx_node_connections_source ON node_connections(source_node_id);
 	CREATE INDEX IF NOT EXISTS idx_node_connections_target ON node_connections(target_node_id);
+	CREATE INDEX IF NOT EXISTS idx_node_subscriptions_node ON node_subscriptions(subscribed_node_id);
+	CREATE INDEX IF NOT EXISTS idx_node_subscriptions_service ON node_subscriptions(subscriber_service);
+	CREATE INDEX IF NOT EXISTS idx_node_dependencies_dependent ON node_dependencies(dependent_node_id);
+	CREATE INDEX IF NOT EXISTS idx_node_dependencies_dependency ON node_dependencies(dependency_node_id);
 
 	-- 트리거: updated_at 자동 업데이트
 	CREATE TRIGGER IF NOT EXISTS domains_updated_at 
@@ -151,6 +183,30 @@ func (d *Database) createSchema() error {
 		BEGIN 
 			UPDATE nodes SET updated_at = CURRENT_TIMESTAMP WHERE id = NEW.id;
 		END;
+
+	CREATE TRIGGER IF NOT EXISTS node_subscriptions_updated_at 
+		AFTER UPDATE ON node_subscriptions 
+		FOR EACH ROW 
+		BEGIN 
+			UPDATE node_subscriptions SET updated_at = CURRENT_TIMESTAMP WHERE id = NEW.id;
+		END;
+
+	-- 노드 이벤트 로그 테이블
+	CREATE TABLE IF NOT EXISTS node_events (
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		node_id INTEGER NOT NULL,
+		event_type TEXT NOT NULL,             -- 'created', 'updated', 'deleted', 'attribute_changed'
+		event_data TEXT,                      -- JSON: 이벤트 상세 데이터
+		occurred_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+		processed_at DATETIME,                -- 처리 완료 시간
+		FOREIGN KEY (node_id) REFERENCES nodes(id) ON DELETE CASCADE
+	);
+
+	-- 이벤트 테이블 인덱스
+	CREATE INDEX IF NOT EXISTS idx_events_node ON node_events(node_id);
+	CREATE INDEX IF NOT EXISTS idx_events_type ON node_events(event_type);
+	CREATE INDEX IF NOT EXISTS idx_events_occurred ON node_events(occurred_at);
+	CREATE INDEX IF NOT EXISTS idx_events_unprocessed ON node_events(processed_at) WHERE processed_at IS NULL;
 	`
 
 	if _, err := d.db.Exec(schema); err != nil {
