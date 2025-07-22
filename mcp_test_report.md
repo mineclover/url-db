@@ -1,6 +1,6 @@
 # MCP Server LLM-as-a-Judge Test Report
 
-**Date**: 2025-07-22 11:11:39
+**Date**: 2025-07-22 11:27:43
 **Server Version**: url-db-mcp-server v1.0.0
 **Test Environment**: Local development
 
@@ -29,7 +29,7 @@
 - **Score**: 8/10 (80.0%)
 - **Status**: PASS
 - **Execution Time**: 0.00s
-- **Notes**: ✓ Initial domain count: 3; ✓ Domain creation successful; ✓ Proper metadata timestamps; ✓ Domain persists in listings; ✓ Duplicate domain properly rejected
+- **Notes**: ✓ Initial domain count: 4; ✓ Domain creation successful; ✓ Proper metadata timestamps; ✓ Domain persists in listings; ✓ Duplicate domain properly rejected
 
 ### Node/URL Management with Composite Keys
 - **Score**: 10/10 (100.0%)

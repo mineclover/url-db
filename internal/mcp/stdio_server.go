@@ -35,13 +35,13 @@ func NewStdioServer(service MCPService) *StdioServer {
 
 // Start begins the stdio MCP session with JSON-RPC 2.0 protocol
 func (s *StdioServer) Start() error {
-	log.Println("Starting MCP JSON-RPC 2.0 stdio server...")
+	// log.Println("Starting MCP JSON-RPC 2.0 stdio server...") // Disabled for clean JSON output
 	
 	for {
 		line, err := s.reader.ReadString('\n')
 		if err != nil {
 			if err == io.EOF {
-				log.Println("EOF received, ending session")
+				// log.Println("EOF received, ending session") // Disabled for clean JSON output
 				return nil
 			}
 			return fmt.Errorf("error reading input: %w", err)
@@ -76,7 +76,7 @@ func (s *StdioServer) handleJSONRPCRequest(req *JSONRPCRequest) *JSONRPCResponse
 	switch req.Method {
 	case "initialize":
 		return s.handleInitialize(ctx, req)
-	case "initialized":
+	case "notifications/initialized":
 		return s.handleInitialized(ctx, req)
 	case "tools/list":
 		return s.handleToolsList(ctx, req)

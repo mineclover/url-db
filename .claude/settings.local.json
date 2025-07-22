@@ -54,7 +54,9 @@
       "Bash(./build.sh)",
       "Bash(./bin/url-db:*)",
       "WebFetch(domain:github.com)",
-      "Bash(python3:*)"
+      "Bash(python3:*)",
+      "mcp__ide__executeCode",
+      "mcp__ide__getDiagnostics"
     ],
     "deny": []
   }
