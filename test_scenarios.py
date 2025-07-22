@@ -616,7 +616,7 @@ class MCPTestRunner:
 {'✅' if production_ready else '❌'} **Overall Assessment**: {'PRODUCTION READY' if production_ready else 'NOT PRODUCTION READY'}
 
 ### Criteria Evaluation:
-- MCP Protocol Compliance: {'✅' if handshake_result.status == 'PASS' else '❌'}
+- MCP Protocol Compliance: {'✅' if self.test_results and self.test_results[0].status == 'PASS' else '❌'}
 - Core Functionality: {'✅' if passing_scenarios >= 3 else '❌'}
 - Error Handling: {'✅' if percentage >= 70 else '❌'}
 - Performance: {'✅' if all(r.execution_time < 5.0 for r in self.test_results) else '❌'}
@@ -639,7 +639,7 @@ class MCPTestRunner:
 
 ### Priority Actions:
 """
-            if handshake_result.status != "PASS":
+            if self.test_results and self.test_results[0].status != "PASS":
                 report += "1. **CRITICAL**: Fix MCP protocol handshake compliance\n"
             
             for scenario in weak_scenarios:
