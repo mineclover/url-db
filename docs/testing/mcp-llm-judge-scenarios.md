@@ -1,5 +1,9 @@
 # MCP Server LLM-as-a-Judge Testing Scenarios
 
+> **Test Status**: ✅ COMPLETED (2025-07-22)  
+> **Overall Score**: 92% (46/50) - Excellent  
+> **Test Report**: See [mcp-test-results.md](./mcp-test-results.md)
+
 ## Overview
 
 This document defines comprehensive testing scenarios for the URL-DB MCP server using the LLM-as-a-Judge methodology. Each scenario includes detailed criteria, expected behaviors, and evaluation rubrics.
