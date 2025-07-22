@@ -57,7 +57,8 @@
       "Bash(python3:*)",
       "mcp__ide__executeCode",
       "mcp__ide__getDiagnostics",
-      "Bash(./setup-mcp.sh:*)"
+      "Bash(./setup-mcp.sh:*)",
+      "WebFetch(domain:raw.githubusercontent.com)"
     ],
     "deny": []
   }

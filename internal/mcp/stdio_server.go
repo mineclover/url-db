@@ -8,7 +8,10 @@ import (
 	"io"
 	"log"
 	"os"
+	"os/signal"
 	"strings"
+	"sync"
+	"syscall"
 )
 
 // StdioServer implements MCP protocol over stdin/stdout with JSON-RPC 2.0
@@ -89,6 +92,13 @@ func (s *StdioServer) handleJSONRPCRequest(req *JSONRPCRequest) *JSONRPCResponse
 	default:
 		return NewJSONRPCError(req.ID, MethodNotFound, fmt.Sprintf("Method not found: %s", req.Method), nil)
 	}
+}
+
+// Shutdown gracefully shuts down the server
+func (s *StdioServer) Shutdown() {
+	s.shutdownOnce.Do(func() {
+		close(s.shutdown)
+	})
 }
 
 // sendResponse sends a JSON-RPC response
