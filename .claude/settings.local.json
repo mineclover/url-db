@@ -51,7 +51,10 @@
       "Bash(/Users/junwoobang/mcp/url-db/url-db --help)",
       "Bash(/Users/junwoobang/mcp/url-db/url-db:*)",
       "Bash(kill:*)",
-      "Bash(./build.sh)"
+      "Bash(./build.sh)",
+      "Bash(./bin/url-db:*)",
+      "WebFetch(domain:github.com)",
+      "Bash(python3:*)"
     ],
     "deny": []
   }

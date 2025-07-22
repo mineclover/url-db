@@ -3,53 +3,41 @@ package mcp
 import (
 	"bufio"
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	"log"
 	"os"
 	"strings"
-
-	"url-db/internal/models"
 )
 
-// StdioServer implements MCP protocol over stdin/stdout
+// StdioServer implements MCP protocol over stdin/stdout with JSON-RPC 2.0
 type StdioServer struct {
-	service MCPService
-	reader  *bufio.Reader
-	writer  io.Writer
-}
-
-// MCPRequest represents an MCP protocol request
-type MCPRequest struct {
-	Method string                 `json:"method"`
-	Params map[string]interface{} `json:"params,omitempty"`
-	ID     interface{}            `json:"id,omitempty"`
-}
-
-// MCPResponse represents an MCP protocol response
-type MCPResponse struct {
-	Result interface{} `json:"result,omitempty"`
-	Error  *MCPError   `json:"error,omitempty"`
-	ID     interface{} `json:"id,omitempty"`
+	service      MCPService
+	reader       *bufio.Reader
+	writer       io.Writer
+	toolRegistry *ToolRegistry
+	resourceRegistry *ResourceRegistry
+	initialized  bool
 }
 
 // NewStdioServer creates a new MCP stdio server
 func NewStdioServer(service MCPService) *StdioServer {
 	return &StdioServer{
-		service: service,
-		reader:  bufio.NewReader(os.Stdin),
-		writer:  os.Stdout,
+		service:          service,
+		reader:           bufio.NewReader(os.Stdin),
+		writer:           os.Stdout,
+		toolRegistry:     NewToolRegistry(service),
+		resourceRegistry: NewResourceRegistry(service),
+		initialized:      false,
 	}
 }
 
-// Start begins the stdio MCP session
+// Start begins the stdio MCP session with JSON-RPC 2.0 protocol
 func (s *StdioServer) Start() error {
-	log.Println("MCP stdio server ready for commands")
-	log.Println("Available commands: list_domains, list_nodes, create_node, get_node, update_node, delete_node, server_info, quit")
+	log.Println("Starting MCP JSON-RPC 2.0 stdio server...")
 	
 	for {
-		fmt.Fprint(s.writer, "> ")
-		
 		line, err := s.reader.ReadString('\n')
 		if err != nil {
 			if err == io.EOF {
@@ -64,208 +52,174 @@ func (s *StdioServer) Start() error {
 			continue
 		}
 		
-		// Handle quit command
-		if line == "quit" || line == "exit" {
-			log.Println("Goodbye!")
-			return nil
+		// Parse JSON-RPC request
+		req, err := ParseJSONRPCRequest([]byte(line))
+		if err != nil {
+			// Send parse error response
+			errorResp := NewJSONRPCError(nil, ParseError, "Parse error", err.Error())
+			s.sendResponse(errorResp)
+			continue
 		}
 		
-		// Parse and handle the request
-		if err := s.handleRequest(line); err != nil {
-			fmt.Fprintf(s.writer, "Error: %v\n", err)
+		// Handle the request
+		resp := s.handleJSONRPCRequest(req)
+		if resp != nil {
+			s.sendResponse(resp)
 		}
 	}
 }
 
-// handleRequest processes a single MCP request
-func (s *StdioServer) handleRequest(input string) error {
+// handleJSONRPCRequest processes a JSON-RPC 2.0 request
+func (s *StdioServer) handleJSONRPCRequest(req *JSONRPCRequest) *JSONRPCResponse {
 	ctx := context.Background()
 	
-	// Split input into command and arguments
-	parts := strings.Fields(input)
-	if len(parts) == 0 {
-		return fmt.Errorf("empty command")
-	}
-	
-	command := parts[0]
-	args := parts[1:]
-	
-	switch command {
-	case "list_domains":
-		return s.handleListDomains(ctx)
-		
-	case "list_nodes":
-		if len(args) < 1 {
-			return fmt.Errorf("list_nodes requires domain_name argument")
-		}
-		return s.handleListNodes(ctx, args[0])
-		
-	case "create_node":
-		if len(args) < 2 {
-			return fmt.Errorf("create_node requires domain_name and url arguments")
-		}
-		title := ""
-		if len(args) > 2 {
-			title = strings.Join(args[2:], " ")
-		}
-		return s.handleCreateNode(ctx, args[0], args[1], title)
-		
-	case "get_node":
-		if len(args) < 1 {
-			return fmt.Errorf("get_node requires composite_id argument")
-		}
-		return s.handleGetNode(ctx, args[0])
-		
-	case "update_node":
-		if len(args) < 2 {
-			return fmt.Errorf("update_node requires composite_id and title arguments")
-		}
-		title := strings.Join(args[1:], " ")
-		return s.handleUpdateNode(ctx, args[0], title)
-		
-	case "delete_node":
-		if len(args) < 1 {
-			return fmt.Errorf("delete_node requires composite_id argument")
-		}
-		return s.handleDeleteNode(ctx, args[0])
-		
-	case "server_info":
-		return s.handleServerInfo(ctx)
-		
-	case "help":
-		return s.handleHelp()
-		
+	switch req.Method {
+	case "initialize":
+		return s.handleInitialize(ctx, req)
+	case "initialized":
+		return s.handleInitialized(ctx, req)
+	case "tools/list":
+		return s.handleToolsList(ctx, req)
+	case "tools/call":
+		return s.handleToolsCall(ctx, req)
+	case "resources/list":
+		return s.handleResourcesList(ctx, req)
+	case "resources/read":
+		return s.handleResourcesRead(ctx, req)
 	default:
-		return fmt.Errorf("unknown command: %s. Type 'help' for available commands", command)
+		return NewJSONRPCError(req.ID, MethodNotFound, fmt.Sprintf("Method not found: %s", req.Method), nil)
 	}
 }
 
-func (s *StdioServer) handleListDomains(ctx context.Context) error {
-	response, err := s.service.ListDomains(ctx)
+// sendResponse sends a JSON-RPC response
+func (s *StdioServer) sendResponse(resp *JSONRPCResponse) {
+	data, err := resp.ToJSON()
 	if err != nil {
-		return err
+		log.Printf("Error marshaling response: %v", err)
+		return
 	}
 	
-	fmt.Fprintf(s.writer, "Domains (%d):\n", len(response.Domains))
-	for _, domain := range response.Domains {
-		fmt.Fprintf(s.writer, "  - %s: %s (nodes: %d)\n", domain.Name, domain.Description, domain.NodeCount)
-	}
-	return nil
+	fmt.Fprintf(s.writer, "%s\n", string(data))
 }
 
-func (s *StdioServer) handleListNodes(ctx context.Context, domainName string) error {
-	response, err := s.service.ListNodes(ctx, domainName, 1, 20, "")
-	if err != nil {
-		return err
-	}
-	
-	fmt.Fprintf(s.writer, "Nodes in domain '%s' (%d):\n", domainName, response.TotalCount)
-	for _, node := range response.Nodes {
-		fmt.Fprintf(s.writer, "  - %s: %s\n", node.CompositeID, node.URL)
-		if node.Title != "" {
-			fmt.Fprintf(s.writer, "    Title: %s\n", node.Title)
-		}
-		if node.Description != "" {
-			fmt.Fprintf(s.writer, "    Description: %s\n", node.Description)
+// handleInitialize handles the MCP initialize request
+func (s *StdioServer) handleInitialize(ctx context.Context, req *JSONRPCRequest) *JSONRPCResponse {
+	// Parse initialize request
+	var initReq InitializeRequest
+	if req.Params != nil {
+		paramsData, _ := json.Marshal(req.Params)
+		if err := json.Unmarshal(paramsData, &initReq); err != nil {
+			return NewJSONRPCError(req.ID, InvalidParams, "Invalid initialize parameters", err.Error())
 		}
 	}
-	return nil
-}
-
-func (s *StdioServer) handleCreateNode(ctx context.Context, domainName, url, title string) error {
-	req := &models.CreateMCPNodeRequest{
-		DomainName:  domainName,
-		URL:         url,
-		Title:       title,
-		Description: "",
+	
+	// Create response
+	result := InitializeResult{
+		ProtocolVersion: "2024-11-05",
+		Capabilities: ServerCapabilities{
+			Tools: &ToolsCapability{
+				ListChanged: false,
+			},
+			Resources: &ResourcesCapability{
+				Subscribe:   false,
+				ListChanged: false,
+			},
+		},
+		ServerInfo: ServerInfo{
+			Name:    "url-db-mcp-server",
+			Version: "1.0.0",
+		},
 	}
 	
-	node, err := s.service.CreateNode(ctx, req)
+	return NewJSONRPCResponse(req.ID, result)
+}
+
+// handleInitialized handles the MCP initialized notification
+func (s *StdioServer) handleInitialized(ctx context.Context, req *JSONRPCRequest) *JSONRPCResponse {
+	s.initialized = true
+	log.Println("MCP server initialized successfully")
+	
+	// Notification - no response needed for initialized
+	if req.ID == nil {
+		return nil
+	}
+	
+	return NewJSONRPCResponse(req.ID, nil)
+}
+
+// handleToolsList handles the tools/list request
+func (s *StdioServer) handleToolsList(ctx context.Context, req *JSONRPCRequest) *JSONRPCResponse {
+	if !s.initialized {
+		return NewJSONRPCError(req.ID, InvalidRequest, "Server not initialized", nil)
+	}
+	
+	tools := s.toolRegistry.GetTools()
+	result := ToolsListResult{
+		Tools: tools,
+	}
+	
+	return NewJSONRPCResponse(req.ID, result)
+}
+
+// handleToolsCall handles the tools/call request
+func (s *StdioServer) handleToolsCall(ctx context.Context, req *JSONRPCRequest) *JSONRPCResponse {
+	if !s.initialized {
+		return NewJSONRPCError(req.ID, InvalidRequest, "Server not initialized", nil)
+	}
+	
+	// Parse tool call request
+	var callReq CallToolRequest
+	if req.Params != nil {
+		paramsData, _ := json.Marshal(req.Params)
+		if err := json.Unmarshal(paramsData, &callReq); err != nil {
+			return NewJSONRPCError(req.ID, InvalidParams, "Invalid tool call parameters", err.Error())
+		}
+	}
+	
+	// Call the tool
+	result, err := s.toolRegistry.CallTool(ctx, callReq.Name, callReq.Arguments)
 	if err != nil {
-		return err
+		return NewJSONRPCError(req.ID, InternalError, "Tool execution failed", err.Error())
 	}
 	
-	fmt.Fprintf(s.writer, "Created node: %s\n", node.CompositeID)
-	fmt.Fprintf(s.writer, "  URL: %s\n", node.URL)
-	if node.Title != "" {
-		fmt.Fprintf(s.writer, "  Title: %s\n", node.Title)
-	}
-	return nil
+	return NewJSONRPCResponse(req.ID, result)
 }
 
-func (s *StdioServer) handleGetNode(ctx context.Context, compositeID string) error {
-	node, err := s.service.GetNode(ctx, compositeID)
+// handleResourcesList handles the resources/list request
+func (s *StdioServer) handleResourcesList(ctx context.Context, req *JSONRPCRequest) *JSONRPCResponse {
+	if !s.initialized {
+		return NewJSONRPCError(req.ID, InvalidRequest, "Server not initialized", nil)
+	}
+	
+	result, err := s.resourceRegistry.GetResources(ctx)
 	if err != nil {
-		return err
+		return NewJSONRPCError(req.ID, InternalError, "Failed to get resources", err.Error())
 	}
 	
-	fmt.Fprintf(s.writer, "Node: %s\n", node.CompositeID)
-	fmt.Fprintf(s.writer, "  Domain: %s\n", node.DomainName)
-	fmt.Fprintf(s.writer, "  URL: %s\n", node.URL)
-	if node.Title != "" {
-		fmt.Fprintf(s.writer, "  Title: %s\n", node.Title)
-	}
-	if node.Description != "" {
-		fmt.Fprintf(s.writer, "  Description: %s\n", node.Description)
-	}
-	fmt.Fprintf(s.writer, "  Created: %s\n", node.CreatedAt)
-	fmt.Fprintf(s.writer, "  Updated: %s\n", node.UpdatedAt)
-	return nil
+	return NewJSONRPCResponse(req.ID, result)
 }
 
-func (s *StdioServer) handleUpdateNode(ctx context.Context, compositeID, title string) error {
-	req := &models.UpdateNodeRequest{
-		Title:       title,
-		Description: "",
+// handleResourcesRead handles the resources/read request
+func (s *StdioServer) handleResourcesRead(ctx context.Context, req *JSONRPCRequest) *JSONRPCResponse {
+	if !s.initialized {
+		return NewJSONRPCError(req.ID, InvalidRequest, "Server not initialized", nil)
 	}
 	
-	node, err := s.service.UpdateNode(ctx, compositeID, req)
+	// Parse resource read request
+	var readReq ReadResourceRequest
+	if req.Params != nil {
+		paramsData, _ := json.Marshal(req.Params)
+		if err := json.Unmarshal(paramsData, &readReq); err != nil {
+			return NewJSONRPCError(req.ID, InvalidParams, "Invalid resource read parameters", err.Error())
+		}
+	}
+	
+	// Read the resource
+	result, err := s.resourceRegistry.ReadResource(ctx, readReq.URI)
 	if err != nil {
-		return err
+		return NewJSONRPCError(req.ID, InternalError, "Failed to read resource", err.Error())
 	}
 	
-	fmt.Fprintf(s.writer, "Updated node: %s\n", node.CompositeID)
-	fmt.Fprintf(s.writer, "  Title: %s\n", node.Title)
-	return nil
+	return NewJSONRPCResponse(req.ID, result)
 }
 
-func (s *StdioServer) handleDeleteNode(ctx context.Context, compositeID string) error {
-	err := s.service.DeleteNode(ctx, compositeID)
-	if err != nil {
-		return err
-	}
-	
-	fmt.Fprintf(s.writer, "Deleted node: %s\n", compositeID)
-	return nil
-}
-
-func (s *StdioServer) handleServerInfo(ctx context.Context) error {
-	info, err := s.service.GetServerInfo(ctx)
-	if err != nil {
-		return err
-	}
-	
-	fmt.Fprintf(s.writer, "Server Info:\n")
-	fmt.Fprintf(s.writer, "  Name: %s\n", info.Name)
-	fmt.Fprintf(s.writer, "  Version: %s\n", info.Version)
-	fmt.Fprintf(s.writer, "  Description: %s\n", info.Description)
-	fmt.Fprintf(s.writer, "  Composite Key Format: %s\n", info.CompositeKeyFormat)
-	fmt.Fprintf(s.writer, "  Capabilities: %v\n", info.Capabilities)
-	return nil
-}
-
-func (s *StdioServer) handleHelp() error {
-	fmt.Fprintf(s.writer, "Available commands:\n")
-	fmt.Fprintf(s.writer, "  list_domains                           - List all domains\n")
-	fmt.Fprintf(s.writer, "  list_nodes <domain_name>               - List nodes in domain\n")
-	fmt.Fprintf(s.writer, "  create_node <domain> <url> [title]     - Create new node\n")
-	fmt.Fprintf(s.writer, "  get_node <composite_id>                - Get node details\n")
-	fmt.Fprintf(s.writer, "  update_node <composite_id> <title>     - Update node title\n")
-	fmt.Fprintf(s.writer, "  delete_node <composite_id>             - Delete node\n")
-	fmt.Fprintf(s.writer, "  server_info                            - Show server information\n")
-	fmt.Fprintf(s.writer, "  help                                   - Show this help\n")
-	fmt.Fprintf(s.writer, "  quit                                   - Exit the session\n")
-	fmt.Fprintf(s.writer, "\n")
-	fmt.Fprintf(s.writer, "Example: create_node example.com https://example.com/page \"My Page\"\n")
-	return nil
-}

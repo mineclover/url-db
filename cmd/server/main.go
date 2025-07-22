@@ -4,6 +4,7 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"io"
 	"log"
 	"os"
 
@@ -78,6 +79,12 @@ func main() {
 		fmt.Println("URL Database Server v1.0")
 		fmt.Println("Built with Go", "runtime.Version()")
 		os.Exit(0)
+	}
+
+	// Set gin mode early if in stdio mode to prevent debug output
+	if *mcpMode == "stdio" {
+		gin.SetMode(gin.ReleaseMode)
+		log.SetOutput(io.Discard)
 	}
 
 	cfg := config.Load()
@@ -279,12 +286,10 @@ func main() {
 	switch *mcpMode {
 	case "stdio":
 		// stdio mode: MCP communication via stdin/stdout, then exit
-		log.Println("Starting MCP stdio mode...")
 		stdioServer := mcp.NewStdioServer(mcpService)
 		if err := stdioServer.Start(); err != nil {
-			log.Fatal("Failed to start MCP stdio server:", err)
+			os.Exit(1)
 		}
-		log.Println("MCP stdio session completed.")
 		return
 
 	case "sse":
