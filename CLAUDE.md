@@ -10,13 +10,13 @@ URL-DB is a Go-based URL database management system with MCP (Model Context Prot
 
 ```bash
 # Build the project
-# Unix/Mac - builds and runs tests
-make build                    # Alternative using Makefile
+make build                    # Build using Makefile
+go build ./cmd/server         # Direct Go build
 
-# Run tests
+# Run tests  
 go test -v ./...             # Run all tests
-go test -v ./internal/mcp/...  # Run specific package tests
-make test-coverage           # Run tests with coverage report
+go test -v ./internal/mcp/... # Run specific package tests
+./scripts/test.sh            # Comprehensive test suite with coverage
 
 # Lint and format
 make lint                    # Run golangci-lint (install: brew install golangci-lint)
@@ -26,8 +26,11 @@ make fmt                     # Format all Go files
 make dev                     # Hot reload (requires: go install github.com/cosmtrek/air@latest)
 
 # Run the server
-./bin/url-db                 # HTTP mode (default port 8080)
+./bin/url-db                 # HTTP mode (default port 8080) 
 ./bin/url-db -mcp-mode=stdio # MCP stdio mode for AI assistants
+
+# Constants management
+python scripts/generate-tool-constants.py  # Generate tool constants from YAML spec
 ```
 
 ## Architecture
@@ -54,9 +57,15 @@ The codebase follows a clean layered architecture:
 
 5. **MCP Layer** (`/internal/mcp/`)
    - JSON-RPC 2.0 implementation
-   - 16 tools with distinctive names (without 'mcp' prefix)
+   - 18 tools with distinctive names (without 'mcp' prefix)
    - Resource system in `/internal/mcp/resources.go`
    - Composite key format: `tool-name:domain:id`
+
+6. **Constants Layer** (`/internal/constants/`)
+   - Centralized configuration constants
+   - Server metadata, network settings, database paths
+   - Error messages and validation patterns
+   - Single source of truth for all hardcoded values
 
 ## Domain Schema System
 
@@ -107,6 +116,8 @@ set_node_attributes(composite_id="url-db:products:1", attributes=[
 3. **Validation**: Validate at service layer before database operations
 4. **Transactions**: Use repository transaction methods for multi-step operations
 5. **Testing**: Use testify for assertions, create test databases for integration tests
+6. **Constants Usage**: Import and use constants from `/internal/constants/` package
+7. **Tool Definitions**: Managed through `/specs/mcp-tools.yaml` with auto-generated constants
 
 ## MCP Integration
 
@@ -122,7 +133,7 @@ MCP provides 18 tools following strict JSON-RPC 2.0 protocol:
 - Domain schema: `list_domain_attributes`, `create_domain_attribute`, `get_domain_attribute`, `update_domain_attribute`, `delete_domain_attribute`
 - Server info: `get_server_info`
 
-All tools are defined in `/internal/mcp/tools.go` with built-in validation.
+All tools are defined in `/internal/mcp/tools.go` with built-in validation. Tool names and descriptions are generated from `/specs/mcp-tools.yaml` for consistency.
 
 ## Testing Approach
 
@@ -149,6 +160,9 @@ Tests use in-memory SQLite databases for isolation. Key test files:
 3. **Tool Name**: Customizable via `-tool-name` flag (affects composite keys)
 4. **Resource URIs**: Format `mcp://resource-type/path` for MCP resource system
 5. **Batch Operations**: Use `SetNodeAttributes` for efficient bulk updates
+6. **Constants Management**: All configuration values centralized in `/internal/constants/`
+7. **Tool Specification**: Single source of truth in `/specs/mcp-tools.yaml`
+8. **Code Generation**: Use `scripts/generate-tool-constants.py` to update constants
 
 ## Development Principles
 

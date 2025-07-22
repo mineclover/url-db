@@ -56,7 +56,7 @@ Add to your Cursor MCP configuration:
 
 ### Available MCP Tools (18 total)
 
-When using stdio mode, the following tools are available:
+All tools are defined in `/specs/mcp-tools.yaml` with auto-generated constants. When using stdio mode, the following tools are available:
 
 #### Domain Management
 - `list_domains` - List all domains
@@ -206,9 +206,11 @@ curl -X POST http://localhost:8080/api/domains/1/urls \
 
 Both modes support:
 
-- `DATABASE_URL` - Database connection string
-- `PORT` - Server port (SSE mode only)
-- `TOOL_NAME` - Tool name for composite keys
+- `DATABASE_URL` - Database connection string (default: file:./url-db.sqlite)
+- `PORT` - Server port (SSE mode only, default: 8080)
+- `TOOL_NAME` - Tool name for composite keys (default: url-db)
+
+All default values are defined in `/internal/constants/constants.go` for consistency.
 
 ## Composite Key Format
 

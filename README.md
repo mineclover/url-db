@@ -93,9 +93,19 @@ Examples:
 ## 🔧 Configuration
 
 ### Default Settings
-- **Port**: 8080
-- **Database**: `file:./url-db.db`
-- **Tool Name**: `url-db`
+- **Port**: 8080 (configurable via constants)
+- **Database**: `file:./url-db.sqlite` (configurable via constants)
+- **Tool Name**: `url-db` (configurable via constants)
+- **MCP Server Name**: `url-db-mcp-server`
+- **Protocol Version**: `2024-11-05`
+
+### Constants Management
+All configuration values are centralized in `/internal/constants/constants.go`:
+- Server metadata and versions
+- Network settings and ports  
+- Database paths and drivers
+- Validation limits and patterns
+- Error messages and HTTP status codes
 
 ### Environment Variables
 - `VERSION` - Build version (default: 1.0.0)
@@ -115,12 +125,19 @@ Comprehensive tests generate reports in `test-output/`:
 
 ## 🚀 MCP Integration
 
-The URL-DB server provides native MCP support for:
+The URL-DB server provides native MCP support with 18 tools:
 - **Domain Management**: Create and list domains
-- **URL Operations**: Save, search, and manage URLs
-- **Attribute System**: Tag and categorize URLs
-- **Batch Operations**: Efficient bulk operations
-- **Search Capabilities**: Full-text search with filtering
+- **URL Operations**: Save, search, and manage URLs  
+- **Attribute System**: Tag and categorize URLs with type validation
+- **Schema Management**: Define and enforce domain-specific attributes
+- **Advanced Queries**: Filter by attributes, batch operations
+- **Resource System**: MCP resource protocol support
+
+### Tool Specification System
+- **Single Source**: All tools defined in `/specs/mcp-tools.yaml`
+- **Auto-Generation**: Constants generated for Go and Python
+- **Consistency**: Tool names and descriptions managed centrally
+- **Validation**: Schema-enforced tool definitions
 
 ### Common MCP Workflows
 
@@ -138,10 +155,12 @@ The URL-DB server provides native MCP support for:
 
 ## 📚 Documentation
 
-- [API Documentation](docs/mcp-openapi.yaml) - Complete OpenAPI specification
-- [Database Schema](docs/database-schema.md) - Database structure
-- [Installation Guide](docs/installation-guide.md) - Detailed setup instructions
-- [MCP Setup Guide](docs/mcp-server-setup-guide.md) - MCP integration guide
+- [CLAUDE.md](CLAUDE.md) - Claude Code AI assistant integration guide
+- [API Documentation](docs/mcp-openapi.yaml) - Complete OpenAPI specification  
+- [MCP Setup Guide (Korean)](docs/mcp-setup-guide-ko.md) - MCP integration guide
+- [MCP Setup Guide (English)](docs/mcp-setup-guide.md) - MCP integration guide
+- [Scripts README](scripts/README.md) - Maintenance and utility scripts guide
+- [Tool Specification](specs/mcp-tools.yaml) - MCP tools definition
 
 ## 🤝 Contributing
 

@@ -51,6 +51,8 @@ URL-DB는 두 가지 MCP 모드를 지원합니다:
 
 ### 사용 가능한 MCP 도구 (18개)
 
+모든 도구는 `/specs/mcp-tools.yaml`에 정의되어 있으며 상수가 자동 생성됩니다.
+
 #### 도메인 관리
 - `list_domains` - 모든 도메인 조회
 - `create_domain` - 새 도메인 생성
@@ -111,15 +113,17 @@ Claude: create_node로 URL을 추가하고 set_node_attributes로 태그를 설�
 ### 설정 옵션
 
 ```bash
-# 포트 변경
+# 포트 변경 (기본값: 8080, constants.DefaultPort에서 관리)
 ./bin/url-db -port=3000
 
-# 데이터베이스 경로 지정
+# 데이터베이스 경로 지정 (기본값: url-db.sqlite, constants.DefaultDBPath에서 관리)
 ./bin/url-db -db-path=/path/to/database.sqlite
 
-# 도구 이름 변경 (복합 키에 영향)
+# 도구 이름 변경 (기본값: url-db, constants.DefaultServerName에서 관리)
 ./bin/url-db -tool-name=my-url-db
 ```
+
+모든 기본값은 `/internal/constants/constants.go`에서 중앙 관리됩니다.
 
 ### REST API 엔드포인트
 
