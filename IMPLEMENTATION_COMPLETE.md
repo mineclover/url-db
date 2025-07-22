@@ -44,10 +44,12 @@ All major components have been implemented and integrated successfully. The URL-
 
 ### 5. **MCP Integration** 
 - ✅ **TESTED**: Complete MCP JSON-RPC 2.0 protocol implementation
-- ✅ **VERIFIED**: All 11 MCP tools working correctly
+- ✅ **VERIFIED**: All 16 MCP tools working correctly
 - ✅ MCP server with stdio and SSE modes
-- ✅ Composite key system (url-db:domain:id format)
+- ✅ Composite key system (tool-name:domain:id format)
 - ✅ Resource system with URI-based access (mcp://)
+- ✅ Domain attribute management tools (5 tools for schema definition)
+- ✅ Domain schema enforcement (nodes can only have defined attributes)
 - ✅ Batch operations for performance
 - ✅ Converter for data transformation
 - ✅ **Test Score**: 92% LLM-as-a-Judge, 100% integration tests
@@ -69,6 +71,34 @@ All major components have been implemented and integrated successfully. The URL-
 - ✅ **NEW**: Unix build script (build.sh)
 - ✅ Go module configuration
 - ✅ Dependency management
+
+## 📋 MCP Tools Available (16 tools)
+
+### Domain Management
+1. **list_domains** - List all domains in the database
+2. **create_domain** - Create a new domain
+
+### Node/URL Operations  
+3. **list_nodes** - List nodes in a domain with pagination and search
+4. **create_node** - Create a new node (URL) in a domain
+5. **get_node** - Get node details by composite ID
+6. **update_node** - Update node title and description
+7. **delete_node** - Delete a node by composite ID
+8. **find_node_by_url** - Find node by URL in a specific domain
+
+### Node Attributes
+9. **get_node_attributes** - Get all attributes for a node
+10. **set_node_attributes** - Set/update attributes for a node (respects domain schema)
+
+### Domain Schema Management
+11. **list_domain_attributes** - List all attribute definitions for a domain
+12. **create_domain_attribute** - Create a new attribute definition in domain schema
+13. **get_domain_attribute** - Get specific attribute definition by composite ID
+14. **update_domain_attribute** - Update attribute description
+15. **delete_domain_attribute** - Delete unused attribute definition
+
+### Server Information
+16. **get_server_info** - Get MCP server information and capabilities
 
 ## 🔧 Key Fixes Applied
 

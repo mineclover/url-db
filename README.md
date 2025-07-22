@@ -83,11 +83,12 @@ make lint
 - **MCP Integration**: Native support for AI tool integration
 
 ### Composite Key Format
-URLs are identified using composite keys: `domain_name::url_path`
+Nodes are identified using composite keys: `tool-name:domain:id`
 
 Examples:
-- `example.com::https://example.com/page1`
-- `github.com::https://github.com/user/repo`
+- `url-db:example:1` - Node ID 1 in the "example" domain
+- `url-db:github:42` - Node ID 42 in the "github" domain
+- `work:projects:15` - Node ID 15 with custom tool name "work"
 
 ## 🔧 Configuration
 

@@ -15,6 +15,14 @@ This document defines comprehensive testing scenarios for the URL-DB MCP server 
 **MCP Tool Registration**: Assumed to be registered with Claude Desktop or compatible MCP client
 **Reference Context**: [MCP Go SDK](https://github.com/modelcontextprotocol/go-sdk)
 
+## Domain Schema System
+
+URL-DB implements a domain schema system where:
+- Each domain defines a schema of allowed attributes with specific types
+- Nodes can only have attributes that are defined in their domain's schema
+- This ensures data consistency and type safety across the system
+- Schema changes are managed through domain attribute definitions
+
 ## Test Scenarios
 
 ### Scenario 1: MCP Protocol Handshake Compliance
@@ -54,20 +62,25 @@ This document defines comprehensive testing scenarios for the URL-DB MCP server 
 4. Check tool descriptions and metadata
 
 **Expected Tools**:
-1. `list_mcp_domains` - List all domains
-2. `create_mcp_domain` - Create new domain
-3. `list_mcp_nodes` - List nodes in domain
-4. `create_mcp_node` - Create new node/URL
-5. `get_mcp_node` - Get node by composite ID
-6. `update_mcp_node` - Update node metadata
-7. `delete_mcp_node` - Delete node
-8. `find_mcp_node_by_url` - Find node by URL
-9. `get_mcp_node_attributes` - Get node attributes
-10. `set_mcp_node_attributes` - Set node attributes
-11. `get_mcp_server_info` - Get server information
+1. `list_domains` - List all domains
+2. `create_domain` - Create new domain
+3. `list_nodes` - List nodes in domain
+4. `create_node` - Create new node/URL
+5. `get_node` - Get node by composite ID
+6. `update_node` - Update node metadata
+7. `delete_node` - Delete node
+8. `find_node_by_url` - Find node by URL
+9. `get_node_attributes` - Get node attributes
+10. `set_node_attributes` - Set node attributes
+11. `get_server_info` - Get server information
+12. `list_domain_attributes` - List all attribute definitions for a domain
+13. `create_domain_attribute` - Create a new attribute definition for a domain
+14. `get_domain_attribute` - Get a specific attribute definition
+15. `update_domain_attribute` - Update attribute description
+16. `delete_domain_attribute` - Delete an attribute definition
 
 **Evaluation Criteria** (Score 1-10):
-- **Tool Completeness** (3 points): All 11 tools present and accessible
+- **Tool Completeness** (3 points): All 16 tools present and accessible
 - **Schema Validity** (3 points): Valid JSON schemas with proper types and constraints
 - **Documentation Quality** (2 points): Clear, helpful tool descriptions
 - **Parameter Validation** (2 points): Required/optional parameters correctly specified
@@ -247,6 +260,100 @@ This document defines comprehensive testing scenarios for the URL-DB MCP server 
 
 ---
 
+### Scenario 9: Domain Schema Management
+
+**Objective**: Test domain schema definition and enforcement
+
+**Test Steps**:
+1. Create a domain "schema-test-domain"
+2. Define attribute schema for the domain:
+   - `category` (tag)
+   - `priority` (ordered_tag)
+   - `score` (number)
+   - `notes` (string)
+   - `description` (markdown)
+   - `thumbnail` (image)
+3. Create a node in the domain
+4. Set attributes that conform to schema
+5. Attempt to set attributes not in schema (should fail)
+6. Update attribute definitions
+7. Delete unused attribute definitions
+
+**Expected Behavior**:
+- Domain attribute definitions create a schema
+- Nodes can only have attributes defined in domain schema
+- Invalid attribute operations return clear errors
+- Schema updates affect future operations
+- Attribute definitions with existing values cannot be deleted
+
+**Evaluation Criteria** (Score 1-10):
+- **Schema Definition** (3 points): Attribute types properly defined
+- **Schema Enforcement** (3 points): Only schema attributes allowed
+- **Type Validation** (2 points): Attribute values match defined types
+- **Schema Evolution** (2 points): Schema can be modified safely
+
+**Pass Threshold**: 8/10
+
+---
+
+### Scenario 10: Advanced Attribute Operations
+
+**Objective**: Test complex attribute operations and edge cases
+
+**Test Steps**:
+1. Create domain with ordered_tag attributes
+2. Set multiple ordered_tag attributes with order_index
+3. Verify ordering is preserved
+4. Update order_index values
+5. Test batch attribute operations
+6. Test attribute value updates
+7. Test removing specific attributes
+
+**Expected Behavior**:
+- Ordered tags maintain their order_index
+- Batch operations are atomic
+- Updates preserve existing attributes
+- Partial updates work correctly
+- Invalid operations fail gracefully
+
+**Evaluation Criteria** (Score 1-10):
+- **Ordered Tags** (3 points): Order preservation and updates
+- **Batch Operations** (3 points): Atomic batch processing
+- **Update Semantics** (2 points): Proper partial updates
+- **Data Integrity** (2 points): No data corruption
+
+**Pass Threshold**: 7/10
+
+---
+
+### Scenario 11: Cross-Domain Operations
+
+**Objective**: Test operations across multiple domains
+
+**Test Steps**:
+1. Create multiple domains with different schemas
+2. Create nodes in each domain
+3. Verify schema isolation between domains
+4. Test moving nodes between domains (if supported)
+5. Test cross-domain searches
+6. Verify composite key uniqueness
+
+**Expected Behavior**:
+- Each domain maintains independent schema
+- Nodes respect their domain's schema
+- Composite keys are globally unique
+- Cross-domain operations fail appropriately
+
+**Evaluation Criteria** (Score 1-10):
+- **Schema Isolation** (3 points): Domains have independent schemas
+- **Data Integrity** (3 points): No cross-contamination
+- **Key Uniqueness** (2 points): Composite keys work correctly
+- **Error Handling** (2 points): Clear cross-domain errors
+
+**Pass Threshold**: 7/10
+
+---
+
 ## Overall Evaluation Rubric
 
 ### Scoring System
@@ -257,10 +364,10 @@ This document defines comprehensive testing scenarios for the URL-DB MCP server 
 - **Failing** (1-2): Major failures, unusable
 
 ### Aggregate Scoring
-- **Total Possible**: 80 points (8 scenarios × 10 points each)
-- **Passing Grade**: 56 points (70%)
-- **Production Ready**: 64 points (80%)
-- **Excellence**: 72 points (90%)
+- **Total Possible**: 110 points (11 scenarios × 10 points each)
+- **Passing Grade**: 77 points (70%)
+- **Production Ready**: 88 points (80%)
+- **Excellence**: 99 points (90%)
 
 ### Test Report Template
 

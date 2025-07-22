@@ -10,7 +10,7 @@ URL-DB is a Go-based URL database management system with MCP (Model Context Prot
 
 ```bash
 # Build the project
-./build.sh                    # Unix/Mac - builds and runs tests
+# Unix/Mac - builds and runs tests
 make build                    # Alternative using Makefile
 
 # Run tests
@@ -37,7 +37,7 @@ The codebase follows a clean layered architecture:
 1. **Database Layer** (`/internal/database/`)
    - SQLite with sqlx for enhanced operations
    - Schema: domains, nodes, attributes, node_attributes, node_connections, node_subscriptions, node_dependencies
-   - Migration system in `/internal/database/migrations.go`
+   - Database initialization and schema setup in `/internal/database/database.go`
 
 2. **Repository Layer** (`/internal/repositories/`)
    - Data access patterns with transaction support
@@ -46,6 +46,7 @@ The codebase follows a clean layered architecture:
 3. **Service Layer** (`/internal/services/`)
    - Business logic and validation
    - Cross-domain operations
+   - Domain schema enforcement
 
 4. **Handler Layer** (`/internal/handlers/`)
    - REST API endpoints (40+ endpoints)
@@ -53,9 +54,51 @@ The codebase follows a clean layered architecture:
 
 5. **MCP Layer** (`/internal/mcp/`)
    - JSON-RPC 2.0 implementation
-   - 11 tools defined in `/internal/mcp/tools.go`
+   - 16 tools with distinctive names (without 'mcp' prefix)
    - Resource system in `/internal/mcp/resources.go`
    - Composite key format: `tool-name:domain:id`
+
+## Domain Schema System
+
+URL-DB implements a powerful domain schema system that ensures data consistency:
+
+1. **Schema Definition**: Each domain defines its allowed attributes with specific types
+   - Attribute types: `tag`, `ordered_tag`, `number`, `string`, `markdown`, `image`
+   - Attributes are defined at the domain level using `create_domain_attribute`
+   
+2. **Schema Enforcement**: Nodes can only have attributes defined in their domain's schema
+   - Enforced at database level through foreign key constraints
+   - Validated in service layer before operations
+   - Invalid attributes are rejected with clear error messages
+
+3. **Benefits**:
+   - Type safety: Attribute values are validated against their defined types
+   - Data consistency: All nodes in a domain follow the same schema
+   - Extensibility: New attributes can be added to domains as needed
+   - Clear organization: Each domain has its own attribute namespace
+
+Example workflow:
+```bash
+# 1. Create a domain
+create_domain(name="products", description="Product catalog")
+
+# 2. Define the domain schema
+create_domain_attribute(domain_name="products", name="price", type="number")
+create_domain_attribute(domain_name="products", name="category", type="tag")
+create_domain_attribute(domain_name="products", name="description", type="markdown")
+
+# 3. Create nodes that follow the schema
+create_node(domain_name="products", url="https://example.com/product1")
+set_node_attributes(composite_id="url-db:products:1", attributes=[
+  {name: "price", value: "29.99"},
+  {name: "category", value: "electronics"}
+])
+
+# 4. Invalid attributes are rejected
+set_node_attributes(composite_id="url-db:products:1", attributes=[
+  {name: "invalid_attr", value: "fail"}  # Error: attribute not in schema
+])
+```
 
 ## Key Patterns and Conventions
 
@@ -71,7 +114,14 @@ The MCP server supports two modes:
 - **stdio**: For AI assistants (Claude Desktop, Cursor)
 - **sse**: For HTTP-based integration
 
-MCP tools follow strict JSON-RPC 2.0 protocol with composite key requirements. All tools are defined in `/internal/mcp/tools.go` with validation in `/internal/mcp/validators.go`.
+MCP provides 16 tools following strict JSON-RPC 2.0 protocol:
+- Domain management: `list_domains`, `create_domain`
+- Node operations: `list_nodes`, `create_node`, `get_node`, `update_node`, `delete_node`, `find_node_by_url`
+- Attribute management: `get_node_attributes`, `set_node_attributes`
+- Domain schema: `list_domain_attributes`, `create_domain_attribute`, `get_domain_attribute`, `update_domain_attribute`, `delete_domain_attribute`
+- Server info: `get_server_info`
+
+All tools are defined in `/internal/mcp/tools.go` with built-in validation.
 
 ## Testing Approach
 
@@ -130,10 +180,11 @@ When implementing new features:
 4. **Error Messages**: Provide clear, actionable error messages
 5. **Composite Keys**: Return composite IDs for created/updated resources
 
-### Missing MCP Features to Implement
+### Potential Future MCP Features
 
-Currently missing MCP tools that should be added:
-- Domain attribute management (see `/docs/tasks/mcp-domain-attributes-task.md`)
+Features that could be added for enhanced functionality:
 - Bulk operations for efficiency
-- Search/filter capabilities
+- Advanced search/filter capabilities
 - Export/import functionality
+- Node connections and relationships management
+- Subscription and dependency management

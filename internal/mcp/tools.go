@@ -32,37 +32,37 @@ func (tr *ToolRegistry) GetTools() []Tool {
 // CallTool executes a tool by name
 func (tr *ToolRegistry) CallTool(ctx context.Context, name string, arguments interface{}) (*CallToolResult, error) {
 	switch name {
-	case "list_mcp_domains":
+	case "list_domains":
 		return tr.callListDomains(ctx, arguments)
-	case "create_mcp_domain":
+	case "create_domain":
 		return tr.callCreateDomain(ctx, arguments)
-	case "list_mcp_nodes":
+	case "list_nodes":
 		return tr.callListNodes(ctx, arguments)
-	case "create_mcp_node":
+	case "create_node":
 		return tr.callCreateNode(ctx, arguments)
-	case "get_mcp_node":
+	case "get_node":
 		return tr.callGetNode(ctx, arguments)
-	case "update_mcp_node":
+	case "update_node":
 		return tr.callUpdateNode(ctx, arguments)
-	case "delete_mcp_node":
+	case "delete_node":
 		return tr.callDeleteNode(ctx, arguments)
-	case "find_mcp_node_by_url":
+	case "find_node_by_url":
 		return tr.callFindNodeByURL(ctx, arguments)
-	case "get_mcp_node_attributes":
+	case "get_node_attributes":
 		return tr.callGetNodeAttributes(ctx, arguments)
-	case "set_mcp_node_attributes":
+	case "set_node_attributes":
 		return tr.callSetNodeAttributes(ctx, arguments)
-	case "list_mcp_domain_attributes":
+	case "list_domain_attributes":
 		return tr.callListDomainAttributes(ctx, arguments)
-	case "create_mcp_domain_attribute":
+	case "create_domain_attribute":
 		return tr.callCreateDomainAttribute(ctx, arguments)
-	case "get_mcp_domain_attribute":
+	case "get_domain_attribute":
 		return tr.callGetDomainAttribute(ctx, arguments)
-	case "update_mcp_domain_attribute":
+	case "update_domain_attribute":
 		return tr.callUpdateDomainAttribute(ctx, arguments)
-	case "delete_mcp_domain_attribute":
+	case "delete_domain_attribute":
 		return tr.callDeleteDomainAttribute(ctx, arguments)
-	case "get_mcp_server_info":
+	case "get_server_info":
 		return tr.callGetServerInfo(ctx, arguments)
 	default:
 		return &CallToolResult{
@@ -76,7 +76,7 @@ func (tr *ToolRegistry) CallTool(ctx context.Context, name string, arguments int
 func (tr *ToolRegistry) registerTools() {
 	tr.tools = []Tool{
 		{
-			Name:        "list_mcp_domains",
+			Name:        "list_domains",
 			Description: "List all domains in the URL database",
 			InputSchema: map[string]interface{}{
 				"type": "object",
@@ -84,7 +84,7 @@ func (tr *ToolRegistry) registerTools() {
 			},
 		},
 		{
-			Name:        "create_mcp_domain",
+			Name:        "create_domain",
 			Description: "Create a new domain",
 			InputSchema: map[string]interface{}{
 				"type": "object",
@@ -102,7 +102,7 @@ func (tr *ToolRegistry) registerTools() {
 			},
 		},
 		{
-			Name:        "list_mcp_nodes",
+			Name:        "list_nodes",
 			Description: "List nodes in a specific domain",
 			InputSchema: map[string]interface{}{
 				"type": "object",
@@ -130,7 +130,7 @@ func (tr *ToolRegistry) registerTools() {
 			},
 		},
 		{
-			Name:        "create_mcp_node",
+			Name:        "create_node",
 			Description: "Create a new node (URL) in a domain",
 			InputSchema: map[string]interface{}{
 				"type": "object",
@@ -156,7 +156,7 @@ func (tr *ToolRegistry) registerTools() {
 			},
 		},
 		{
-			Name:        "get_mcp_node",
+			Name:        "get_node",
 			Description: "Get a node by composite ID",
 			InputSchema: map[string]interface{}{
 				"type": "object",
@@ -170,7 +170,7 @@ func (tr *ToolRegistry) registerTools() {
 			},
 		},
 		{
-			Name:        "update_mcp_node",
+			Name:        "update_node",
 			Description: "Update a node's title and description",
 			InputSchema: map[string]interface{}{
 				"type": "object",
@@ -192,7 +192,7 @@ func (tr *ToolRegistry) registerTools() {
 			},
 		},
 		{
-			Name:        "delete_mcp_node",
+			Name:        "delete_node",
 			Description: "Delete a node by composite ID",
 			InputSchema: map[string]interface{}{
 				"type": "object",
@@ -206,7 +206,7 @@ func (tr *ToolRegistry) registerTools() {
 			},
 		},
 		{
-			Name:        "find_mcp_node_by_url",
+			Name:        "find_node_by_url",
 			Description: "Find a node by URL in a domain",
 			InputSchema: map[string]interface{}{
 				"type": "object",
@@ -224,7 +224,7 @@ func (tr *ToolRegistry) registerTools() {
 			},
 		},
 		{
-			Name:        "get_mcp_node_attributes",
+			Name:        "get_node_attributes",
 			Description: "Get all attributes for a node",
 			InputSchema: map[string]interface{}{
 				"type": "object",
@@ -238,7 +238,7 @@ func (tr *ToolRegistry) registerTools() {
 			},
 		},
 		{
-			Name:        "set_mcp_node_attributes",
+			Name:        "set_node_attributes",
 			Description: "Set attributes for a node",
 			InputSchema: map[string]interface{}{
 				"type": "object",
@@ -274,7 +274,7 @@ func (tr *ToolRegistry) registerTools() {
 			},
 		},
 		{
-			Name:        "get_mcp_server_info",
+			Name:        "get_server_info",
 			Description: "Get server information and capabilities",
 			InputSchema: map[string]interface{}{
 				"type": "object",
@@ -282,7 +282,7 @@ func (tr *ToolRegistry) registerTools() {
 			},
 		},
 		{
-			Name:        "list_mcp_domain_attributes",
+			Name:        "list_domain_attributes",
 			Description: "List all attribute definitions for a domain",
 			InputSchema: map[string]interface{}{
 				"type": "object",
@@ -296,7 +296,7 @@ func (tr *ToolRegistry) registerTools() {
 			},
 		},
 		{
-			Name:        "create_mcp_domain_attribute",
+			Name:        "create_domain_attribute",
 			Description: "Create a new attribute definition for a domain",
 			InputSchema: map[string]interface{}{
 				"type": "object",
@@ -323,7 +323,7 @@ func (tr *ToolRegistry) registerTools() {
 			},
 		},
 		{
-			Name:        "get_mcp_domain_attribute",
+			Name:        "get_domain_attribute",
 			Description: "Get a specific attribute definition",
 			InputSchema: map[string]interface{}{
 				"type": "object",
@@ -337,7 +337,7 @@ func (tr *ToolRegistry) registerTools() {
 			},
 		},
 		{
-			Name:        "update_mcp_domain_attribute",
+			Name:        "update_domain_attribute",
 			Description: "Update attribute description",
 			InputSchema: map[string]interface{}{
 				"type": "object",
@@ -355,7 +355,7 @@ func (tr *ToolRegistry) registerTools() {
 			},
 		},
 		{
-			Name:        "delete_mcp_domain_attribute",
+			Name:        "delete_domain_attribute",
 			Description: "Delete an attribute definition (if no values exist)",
 			InputSchema: map[string]interface{}{
 				"type": "object",
