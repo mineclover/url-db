@@ -154,6 +154,94 @@ func (m *MockMCPService) FilterNodesByAttributes(ctx context.Context, domainName
 	return args.Get(0).(*models.MCPNodeListResponse), args.Error(1)
 }
 
+// External Dependency Methods
+func (m *MockMCPService) CreateSubscription(ctx context.Context, req *MCPCreateSubscriptionRequest) (*models.NodeSubscription, error) {
+	args := m.Called(ctx, req)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).(*models.NodeSubscription), args.Error(1)
+}
+
+func (m *MockMCPService) ListSubscriptions(ctx context.Context, serviceName string, page, size int) (*MCPSubscriptionListResponse, error) {
+	args := m.Called(ctx, serviceName, page, size)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).(*MCPSubscriptionListResponse), args.Error(1)
+}
+
+func (m *MockMCPService) GetNodeSubscriptions(ctx context.Context, compositeID string) ([]*models.NodeSubscription, error) {
+	args := m.Called(ctx, compositeID)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).([]*models.NodeSubscription), args.Error(1)
+}
+
+func (m *MockMCPService) DeleteSubscription(ctx context.Context, subscriptionID int64) error {
+	args := m.Called(ctx, subscriptionID)
+	return args.Error(0)
+}
+
+func (m *MockMCPService) CreateDependency(ctx context.Context, req *MCPCreateDependencyRequest) (*models.NodeDependency, error) {
+	args := m.Called(ctx, req)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).(*models.NodeDependency), args.Error(1)
+}
+
+func (m *MockMCPService) ListNodeDependencies(ctx context.Context, compositeID string) ([]*models.NodeDependency, error) {
+	args := m.Called(ctx, compositeID)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).([]*models.NodeDependency), args.Error(1)
+}
+
+func (m *MockMCPService) ListNodeDependents(ctx context.Context, compositeID string) ([]*models.NodeDependency, error) {
+	args := m.Called(ctx, compositeID)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).([]*models.NodeDependency), args.Error(1)
+}
+
+func (m *MockMCPService) DeleteDependency(ctx context.Context, dependencyID int64) error {
+	args := m.Called(ctx, dependencyID)
+	return args.Error(0)
+}
+
+func (m *MockMCPService) GetNodeEvents(ctx context.Context, compositeID string, limit int) ([]*models.NodeEvent, error) {
+	args := m.Called(ctx, compositeID, limit)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).([]*models.NodeEvent), args.Error(1)
+}
+
+func (m *MockMCPService) GetPendingEvents(ctx context.Context, limit int) ([]*models.NodeEvent, error) {
+	args := m.Called(ctx, limit)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).([]*models.NodeEvent), args.Error(1)
+}
+
+func (m *MockMCPService) ProcessEvent(ctx context.Context, eventID int64) error {
+	args := m.Called(ctx, eventID)
+	return args.Error(0)
+}
+
+func (m *MockMCPService) GetEventStats(ctx context.Context) (map[string]interface{}, error) {
+	args := m.Called(ctx)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).(map[string]interface{}), args.Error(1)
+}
+
 func TestToolRegistry_GetTools(t *testing.T) {
 	mockService := new(MockMCPService)
 	registry := NewToolRegistry(mockService)

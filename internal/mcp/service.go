@@ -30,6 +30,22 @@ type MCPService interface {
 	DeleteDomainAttribute(ctx context.Context, compositeID string) error
 
 	GetServerInfo(ctx context.Context) (*MCPServerInfo, error)
+	
+	// External dependency management methods
+	CreateSubscription(ctx context.Context, req *MCPCreateSubscriptionRequest) (*models.NodeSubscription, error)
+	ListSubscriptions(ctx context.Context, serviceName string, page, size int) (*MCPSubscriptionListResponse, error)
+	GetNodeSubscriptions(ctx context.Context, compositeID string) ([]*models.NodeSubscription, error)
+	DeleteSubscription(ctx context.Context, subscriptionID int64) error
+	
+	CreateDependency(ctx context.Context, req *MCPCreateDependencyRequest) (*models.NodeDependency, error)
+	ListNodeDependencies(ctx context.Context, compositeID string) ([]*models.NodeDependency, error)
+	ListNodeDependents(ctx context.Context, compositeID string) ([]*models.NodeDependency, error)
+	DeleteDependency(ctx context.Context, dependencyID int64) error
+	
+	GetNodeEvents(ctx context.Context, compositeID string, limit int) ([]*models.NodeEvent, error)
+	GetPendingEvents(ctx context.Context, limit int) ([]*models.NodeEvent, error)
+	ProcessEvent(ctx context.Context, eventID int64) error
+	GetEventStats(ctx context.Context) (map[string]interface{}, error)
 }
 
 type NodeService interface {
@@ -68,12 +84,37 @@ type NodeCountService interface {
 	GetNodeCountByDomain(ctx context.Context, domainID int) (int, error)
 }
 
+type SubscriptionService interface {
+	CreateSubscription(nodeID int64, req *models.CreateNodeSubscriptionRequest) (*models.NodeSubscription, error)
+	GetServiceSubscriptions(service string) ([]*models.NodeSubscription, error)
+	GetAllSubscriptions(page, pageSize int) ([]*models.NodeSubscription, int, error)
+	GetNodeSubscriptions(nodeID int64) ([]*models.NodeSubscription, error)
+	DeleteSubscription(id int64) error
+}
+
+type DependencyService interface {
+	CreateDependency(dependentNodeID int64, req *models.CreateNodeDependencyRequest) (*models.NodeDependency, error)
+	GetNodeDependencies(nodeID int64) ([]*models.NodeDependency, error)
+	GetNodeDependents(nodeID int64) ([]*models.NodeDependency, error)
+	DeleteDependency(id int64) error
+}
+
+type EventService interface {
+	GetNodeEvents(nodeID int64, limit int) ([]*models.NodeEvent, error)
+	GetPendingEvents(limit int) ([]*models.NodeEvent, error)
+	ProcessEvent(eventID int64) error
+	GetEventStats() (map[string]interface{}, error)
+}
+
 type mcpService struct {
-	nodeService      NodeService
-	domainService    DomainService
-	attributeService AttributeService
-	nodeCountService NodeCountService
-	converter        *Converter
+	nodeService         NodeService
+	domainService       DomainService
+	attributeService    AttributeService
+	nodeCountService    NodeCountService
+	subscriptionService SubscriptionService
+	dependencyService   DependencyService
+	eventService        EventService
+	converter           *Converter
 }
 
 func NewMCPService(
@@ -81,14 +122,20 @@ func NewMCPService(
 	domainService DomainService,
 	attributeService AttributeService,
 	nodeCountService NodeCountService,
+	subscriptionService SubscriptionService,
+	dependencyService DependencyService,
+	eventService EventService,
 	converter *Converter,
 ) MCPService {
 	return &mcpService{
-		nodeService:      nodeService,
-		domainService:    domainService,
-		attributeService: attributeService,
-		nodeCountService: nodeCountService,
-		converter:        converter,
+		nodeService:         nodeService,
+		domainService:       domainService,
+		attributeService:    attributeService,
+		nodeCountService:    nodeCountService,
+		subscriptionService: subscriptionService,
+		dependencyService:   dependencyService,
+		eventService:        eventService,
+		converter:           converter,
 	}
 }
 

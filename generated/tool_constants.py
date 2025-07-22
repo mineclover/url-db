@@ -37,6 +37,24 @@ DELETE_DOMAIN_ATTRIBUTE = "delete_domain_attribute"
 GET_NODE_WITH_ATTRIBUTES = "get_node_with_attributes"
 FILTER_NODES_BY_ATTRIBUTES = "filter_nodes_by_attributes"
 
+# Event subscription management
+CREATE_SUBSCRIPTION = "create_subscription"
+LIST_SUBSCRIPTIONS = "list_subscriptions"
+GET_NODE_SUBSCRIPTIONS = "get_node_subscriptions"
+DELETE_SUBSCRIPTION = "delete_subscription"
+
+# Node dependency management
+CREATE_DEPENDENCY = "create_dependency"
+LIST_NODE_DEPENDENCIES = "list_node_dependencies"
+LIST_NODE_DEPENDENTS = "list_node_dependents"
+DELETE_DEPENDENCY = "delete_dependency"
+
+# Event tracking and processing
+GET_NODE_EVENTS = "get_node_events"
+GET_PENDING_EVENTS = "get_pending_events"
+PROCESS_EVENT = "process_event"
+GET_EVENT_STATS = "get_event_stats"
+
 # Server metadata and information
 GET_SERVER_INFO = "get_server_info"
 
@@ -59,6 +77,18 @@ TOOL_DESCRIPTIONS = {
     DELETE_DOMAIN_ATTRIBUTE: "Remove unused tag type",
     GET_NODE_WITH_ATTRIBUTES: "Get URL with all tags at once",
     FILTER_NODES_BY_ATTRIBUTES: "Search URLs by tag values",
+    CREATE_SUBSCRIPTION: "Subscribe to node events",
+    LIST_SUBSCRIPTIONS: "List all subscriptions for a service",
+    GET_NODE_SUBSCRIPTIONS: "Get all subscriptions for a specific node",
+    DELETE_SUBSCRIPTION: "Cancel a subscription",
+    CREATE_DEPENDENCY: "Create dependency relationship between nodes",
+    LIST_NODE_DEPENDENCIES: "Get all dependencies for a node",
+    LIST_NODE_DEPENDENTS: "Get all nodes that depend on this node",
+    DELETE_DEPENDENCY: "Remove dependency relationship",
+    GET_NODE_EVENTS: "Get event history for a node",
+    GET_PENDING_EVENTS: "Get unprocessed events for processing",
+    PROCESS_EVENT: "Mark an event as processed",
+    GET_EVENT_STATS: "Get system event statistics",
     GET_SERVER_INFO: "Get server info",
 }
 
@@ -81,6 +111,18 @@ ALL_TOOLS = [
     DELETE_DOMAIN_ATTRIBUTE,
     GET_NODE_WITH_ATTRIBUTES,
     FILTER_NODES_BY_ATTRIBUTES,
+    CREATE_SUBSCRIPTION,
+    LIST_SUBSCRIPTIONS,
+    GET_NODE_SUBSCRIPTIONS,
+    DELETE_SUBSCRIPTION,
+    CREATE_DEPENDENCY,
+    LIST_NODE_DEPENDENCIES,
+    LIST_NODE_DEPENDENTS,
+    DELETE_DEPENDENCY,
+    GET_NODE_EVENTS,
+    GET_PENDING_EVENTS,
+    PROCESS_EVENT,
+    GET_EVENT_STATS,
     GET_SERVER_INFO,
 ]
 
@@ -102,6 +144,18 @@ TOOL_CATEGORIES = {
     DELETE_DOMAIN_ATTRIBUTE: "schema",
     GET_NODE_WITH_ATTRIBUTES: "query",
     FILTER_NODES_BY_ATTRIBUTES: "query",
+    CREATE_SUBSCRIPTION: "subscription",
+    LIST_SUBSCRIPTIONS: "subscription",
+    GET_NODE_SUBSCRIPTIONS: "subscription",
+    DELETE_SUBSCRIPTION: "subscription",
+    CREATE_DEPENDENCY: "dependency",
+    LIST_NODE_DEPENDENCIES: "dependency",
+    LIST_NODE_DEPENDENTS: "dependency",
+    DELETE_DEPENDENCY: "dependency",
+    GET_NODE_EVENTS: "event",
+    GET_PENDING_EVENTS: "event",
+    PROCESS_EVENT: "event",
+    GET_EVENT_STATS: "event",
     GET_SERVER_INFO: "meta",
 }
 
@@ -135,6 +189,27 @@ SCHEMA_TOOLS = [
 QUERY_TOOLS = [
     GET_NODE_WITH_ATTRIBUTES,
     FILTER_NODES_BY_ATTRIBUTES,
+]
+
+SUBSCRIPTION_TOOLS = [
+    CREATE_SUBSCRIPTION,
+    LIST_SUBSCRIPTIONS,
+    GET_NODE_SUBSCRIPTIONS,
+    DELETE_SUBSCRIPTION,
+]
+
+DEPENDENCY_TOOLS = [
+    CREATE_DEPENDENCY,
+    LIST_NODE_DEPENDENCIES,
+    LIST_NODE_DEPENDENTS,
+    DELETE_DEPENDENCY,
+]
+
+EVENT_TOOLS = [
+    GET_NODE_EVENTS,
+    GET_PENDING_EVENTS,
+    PROCESS_EVENT,
+    GET_EVENT_STATS,
 ]
 
 META_TOOLS = [

@@ -39,6 +39,24 @@ const (
 	GetNodeWithAttributesTool = "get_node_with_attributes"
 	FilterNodesByAttributesTool = "filter_nodes_by_attributes"
 
+	// Event subscription management
+	CreateSubscriptionTool    = "create_subscription"
+	ListSubscriptionsTool     = "list_subscriptions"
+	GetNodeSubscriptionsTool  = "get_node_subscriptions"
+	DeleteSubscriptionTool    = "delete_subscription"
+
+	// Node dependency management
+	CreateDependencyTool      = "create_dependency"
+	ListNodeDependenciesTool  = "list_node_dependencies"
+	ListNodeDependentsTool    = "list_node_dependents"
+	DeleteDependencyTool      = "delete_dependency"
+
+	// Event tracking and processing
+	GetNodeEventsTool         = "get_node_events"
+	GetPendingEventsTool      = "get_pending_events"
+	ProcessEventTool          = "process_event"
+	GetEventStatsTool         = "get_event_stats"
+
 	// Server metadata and information
 	GetServerInfoTool         = "get_server_info"
 )
@@ -63,6 +81,18 @@ func GetAllToolNames() []string {
 		DeleteDomainAttributeTool,
 		GetNodeWithAttributesTool,
 		FilterNodesByAttributesTool,
+		CreateSubscriptionTool,
+		ListSubscriptionsTool,
+		GetNodeSubscriptionsTool,
+		DeleteSubscriptionTool,
+		CreateDependencyTool,
+		ListNodeDependenciesTool,
+		ListNodeDependentsTool,
+		DeleteDependencyTool,
+		GetNodeEventsTool,
+		GetPendingEventsTool,
+		ProcessEventTool,
+		GetEventStatsTool,
 		GetServerInfoTool,
 	}
 }
@@ -86,6 +116,18 @@ var ToolCategories = map[string]string{
 	DeleteDomainAttributeTool: "schema",
 	GetNodeWithAttributesTool: "query",
 	FilterNodesByAttributesTool: "query",
+	CreateSubscriptionTool: "subscription",
+	ListSubscriptionsTool: "subscription",
+	GetNodeSubscriptionsTool: "subscription",
+	DeleteSubscriptionTool: "subscription",
+	CreateDependencyTool: "dependency",
+	ListNodeDependenciesTool: "dependency",
+	ListNodeDependentsTool: "dependency",
+	DeleteDependencyTool: "dependency",
+	GetNodeEventsTool: "event",
+	GetPendingEventsTool: "event",
+	ProcessEventTool: "event",
+	GetEventStatsTool: "event",
 	GetServerInfoTool: "meta",
 }
 
@@ -108,5 +150,17 @@ var ToolDescriptions = map[string]string{
 	DeleteDomainAttributeTool: "Remove unused tag type",
 	GetNodeWithAttributesTool: "Get URL with all tags at once",
 	FilterNodesByAttributesTool: "Search URLs by tag values",
+	CreateSubscriptionTool: "Subscribe to node events",
+	ListSubscriptionsTool: "List all subscriptions for a service",
+	GetNodeSubscriptionsTool: "Get all subscriptions for a specific node",
+	DeleteSubscriptionTool: "Cancel a subscription",
+	CreateDependencyTool: "Create dependency relationship between nodes",
+	ListNodeDependenciesTool: "Get all dependencies for a node",
+	ListNodeDependentsTool: "Get all nodes that depend on this node",
+	DeleteDependencyTool: "Remove dependency relationship",
+	GetNodeEventsTool: "Get event history for a node",
+	GetPendingEventsTool: "Get unprocessed events for processing",
+	ProcessEventTool: "Mark an event as processed",
+	GetEventStatsTool: "Get system event statistics",
 	GetServerInfoTool: "Get server info",
 }

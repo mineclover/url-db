@@ -10,7 +10,10 @@ func SetupRoutes(r *gin.Engine,
 	attributeHandler *AttributeHandler,
 	nodeAttributeHandler *NodeAttributeHandler,
 	mcpHandler *MCPHandler,
-	healthHandler *HealthHandler) {
+	healthHandler *HealthHandler,
+	subscriptionHandler *SubscriptionHandler,
+	dependencyHandler *DependencyHandler,
+	eventHandler *EventHandler) {
 
 	// Setup middleware
 	SetupMiddleware(r)
@@ -78,6 +81,48 @@ func SetupRoutes(r *gin.Engine,
 			urlAttributesGlobal.DELETE("/:id", nodeAttributeHandler.DeleteNodeAttribute)
 		}
 
+		// External dependency management routes
+		// Subscription routes
+		subscriptions := api.Group("/subscriptions")
+		{
+			subscriptions.GET("/:id", subscriptionHandler.GetSubscription)
+			subscriptions.PUT("/:id", subscriptionHandler.UpdateSubscription)
+			subscriptions.DELETE("/:id", subscriptionHandler.DeleteSubscription)
+			subscriptions.GET("", subscriptionHandler.GetServiceSubscriptions) // with ?service= query param
+		}
+
+		// Node subscription routes
+		nodes := api.Group("/nodes")
+		{
+			nodes.POST("/:nodeId/subscriptions", subscriptionHandler.CreateSubscription)
+			nodes.GET("/:nodeId/subscriptions", subscriptionHandler.GetNodeSubscriptions)
+			
+			// Node dependency routes
+			nodes.POST("/:nodeId/dependencies", dependencyHandler.CreateDependency)
+			nodes.GET("/:nodeId/dependencies", dependencyHandler.GetNodeDependencies)
+			nodes.GET("/:nodeId/dependents", dependencyHandler.GetNodeDependents)
+			
+			// Node event routes
+			nodes.GET("/:nodeId/events", eventHandler.GetNodeEvents)
+		}
+
+		// Dependency routes
+		dependencies := api.Group("/dependencies")
+		{
+			dependencies.GET("/:id", dependencyHandler.GetDependency)
+			dependencies.DELETE("/:id", dependencyHandler.DeleteDependency)
+		}
+
+		// Event routes
+		events := api.Group("/events")
+		{
+			events.GET("/pending", eventHandler.GetPendingEvents)
+			events.POST("/:eventId/process", eventHandler.ProcessEvent)
+			events.GET("", eventHandler.GetEventsByType) // with query params
+			events.GET("/stats", eventHandler.GetEventStats)
+			events.POST("/cleanup", eventHandler.CleanupEvents)
+		}
+
 		// MCP routes
 		mcp := api.Group("/mcp")
 		{
@@ -132,6 +177,9 @@ type RouterConfig struct {
 	NodeAttributeHandler *NodeAttributeHandler
 	MCPHandler           *MCPHandler
 	HealthHandler        *HealthHandler
+	SubscriptionHandler  *SubscriptionHandler
+	DependencyHandler    *DependencyHandler
+	EventHandler         *EventHandler
 }
 
 func SetupRouter(config *RouterConfig) *gin.Engine {
@@ -144,6 +192,9 @@ func SetupRouter(config *RouterConfig) *gin.Engine {
 		config.NodeAttributeHandler,
 		config.MCPHandler,
 		config.HealthHandler,
+		config.SubscriptionHandler,
+		config.DependencyHandler,
+		config.EventHandler,
 	)
 
 	return r

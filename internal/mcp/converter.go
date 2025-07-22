@@ -33,6 +33,16 @@ func NewConverter(compositeKeyService CompositeKeyService, toolName string) *Con
 	}
 }
 
+// ParseCompositeID parses a composite ID and returns tool name, domain name, and node ID
+func (c *Converter) ParseCompositeID(compositeID string) (string, string, string, error) {
+	compositeKey, err := c.compositeKeyService.Parse(compositeID)
+	if err != nil {
+		return "", "", "", err
+	}
+	
+	return compositeKey.ToolName, compositeKey.DomainName, strconv.Itoa(compositeKey.ID), nil
+}
+
 func (c *Converter) NodeToMCPNode(node *models.Node, domain *models.Domain) (*models.MCPNode, error) {
 	if node == nil || domain == nil {
 		return nil, fmt.Errorf("node and domain cannot be nil")

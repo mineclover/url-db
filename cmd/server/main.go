@@ -152,20 +152,22 @@ func main() {
 	dependencyRepo := repositories.NewDependencyRepository(sqlxDB)
 	eventRepo := repositories.NewEventRepository(sqlxDB)
 
+	// Initialize external dependency services
+	subscriptionService := services.NewSubscriptionService(subscriptionRepo, repos.Node, eventRepo)
+	dependencyService := services.NewDependencyService(dependencyRepo, repos.Node, eventRepo)
+	eventService := services.NewEventService(eventRepo, repos.Node)
+
 	// Initialize services
 	domainService := domains.NewDomainService(domainRepo)
-	nodeService := nodes.NewNodeService(nodeRepo)
+	basicNodeService := nodes.NewNodeService(nodeRepo)
+	// Wrap node service with event tracking
+	nodeService := nodes.NewNodeServiceWithEvents(basicNodeService, eventService)
 	attributeService := attributes.NewAttributeService(attributeRepo, domainService)
 
 	// Initialize validators and managers for node attributes
 	nodeAttributeValidator := nodeattributes.NewValidator()
 	nodeAttributeOrderManager := nodeattributes.NewOrderManager(nodeAttributeRepo)
 	nodeAttributeService := nodeattributes.NewService(nodeAttributeRepo, nodeAttributeValidator, nodeAttributeOrderManager)
-
-	// Initialize external dependency services
-	subscriptionService := services.NewSubscriptionService(subscriptionRepo, repos.Node, eventRepo)
-	dependencyService := services.NewDependencyService(dependencyRepo, repos.Node, eventRepo)
-	eventService := services.NewEventService(eventRepo, repos.Node)
 
 	// Create adapter services for MCP
 	mcpDomainService := &mcpDomainServiceAdapter{domainService: domainService, domainRepo: domainRepo}
@@ -181,7 +183,7 @@ func main() {
 
 	// Initialize MCP converter and service
 	mcpConverter := mcp.NewConverter(compositeKeyAdapter, cfg.ToolName)
-	mcpService := mcp.NewMCPService(mcpNodeService, mcpDomainService, mcpAttributeService, nodeCountService, mcpConverter)
+	mcpService := mcp.NewMCPService(mcpNodeService, mcpDomainService, mcpAttributeService, nodeCountService, subscriptionService, dependencyService, eventService, mcpConverter)
 
 	// Initialize handlers
 	domainHandler := domains.NewDomainHandler(domainService)
