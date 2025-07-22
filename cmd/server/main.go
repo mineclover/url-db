@@ -8,11 +8,13 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 
 	"url-db/internal/attributes"
 	"url-db/internal/compositekey"
 	"url-db/internal/config"
+	"url-db/internal/constants"
 	"url-db/internal/database"
 	"url-db/internal/domains"
 	"url-db/internal/handlers"
@@ -53,8 +55,8 @@ func main() {
 	var (
 		mcpMode  = flag.String("mcp-mode", "sse", "MCP server mode: 'stdio' for stdin/stdout, 'sse' for HTTP server")
 		dbPath   = flag.String("db-path", "", "Path to the database file (overrides DATABASE_URL)")
-		toolName = flag.String("tool-name", "", "Tool name for composite keys (default: url-db)")
-		port     = flag.String("port", "", "Port for HTTP server (default: 8080)")
+		toolName = flag.String("tool-name", "", "Tool name for composite keys (default: "+constants.DefaultServerName+")")
+		port     = flag.String("port", "", "Port for HTTP server (default: "+strconv.Itoa(constants.DefaultPort)+")")
 		showHelp = flag.Bool("help", false, "Show help message")
 		version  = flag.Bool("version", false, "Show version information")
 	)
@@ -88,7 +90,7 @@ func main() {
 	}
 
 	if *version {
-		fmt.Println("URL Database Server v1.0")
+		fmt.Println("URL Database Server v"+constants.DefaultServerVersion)
 		fmt.Println("Built with Go", "runtime.Version()")
 		os.Exit(0)
 	}
@@ -215,9 +217,9 @@ func main() {
 
 	// Health check endpoint
 	r.GET("/health", func(c *gin.Context) {
-		c.JSON(200, gin.H{
+		c.JSON(constants.StatusOK, gin.H{
 			"status":  "healthy",
-			"service": "url-db",
+			"service": constants.DefaultServerName,
 		})
 	})
 

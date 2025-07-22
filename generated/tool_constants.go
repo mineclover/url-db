@@ -88,3 +88,25 @@ var ToolCategories = map[string]string{
 	FilterNodesByAttributesTool: "query",
 	GetServerInfoTool: "meta",
 }
+
+// ToolDescriptions maps tool names to descriptions
+var ToolDescriptions = map[string]string{
+	ListDomainsTool: "Get all domains",
+	CreateDomainTool: "Create new domain for organizing URLs",
+	ListNodesTool: "List URLs in domain",
+	CreateNodeTool: "Add URL to domain",
+	GetNodeTool: "Get URL details",
+	UpdateNodeTool: "Update URL title or description",
+	DeleteNodeTool: "Remove URL",
+	FindNodeByUrlTool: "Search by exact URL",
+	GetNodeAttributesTool: "Get URL tags and attributes",
+	SetNodeAttributesTool: "Add or update URL tags",
+	ListDomainAttributesTool: "Get available tag types for domain",
+	CreateDomainAttributeTool: "Define new tag type for domain",
+	GetDomainAttributeTool: "Get tag type details",
+	UpdateDomainAttributeTool: "Update tag type description",
+	DeleteDomainAttributeTool: "Remove unused tag type",
+	GetNodeWithAttributesTool: "Get URL with all tags at once",
+	FilterNodesByAttributesTool: "Search URLs by tag values",
+	GetServerInfoTool: "Get server info",
+}

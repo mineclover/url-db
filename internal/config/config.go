@@ -2,6 +2,8 @@ package config
 
 import (
 	"os"
+	"strconv"
+	"url-db/internal/constants"
 )
 
 type Config struct {
@@ -12,9 +14,9 @@ type Config struct {
 
 func Load() *Config {
 	return &Config{
-		Port:        getEnv("PORT", "8080"),
-		DatabaseURL: getEnv("DATABASE_URL", "file:./url-db.sqlite"),
-		ToolName:    getEnv("TOOL_NAME", "url-db"),
+		Port:        getEnv("PORT", strconv.Itoa(constants.DefaultPort)),
+		DatabaseURL: getEnv("DATABASE_URL", "file:./"+constants.DefaultDBPath),
+		ToolName:    getEnv("TOOL_NAME", constants.DefaultServerName),
 	}
 }
 

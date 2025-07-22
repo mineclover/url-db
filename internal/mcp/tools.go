@@ -81,7 +81,7 @@ func (tr *ToolRegistry) registerTools() {
 	tr.tools = []Tool{
 		{
 			Name: ListDomainsTool,
-			Description: "Get all domains",
+			Description: ToolDescriptions[ListDomainsTool],
 			InputSchema: map[string]interface{}{
 				"type":       "object",
 				"properties": map[string]interface{}{},
@@ -89,7 +89,7 @@ func (tr *ToolRegistry) registerTools() {
 		},
 		{
 			Name: CreateDomainTool,
-			Description: "Create new domain for organizing URLs",
+			Description: ToolDescriptions[CreateDomainTool],
 			InputSchema: map[string]interface{}{
 				"type": "object",
 				"properties": map[string]interface{}{
@@ -107,7 +107,7 @@ func (tr *ToolRegistry) registerTools() {
 		},
 		{
 			Name: ListNodesTool,
-			Description: "List URLs in domain",
+			Description: ToolDescriptions[ListNodesTool],
 			InputSchema: map[string]interface{}{
 				"type": "object",
 				"properties": map[string]interface{}{
@@ -135,7 +135,7 @@ func (tr *ToolRegistry) registerTools() {
 		},
 		{
 			Name: CreateNodeTool,
-			Description: "Add URL to domain",
+			Description: ToolDescriptions[CreateNodeTool],
 			InputSchema: map[string]interface{}{
 				"type": "object",
 				"properties": map[string]interface{}{
@@ -161,7 +161,7 @@ func (tr *ToolRegistry) registerTools() {
 		},
 		{
 			Name: GetNodeTool,
-			Description: "Get URL details",
+			Description: ToolDescriptions[GetNodeTool],
 			InputSchema: map[string]interface{}{
 				"type": "object",
 				"properties": map[string]interface{}{
@@ -175,7 +175,7 @@ func (tr *ToolRegistry) registerTools() {
 		},
 		{
 			Name: UpdateNodeTool,
-			Description: "Update URL title or description",
+			Description: ToolDescriptions[UpdateNodeTool],
 			InputSchema: map[string]interface{}{
 				"type": "object",
 				"properties": map[string]interface{}{
@@ -197,7 +197,7 @@ func (tr *ToolRegistry) registerTools() {
 		},
 		{
 			Name: DeleteNodeTool,
-			Description: "Remove URL",
+			Description: ToolDescriptions[DeleteNodeTool],
 			InputSchema: map[string]interface{}{
 				"type": "object",
 				"properties": map[string]interface{}{
@@ -211,7 +211,7 @@ func (tr *ToolRegistry) registerTools() {
 		},
 		{
 			Name: FindNodeByUrlTool,
-			Description: "Search by exact URL",
+			Description: ToolDescriptions[FindNodeByUrlTool],
 			InputSchema: map[string]interface{}{
 				"type": "object",
 				"properties": map[string]interface{}{
@@ -229,7 +229,7 @@ func (tr *ToolRegistry) registerTools() {
 		},
 		{
 			Name: GetNodeAttributesTool,
-			Description: "Get URL tags and attributes",
+			Description: ToolDescriptions[GetNodeAttributesTool],
 			InputSchema: map[string]interface{}{
 				"type": "object",
 				"properties": map[string]interface{}{
@@ -243,7 +243,7 @@ func (tr *ToolRegistry) registerTools() {
 		},
 		{
 			Name: SetNodeAttributesTool,
-			Description: "Add or update URL tags",
+			Description: ToolDescriptions[SetNodeAttributesTool],
 			InputSchema: map[string]interface{}{
 				"type": "object",
 				"properties": map[string]interface{}{
@@ -279,7 +279,7 @@ func (tr *ToolRegistry) registerTools() {
 		},
 		{
 			Name: GetServerInfoTool,
-			Description: "Get server info",
+			Description: ToolDescriptions[GetServerInfoTool],
 			InputSchema: map[string]interface{}{
 				"type":       "object",
 				"properties": map[string]interface{}{},
@@ -287,7 +287,7 @@ func (tr *ToolRegistry) registerTools() {
 		},
 		{
 			Name: ListDomainAttributesTool,
-			Description: "Get available tag types for domain",
+			Description: ToolDescriptions[ListDomainAttributesTool],
 			InputSchema: map[string]interface{}{
 				"type": "object",
 				"properties": map[string]interface{}{
@@ -301,7 +301,7 @@ func (tr *ToolRegistry) registerTools() {
 		},
 		{
 			Name: CreateDomainAttributeTool,
-			Description: "Define new tag type for domain",
+			Description: ToolDescriptions[CreateDomainAttributeTool],
 			InputSchema: map[string]interface{}{
 				"type": "object",
 				"properties": map[string]interface{}{
@@ -328,7 +328,7 @@ func (tr *ToolRegistry) registerTools() {
 		},
 		{
 			Name: GetDomainAttributeTool,
-			Description: "Get tag type details",
+			Description: ToolDescriptions[GetDomainAttributeTool],
 			InputSchema: map[string]interface{}{
 				"type": "object",
 				"properties": map[string]interface{}{
@@ -342,7 +342,7 @@ func (tr *ToolRegistry) registerTools() {
 		},
 		{
 			Name: UpdateDomainAttributeTool,
-			Description: "Update tag type description",
+			Description: ToolDescriptions[UpdateDomainAttributeTool],
 			InputSchema: map[string]interface{}{
 				"type": "object",
 				"properties": map[string]interface{}{
@@ -360,7 +360,7 @@ func (tr *ToolRegistry) registerTools() {
 		},
 		{
 			Name: DeleteDomainAttributeTool,
-			Description: "Remove unused tag type",
+			Description: ToolDescriptions[DeleteDomainAttributeTool],
 			InputSchema: map[string]interface{}{
 				"type": "object",
 				"properties": map[string]interface{}{
@@ -374,7 +374,7 @@ func (tr *ToolRegistry) registerTools() {
 		},
 		{
 			Name: GetNodeWithAttributesTool,
-			Description: "Get URL with all tags at once",
+			Description: ToolDescriptions[GetNodeWithAttributesTool],
 			InputSchema: map[string]interface{}{
 				"type": "object",
 				"properties": map[string]interface{}{
@@ -388,7 +388,7 @@ func (tr *ToolRegistry) registerTools() {
 		},
 		{
 			Name: FilterNodesByAttributesTool,
-			Description: "Search URLs by tag values",
+			Description: ToolDescriptions[FilterNodesByAttributesTool],
 			InputSchema: map[string]interface{}{
 				"type": "object",
 				"properties": map[string]interface{}{

@@ -75,6 +75,18 @@ var ToolCategories = map[string]string{
             const_name = ''.join(word.capitalize() for word in tool_name.split('_')) + 'Tool'
             go_code += f'\t{const_name}: "{tool_spec["category"]}",\n'
         
+        go_code += '}\n\n'
+        
+        # Generate tool descriptions mapping
+        go_code += '''// ToolDescriptions maps tool names to descriptions
+var ToolDescriptions = map[string]string{
+'''
+        
+        for tool_name, tool_spec in tools.items():
+            const_name = ''.join(word.capitalize() for word in tool_name.split('_')) + 'Tool'
+            description = tool_spec["description"].replace('"', '\\"')  # Escape quotes
+            go_code += f'\t{const_name}: "{description}",\n'
+        
         go_code += '}\n'
         
         return go_code
@@ -113,6 +125,17 @@ COMPOSITE_KEY_FORMAT = "{self.spec['server_info']['composite_key_format']}"
             for tool_name, tool_spec in category_tools:
                 const_name = tool_name.upper()
                 py_code += f'{const_name} = "{tool_spec["name"]}"\n'
+        
+        # Add tool descriptions section
+        py_code += '\n# Tool Descriptions\n'
+        py_code += 'TOOL_DESCRIPTIONS = {\n'
+        
+        for tool_name, tool_spec in tools.items():
+            const_name = tool_name.upper()
+            description = tool_spec["description"]
+            py_code += f'    {const_name}: "{description}",\n'
+        
+        py_code += '}\n'
         
         py_code += '\n# Tool Collections\n'
         

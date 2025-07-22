@@ -64,7 +64,8 @@
       "Bash(./scripts/test.sh:*)",
       "Bash(sed:*)",
       "Bash(./run_python_tests.sh)",
-      "Bash(cp:*)"
+      "Bash(cp:*)",
+      "Bash(python run_tests.py:*)"
     ],
     "deny": []
   }

@@ -1,6 +1,6 @@
 # MCP Server LLM-as-a-Judge Test Report
 
-**Date**: 2025-07-22 23:52:21
+**Date**: 2025-07-23 00:08:16
 **Server Version**: url-db-mcp-server v1.0.0
 **Test Environment**: Local development
 
@@ -46,7 +46,7 @@
 ## Performance Analysis
 
 - **Average Execution Time**: 0.04s
-- **Fastest Scenario**: Node/URL Management with Composite Keys
+- **Fastest Scenario**: Resource System Integration
 - **Slowest Scenario**: Protocol Handshake Compliance
 
 ## Detailed Assessment
