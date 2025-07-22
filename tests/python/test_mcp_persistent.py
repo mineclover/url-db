@@ -5,6 +5,8 @@ import json
 import subprocess
 import sys
 import time
+from tool_constants import CREATE_DOMAIN, CREATE_DOMAIN_ATTRIBUTE, DELETE_DOMAIN_ATTRIBUTE, GET_DOMAIN_ATTRIBUTE, LIST_DOMAIN_ATTRIBUTES, UPDATE_DOMAIN_ATTRIBUTE
+
 
 class MCPClient:
     def __init__(self):
@@ -98,7 +100,7 @@ def test_domain_attributes():
         # 3. Create domain
         print("\n3. Creating test domain...")
         response = client.send_request("tools/call", {
-            "name": "create_domain",
+            "name": CREATE_DOMAIN,
             "arguments": {
                 "name": "test-domain",
                 "description": "Test domain for attribute testing"
@@ -109,7 +111,7 @@ def test_domain_attributes():
         # 4. List domain attributes
         print("\n4. Listing domain attributes...")
         response = client.send_request("tools/call", {
-            "name": "list_domain_attributes",
+            "name": LIST_DOMAIN_ATTRIBUTES,
             "arguments": {
                 "domain_name": "test-domain"
             }
@@ -119,7 +121,7 @@ def test_domain_attributes():
         # 5. Create domain attribute
         print("\n5. Creating domain attribute...")
         response = client.send_request("tools/call", {
-            "name": "create_domain_attribute",
+            "name": CREATE_DOMAIN_ATTRIBUTE,
             "arguments": {
                 "domain_name": "test-domain",
                 "name": "category",
@@ -129,50 +131,75 @@ def test_domain_attributes():
         })
         print(f"Response: {json.dumps(response, indent=2)}")
         
-        if "result" in response:
-            composite_id = response["result"]["composite_id"]
+        if "result" in response and not response["result"].get("isError", False):
+            result_content = response["result"]["content"][0]["text"]
+            result_data = json.loads(result_content)
+            composite_id = result_data["composite_id"]
             print(f"\nCreated attribute with ID: {composite_id}")
-            
-            # 6. Get attribute
-            print("\n6. Getting attribute by composite ID...")
-            response = client.send_request("tools/call", {
-                "name": "get_domain_attribute",
-                "arguments": {
-                    "composite_id": composite_id
-                }
-            })
-            print(f"Response: {json.dumps(response, indent=2)}")
-            
-            # 7. Update attribute
-            print("\n7. Updating attribute description...")
-            response = client.send_request("tools/call", {
-                "name": "update_domain_attribute",
-                "arguments": {
-                    "composite_id": composite_id,
-                    "description": "Updated category tag description"
-                }
-            })
-            print(f"Response: {json.dumps(response, indent=2)}")
-            
-            # 8. List attributes again
-            print("\n8. Listing domain attributes after update...")
-            response = client.send_request("tools/call", {
-                "name": "list_domain_attributes",
+        elif response["result"].get("isError", False) and "already exists" in response["result"]["content"][0]["text"]:
+            print("\n✓ Attribute already exists, using existing one")
+            # Get existing attribute from list
+            list_response = client.send_request("tools/call", {
+                "name": LIST_DOMAIN_ATTRIBUTES,
                 "arguments": {
                     "domain_name": "test-domain"
                 }
             })
-            print(f"Response: {json.dumps(response, indent=2)}")
-            
-            # 9. Delete attribute
-            print("\n9. Deleting attribute...")
-            response = client.send_request("tools/call", {
-                "name": "delete_domain_attribute",
-                "arguments": {
-                    "composite_id": composite_id
-                }
-            })
-            print(f"Response: {json.dumps(response, indent=2)}")
+            if list_response and not list_response["result"].get("isError", False):
+                list_content = json.loads(list_response["result"]["content"][0]["text"])
+                if list_content["attributes"]:
+                    composite_id = list_content["attributes"][0]["composite_id"]
+                    print(f"Using existing attribute ID: {composite_id}")
+                else:
+                    print("❌ No attributes found")
+                    return
+            else:
+                print("❌ Failed to get attribute list")
+                return
+        else:
+            print(f"❌ Failed to create or find attribute: {response}")
+            return
+        
+        # 6. Get attribute
+        print("\n6. Getting attribute by composite ID...")
+        response = client.send_request("tools/call", {
+            "name": GET_DOMAIN_ATTRIBUTE,
+            "arguments": {
+                "composite_id": composite_id
+            }
+        })
+        print(f"Response: {json.dumps(response, indent=2)}")
+        
+        # 7. Update attribute
+        print("\n7. Updating attribute description...")
+        response = client.send_request("tools/call", {
+            "name": UPDATE_DOMAIN_ATTRIBUTE,
+            "arguments": {
+                "composite_id": composite_id,
+                "description": "Updated category tag description"
+            }
+        })
+        print(f"Response: {json.dumps(response, indent=2)}")
+        
+        # 8. List attributes again
+        print("\n8. Listing domain attributes after update...")
+        response = client.send_request("tools/call", {
+            "name": LIST_DOMAIN_ATTRIBUTES,
+            "arguments": {
+                "domain_name": "test-domain"
+            }
+        })
+        print(f"Response: {json.dumps(response, indent=2)}")
+        
+        # 9. Delete attribute
+        print("\n9. Deleting attribute...")
+        response = client.send_request("tools/call", {
+            "name": DELETE_DOMAIN_ATTRIBUTE,
+            "arguments": {
+                "composite_id": composite_id
+            }
+        })
+        print(f"Response: {json.dumps(response, indent=2)}")
         
         print("\n✓ All tests completed!")
         

@@ -7,6 +7,8 @@ import json
 import subprocess
 import sys
 import time
+from tool_constants import CREATE_DOMAIN, CREATE_DOMAIN_ATTRIBUTE, GET_DOMAIN_ATTRIBUTE, LIST_DOMAIN_ATTRIBUTES, UPDATE_DOMAIN_ATTRIBUTE
+
 
 def send_mcp_request(method, params=None):
     """MCP 요청을 보내고 응답을 받습니다."""
@@ -53,7 +55,7 @@ def test_domain_attributes():
     
     # 1. 도메인 생성
     print("1. 도메인 생성...")
-    response = send_mcp_request("create_domain", {
+    response = send_mcp_request(CREATE_DOMAIN, {
         "name": "test-projects",
         "description": "테스트 프로젝트 도메인"
     })
@@ -67,7 +69,7 @@ def test_domain_attributes():
     
     # 2. 도메인 속성 생성
     print("\n2. 도메인 속성 생성...")
-    response = send_mcp_request("create_domain_attribute", {
+    response = send_mcp_request(CREATE_DOMAIN_ATTRIBUTE, {
         "domain_name": "test-projects",
         "name": "status",
         "type": "tag",
@@ -85,7 +87,7 @@ def test_domain_attributes():
     
     # 3. 도메인 속성 목록 조회
     print("\n3. 도메인 속성 목록 조회...")
-    response = send_mcp_request("list_domain_attributes", {
+    response = send_mcp_request(LIST_DOMAIN_ATTRIBUTES, {
         "domain_name": "test-projects"
     })
     
@@ -102,7 +104,7 @@ def test_domain_attributes():
     
     # 4. 개별 속성 조회
     print("\n4. 개별 속성 조회...")
-    response = send_mcp_request("get_domain_attribute", {
+    response = send_mcp_request(GET_DOMAIN_ATTRIBUTE, {
         "composite_id": attribute_id
     })
     
@@ -119,7 +121,7 @@ def test_domain_attributes():
     
     # 5. 속성 업데이트
     print("\n5. 속성 업데이트...")
-    response = send_mcp_request("update_domain_attribute", {
+    response = send_mcp_request(UPDATE_DOMAIN_ATTRIBUTE, {
         "composite_id": attribute_id,
         "description": "업데이트된 프로젝트 상태 설명"
     })
@@ -135,7 +137,7 @@ def test_domain_attributes():
     
     # 6. 추가 속성 생성
     print("\n6. 추가 속성 생성...")
-    response = send_mcp_request("create_domain_attribute", {
+    response = send_mcp_request(CREATE_DOMAIN_ATTRIBUTE, {
         "domain_name": "test-projects",
         "name": "priority",
         "type": "ordered_tag",
@@ -152,7 +154,7 @@ def test_domain_attributes():
     
     # 7. 최종 속성 목록 확인
     print("\n7. 최종 속성 목록 확인...")
-    response = send_mcp_request("list_domain_attributes", {
+    response = send_mcp_request(LIST_DOMAIN_ATTRIBUTES, {
         "domain_name": "test-projects"
     })
     

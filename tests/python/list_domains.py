@@ -7,6 +7,8 @@ import json
 import subprocess
 import sys
 import time
+from tool_constants import LIST_DOMAINS
+
 
 class MCPClient:
     def __init__(self, server_path):
@@ -110,7 +112,7 @@ def main():
         
         # 3. Call list_domains tool
         domains_response = client.send_request("tools/call", {
-            "name": "list_domains",
+            "name": LIST_DOMAINS,
             "arguments": {}
         })
         

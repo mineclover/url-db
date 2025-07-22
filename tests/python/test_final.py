@@ -6,6 +6,8 @@ import subprocess
 import sys
 import time
 import random
+from tool_constants import CREATE_DOMAIN, CREATE_DOMAIN_ATTRIBUTE, DELETE_DOMAIN_ATTRIBUTE, GET_DOMAIN_ATTRIBUTE, LIST_DOMAIN_ATTRIBUTES, UPDATE_DOMAIN_ATTRIBUTE
+
 
 class MCPClient:
     def __init__(self):
@@ -88,7 +90,7 @@ def test_domain_attributes():
         # 2. Create domain
         print(f"\n2. Creating domain '{domain_name}'...")
         response = client.send_request("tools/call", {
-            "name": "create_domain",
+            "name": CREATE_DOMAIN,
             "arguments": {
                 "name": domain_name,
                 "description": "Test domain for attribute testing"
@@ -100,7 +102,7 @@ def test_domain_attributes():
         # 3. List domain attributes (should be empty)
         print("\n3. Listing domain attributes (should be empty)...")
         response = client.send_request("tools/call", {
-            "name": "list_domain_attributes",
+            "name": LIST_DOMAIN_ATTRIBUTES,
             "arguments": {
                 "domain_name": domain_name
             }
@@ -116,7 +118,7 @@ def test_domain_attributes():
         # 4. Create domain attribute
         print(f"\n4. Creating domain attribute '{attr_name}'...")
         response = client.send_request("tools/call", {
-            "name": "create_domain_attribute",
+            "name": CREATE_DOMAIN_ATTRIBUTE,
             "arguments": {
                 "domain_name": domain_name,
                 "name": attr_name,
@@ -140,7 +142,7 @@ def test_domain_attributes():
         # 5. Get attribute by composite ID
         print("\n5. Getting attribute by composite ID...")
         response = client.send_request("tools/call", {
-            "name": "get_domain_attribute",
+            "name": GET_DOMAIN_ATTRIBUTE,
             "arguments": {
                 "composite_id": composite_id
             }
@@ -151,7 +153,7 @@ def test_domain_attributes():
         # 6. Update attribute
         print("\n6. Updating attribute description...")
         response = client.send_request("tools/call", {
-            "name": "update_domain_attribute",
+            "name": UPDATE_DOMAIN_ATTRIBUTE,
             "arguments": {
                 "composite_id": composite_id,
                 "description": "Updated test category tag"
@@ -163,7 +165,7 @@ def test_domain_attributes():
         # 7. List attributes again
         print("\n7. Listing domain attributes after creation...")
         response = client.send_request("tools/call", {
-            "name": "list_domain_attributes",
+            "name": LIST_DOMAIN_ATTRIBUTES,
             "arguments": {
                 "domain_name": domain_name
             }
@@ -179,7 +181,7 @@ def test_domain_attributes():
         # 8. Delete attribute
         print("\n8. Deleting attribute...")
         response = client.send_request("tools/call", {
-            "name": "delete_domain_attribute",
+            "name": DELETE_DOMAIN_ATTRIBUTE,
             "arguments": {
                 "composite_id": composite_id
             }
@@ -190,7 +192,7 @@ def test_domain_attributes():
         # 9. Verify deletion
         print("\n9. Verifying deletion...")
         response = client.send_request("tools/call", {
-            "name": "list_domain_attributes",
+            "name": LIST_DOMAIN_ATTRIBUTES,
             "arguments": {
                 "domain_name": domain_name
             }

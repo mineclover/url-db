@@ -6,6 +6,8 @@ based on the implementation in the URL-DB MCP server.
 
 import json
 from datetime import datetime
+from tool_constants import CREATE_DOMAIN, CREATE_NODE, DELETE_NODE, FIND_NODE_BY_URL, GET_NODE, GET_NODE_ATTRIBUTES, GET_SERVER_INFO, LIST_DOMAINS, LIST_NODES, SET_NODE_ATTRIBUTES, UPDATE_NODE
+
 
 def get_server_info():
     """
@@ -51,17 +53,17 @@ def get_detailed_server_info():
             "sampling"
         ],
         "supported_operations": [
-            "create_node",
-            "get_node",
-            "update_node",
-            "delete_node",
-            "list_nodes",
-            "find_node_by_url",
+            CREATE_NODE,
+            GET_NODE,
+            UPDATE_NODE,
+            DELETE_NODE,
+            LIST_NODES,
+            FIND_NODE_BY_URL,
             "batch_get_nodes",
-            "list_domains",
-            "create_domain",
-            "get_node_attributes",
-            "set_node_attributes"
+            LIST_DOMAINS,
+            CREATE_DOMAIN,
+            GET_NODE_ATTRIBUTES,
+            SET_NODE_ATTRIBUTES
         ],
         "limits": {
             "max_batch_size": 100,
@@ -84,47 +86,47 @@ def list_available_tools():
     # Based on registerTools() in internal/mcp/tools.go
     tools = [
         {
-            "name": "list_domains",
+            "name": LIST_DOMAINS,
             "description": "List all domains in the URL database"
         },
         {
-            "name": "create_domain", 
+            "name": CREATE_DOMAIN, 
             "description": "Create a new domain"
         },
         {
-            "name": "list_nodes",
+            "name": LIST_NODES,
             "description": "List nodes in a specific domain"
         },
         {
-            "name": "create_node",
+            "name": CREATE_NODE,
             "description": "Create a new node (URL) in a domain"
         },
         {
-            "name": "get_node",
+            "name": GET_NODE,
             "description": "Get a node by composite ID"
         },
         {
-            "name": "update_node",
+            "name": UPDATE_NODE,
             "description": "Update a node's title and description"
         },
         {
-            "name": "delete_node",
+            "name": DELETE_NODE,
             "description": "Delete a node by composite ID"
         },
         {
-            "name": "find_node_by_url",
+            "name": FIND_NODE_BY_URL,
             "description": "Find a node by URL in a domain"
         },
         {
-            "name": "get_node_attributes",
+            "name": GET_NODE_ATTRIBUTES,
             "description": "Get all attributes for a node"
         },
         {
-            "name": "set_node_attributes",
+            "name": SET_NODE_ATTRIBUTES,
             "description": "Set attributes for a node"
         },
         {
-            "name": "get_server_info",
+            "name": GET_SERVER_INFO,
             "description": "Get server information and capabilities"
         }
     ]

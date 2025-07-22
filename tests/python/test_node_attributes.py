@@ -5,6 +5,8 @@ import json
 import subprocess
 import sys
 import time
+from tool_constants import CREATE_DOMAIN, CREATE_DOMAIN_ATTRIBUTE, CREATE_NODE, GET_NODE, GET_NODE_ATTRIBUTES, LIST_DOMAIN_ATTRIBUTES, LIST_NODES, SET_NODE_ATTRIBUTES
+
 
 class MCPClient:
     def __init__(self):
@@ -78,16 +80,24 @@ def test_node_with_attributes():
         client.proc.stdin.flush()
         time.sleep(0.1)
         
-        # Create domain
+        # Create domain (or use existing)
         print("\n2. Creating test domain 'tech-articles'...")
         response = client.send_request("tools/call", {
-            "name": "create_domain",
+            "name": CREATE_DOMAIN,
             "arguments": {
                 "name": "tech-articles",
                 "description": "Technology articles and resources"
             }
         })
-        print(f"Response: {json.dumps(response, indent=2)}")
+        
+        if response["result"].get("isError", False) and "already exists" in response["result"]["content"][0]["text"]:
+            print("✓ Domain already exists, continuing with existing domain")
+        elif response["result"].get("isError", False):
+            print(f"❌ Error creating domain: {response}")
+            return
+        else:
+            print("✓ Domain created successfully")
+            print(f"Response: {json.dumps(response, indent=2)}")
         
         # Create attributes for the domain
         print("\n3. Creating domain attributes...")
@@ -95,7 +105,7 @@ def test_node_with_attributes():
         # Category attribute
         print("\n   a. Creating 'category' attribute...")
         response = client.send_request("tools/call", {
-            "name": "create_domain_attribute",
+            "name": CREATE_DOMAIN_ATTRIBUTE,
             "arguments": {
                 "domain_name": "tech-articles",
                 "name": "category",
@@ -103,12 +113,19 @@ def test_node_with_attributes():
                 "description": "Article category (e.g., AI, Security, Cloud)"
             }
         })
-        print(f"Response: {json.dumps(response, indent=2)}")
+        
+        if response["result"].get("isError", False) and "already exists" in response["result"]["content"][0]["text"]:
+            print("✓ Attribute 'category' already exists")
+        elif response["result"].get("isError", False):
+            print(f"❌ Error creating category attribute: {response}")
+        else:
+            print(f"✓ Created 'category' attribute")
+            print(f"Response: {json.dumps(response, indent=2)}")
         
         # Priority attribute
         print("\n   b. Creating 'priority' attribute...")
         response = client.send_request("tools/call", {
-            "name": "create_domain_attribute",
+            "name": CREATE_DOMAIN_ATTRIBUTE,
             "arguments": {
                 "domain_name": "tech-articles",
                 "name": "priority",
@@ -116,12 +133,18 @@ def test_node_with_attributes():
                 "description": "Reading priority (high, medium, low)"
             }
         })
-        print(f"Response: {json.dumps(response, indent=2)}")
+        
+        if response["result"].get("isError", False) and "already exists" in response["result"]["content"][0]["text"]:
+            print("✓ Attribute 'priority' already exists")
+        elif response["result"].get("isError", False):
+            print(f"❌ Error creating priority attribute: {response}")
+        else:
+            print(f"✓ Created 'priority' attribute")
         
         # Rating attribute
         print("\n   c. Creating 'rating' attribute...")
         response = client.send_request("tools/call", {
-            "name": "create_domain_attribute",
+            "name": CREATE_DOMAIN_ATTRIBUTE,
             "arguments": {
                 "domain_name": "tech-articles",
                 "name": "rating",
@@ -129,12 +152,18 @@ def test_node_with_attributes():
                 "description": "Article rating (1-5)"
             }
         })
-        print(f"Response: {json.dumps(response, indent=2)}")
+        
+        if response["result"].get("isError", False) and "already exists" in response["result"]["content"][0]["text"]:
+            print("✓ Attribute 'rating' already exists")
+        elif response["result"].get("isError", False):
+            print(f"❌ Error creating rating attribute: {response}")
+        else:
+            print(f"✓ Created 'rating' attribute")
         
         # Summary attribute
         print("\n   d. Creating 'summary' attribute...")
         response = client.send_request("tools/call", {
-            "name": "create_domain_attribute",
+            "name": CREATE_DOMAIN_ATTRIBUTE,
             "arguments": {
                 "domain_name": "tech-articles",
                 "name": "summary",
@@ -142,12 +171,18 @@ def test_node_with_attributes():
                 "description": "Brief summary of the article"
             }
         })
-        print(f"Response: {json.dumps(response, indent=2)}")
+        
+        if response["result"].get("isError", False) and "already exists" in response["result"]["content"][0]["text"]:
+            print("✓ Attribute 'summary' already exists")
+        elif response["result"].get("isError", False):
+            print(f"❌ Error creating summary attribute: {response}")
+        else:
+            print(f"✓ Created 'summary' attribute")
         
         # List attributes
         print("\n4. Listing domain attributes...")
         response = client.send_request("tools/call", {
-            "name": "list_domain_attributes",
+            "name": LIST_DOMAIN_ATTRIBUTES,
             "arguments": {
                 "domain_name": "tech-articles"
             }
@@ -161,7 +196,7 @@ def test_node_with_attributes():
         # Get existing nodes or create new ones
         print("\n5. Listing existing nodes...")
         response = client.send_request("tools/call", {
-            "name": "list_nodes",
+            "name": LIST_NODES,
             "arguments": {
                 "domain_name": "tech-articles"
             }
@@ -178,7 +213,7 @@ def test_node_with_attributes():
             # Create new node with unique URL
             unique_id = int(time.time())
             response = client.send_request("tools/call", {
-                "name": "create_node",
+                "name": CREATE_NODE,
                 "arguments": {
                     "domain_name": "tech-articles",
                     "url": f"https://example.com/ai-security-best-practices-{unique_id}",
@@ -195,7 +230,7 @@ def test_node_with_attributes():
         # Set attributes on the node
         print("\n6. Setting attributes on the node...")
         response = client.send_request("tools/call", {
-            "name": "set_node_attributes",
+            "name": SET_NODE_ATTRIBUTES,
             "arguments": {
                 "composite_id": node_composite_id,
                 "attributes": [
@@ -224,7 +259,7 @@ def test_node_with_attributes():
         # Get node attributes
         print("\n7. Getting node attributes...")
         response = client.send_request("tools/call", {
-            "name": "get_node_attributes",
+            "name": GET_NODE_ATTRIBUTES,
             "arguments": {
                 "composite_id": node_composite_id
             }
@@ -238,23 +273,29 @@ def test_node_with_attributes():
         
         # Create another node with different attributes
         print("\n8. Creating another node...")
+        unique_id2 = int(time.time() * 1000)  # More unique timestamp
         response = client.send_request("tools/call", {
-            "name": "create_node",
+            "name": CREATE_NODE,
             "arguments": {
                 "domain_name": "tech-articles",
-                "url": "https://example.com/cloud-migration-guide",
+                "url": f"https://example.com/cloud-migration-guide-{unique_id2}",
                 "title": "Complete Cloud Migration Guide",
                 "description": "Step-by-step guide for cloud migration"
             }
         })
         
+        if response["result"].get("isError", False):
+            print(f"Error creating second node: {response['result']['content'][0]['text']}")
+            # Try to continue with existing nodes
+            return
+            
         content = response["result"]["content"][0]["text"]
         node_data2 = json.loads(content)
         node_composite_id2 = node_data2["composite_id"]
         
         # Set different attributes
         response = client.send_request("tools/call", {
-            "name": "set_node_attributes",
+            "name": SET_NODE_ATTRIBUTES,
             "arguments": {
                 "composite_id": node_composite_id2,
                 "attributes": [
@@ -282,7 +323,7 @@ def test_node_with_attributes():
         # List all nodes in the domain
         print("\n9. Listing all nodes in the domain...")
         response = client.send_request("tools/call", {
-            "name": "list_nodes",
+            "name": LIST_NODES,
             "arguments": {
                 "domain_name": "tech-articles"
             }

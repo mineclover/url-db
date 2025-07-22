@@ -32,41 +32,41 @@ func (tr *ToolRegistry) GetTools() []Tool {
 // CallTool executes a tool by name
 func (tr *ToolRegistry) CallTool(ctx context.Context, name string, arguments interface{}) (*CallToolResult, error) {
 	switch name {
-	case "list_domains":
+	case ListDomainsTool:
 		return tr.callListDomains(ctx, arguments)
-	case "create_domain":
+	case CreateDomainTool:
 		return tr.callCreateDomain(ctx, arguments)
-	case "list_nodes":
+	case ListNodesTool:
 		return tr.callListNodes(ctx, arguments)
-	case "create_node":
+	case CreateNodeTool:
 		return tr.callCreateNode(ctx, arguments)
-	case "get_node":
+	case GetNodeTool:
 		return tr.callGetNode(ctx, arguments)
-	case "update_node":
+	case UpdateNodeTool:
 		return tr.callUpdateNode(ctx, arguments)
-	case "delete_node":
+	case DeleteNodeTool:
 		return tr.callDeleteNode(ctx, arguments)
-	case "find_node_by_url":
+	case FindNodeByUrlTool:
 		return tr.callFindNodeByURL(ctx, arguments)
-	case "get_node_attributes":
+	case GetNodeAttributesTool:
 		return tr.callGetNodeAttributes(ctx, arguments)
-	case "set_node_attributes":
+	case SetNodeAttributesTool:
 		return tr.callSetNodeAttributes(ctx, arguments)
-	case "list_domain_attributes":
+	case ListDomainAttributesTool:
 		return tr.callListDomainAttributes(ctx, arguments)
-	case "create_domain_attribute":
+	case CreateDomainAttributeTool:
 		return tr.callCreateDomainAttribute(ctx, arguments)
-	case "get_domain_attribute":
+	case GetDomainAttributeTool:
 		return tr.callGetDomainAttribute(ctx, arguments)
-	case "update_domain_attribute":
+	case UpdateDomainAttributeTool:
 		return tr.callUpdateDomainAttribute(ctx, arguments)
-	case "delete_domain_attribute":
+	case DeleteDomainAttributeTool:
 		return tr.callDeleteDomainAttribute(ctx, arguments)
-	case "get_node_with_attributes":
+	case GetNodeWithAttributesTool:
 		return tr.callGetNodeWithAttributes(ctx, arguments)
-	case "filter_nodes_by_attributes":
+	case FilterNodesByAttributesTool:
 		return tr.callFilterNodesByAttributes(ctx, arguments)
-	case "get_server_info":
+	case GetServerInfoTool:
 		return tr.callGetServerInfo(ctx, arguments)
 	default:
 		return &CallToolResult{
@@ -80,7 +80,7 @@ func (tr *ToolRegistry) CallTool(ctx context.Context, name string, arguments int
 func (tr *ToolRegistry) registerTools() {
 	tr.tools = []Tool{
 		{
-			Name:        "list_domains",
+			Name: ListDomainsTool,
 			Description: "Get all domains",
 			InputSchema: map[string]interface{}{
 				"type":       "object",
@@ -88,7 +88,7 @@ func (tr *ToolRegistry) registerTools() {
 			},
 		},
 		{
-			Name:        "create_domain",
+			Name: CreateDomainTool,
 			Description: "Create new domain for organizing URLs",
 			InputSchema: map[string]interface{}{
 				"type": "object",
@@ -106,7 +106,7 @@ func (tr *ToolRegistry) registerTools() {
 			},
 		},
 		{
-			Name:        "list_nodes",
+			Name: ListNodesTool,
 			Description: "List URLs in domain",
 			InputSchema: map[string]interface{}{
 				"type": "object",
@@ -134,7 +134,7 @@ func (tr *ToolRegistry) registerTools() {
 			},
 		},
 		{
-			Name:        "create_node",
+			Name: CreateNodeTool,
 			Description: "Add URL to domain",
 			InputSchema: map[string]interface{}{
 				"type": "object",
@@ -160,7 +160,7 @@ func (tr *ToolRegistry) registerTools() {
 			},
 		},
 		{
-			Name:        "get_node",
+			Name: GetNodeTool,
 			Description: "Get URL details",
 			InputSchema: map[string]interface{}{
 				"type": "object",
@@ -174,7 +174,7 @@ func (tr *ToolRegistry) registerTools() {
 			},
 		},
 		{
-			Name:        "update_node",
+			Name: UpdateNodeTool,
 			Description: "Update URL title or description",
 			InputSchema: map[string]interface{}{
 				"type": "object",
@@ -196,7 +196,7 @@ func (tr *ToolRegistry) registerTools() {
 			},
 		},
 		{
-			Name:        "delete_node",
+			Name: DeleteNodeTool,
 			Description: "Remove URL",
 			InputSchema: map[string]interface{}{
 				"type": "object",
@@ -210,7 +210,7 @@ func (tr *ToolRegistry) registerTools() {
 			},
 		},
 		{
-			Name:        "find_node_by_url",
+			Name: FindNodeByUrlTool,
 			Description: "Search by exact URL",
 			InputSchema: map[string]interface{}{
 				"type": "object",
@@ -228,7 +228,7 @@ func (tr *ToolRegistry) registerTools() {
 			},
 		},
 		{
-			Name:        "get_node_attributes",
+			Name: GetNodeAttributesTool,
 			Description: "Get URL tags and attributes",
 			InputSchema: map[string]interface{}{
 				"type": "object",
@@ -242,7 +242,7 @@ func (tr *ToolRegistry) registerTools() {
 			},
 		},
 		{
-			Name:        "set_node_attributes",
+			Name: SetNodeAttributesTool,
 			Description: "Add or update URL tags",
 			InputSchema: map[string]interface{}{
 				"type": "object",
@@ -278,7 +278,7 @@ func (tr *ToolRegistry) registerTools() {
 			},
 		},
 		{
-			Name:        "get_server_info",
+			Name: GetServerInfoTool,
 			Description: "Get server info",
 			InputSchema: map[string]interface{}{
 				"type":       "object",
@@ -286,7 +286,7 @@ func (tr *ToolRegistry) registerTools() {
 			},
 		},
 		{
-			Name:        "list_domain_attributes",
+			Name: ListDomainAttributesTool,
 			Description: "Get available tag types for domain",
 			InputSchema: map[string]interface{}{
 				"type": "object",
@@ -300,7 +300,7 @@ func (tr *ToolRegistry) registerTools() {
 			},
 		},
 		{
-			Name:        "create_domain_attribute",
+			Name: CreateDomainAttributeTool,
 			Description: "Define new tag type for domain",
 			InputSchema: map[string]interface{}{
 				"type": "object",
@@ -327,7 +327,7 @@ func (tr *ToolRegistry) registerTools() {
 			},
 		},
 		{
-			Name:        "get_domain_attribute",
+			Name: GetDomainAttributeTool,
 			Description: "Get tag type details",
 			InputSchema: map[string]interface{}{
 				"type": "object",
@@ -341,7 +341,7 @@ func (tr *ToolRegistry) registerTools() {
 			},
 		},
 		{
-			Name:        "update_domain_attribute",
+			Name: UpdateDomainAttributeTool,
 			Description: "Update tag type description",
 			InputSchema: map[string]interface{}{
 				"type": "object",
@@ -359,7 +359,7 @@ func (tr *ToolRegistry) registerTools() {
 			},
 		},
 		{
-			Name:        "delete_domain_attribute",
+			Name: DeleteDomainAttributeTool,
 			Description: "Remove unused tag type",
 			InputSchema: map[string]interface{}{
 				"type": "object",
@@ -373,7 +373,7 @@ func (tr *ToolRegistry) registerTools() {
 			},
 		},
 		{
-			Name:        "get_node_with_attributes",
+			Name: GetNodeWithAttributesTool,
 			Description: "Get URL with all tags at once",
 			InputSchema: map[string]interface{}{
 				"type": "object",
@@ -387,7 +387,7 @@ func (tr *ToolRegistry) registerTools() {
 			},
 		},
 		{
-			Name:        "filter_nodes_by_attributes",
+			Name: FilterNodesByAttributesTool,
 			Description: "Search URLs by tag values",
 			InputSchema: map[string]interface{}{
 				"type": "object",

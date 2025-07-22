@@ -8,6 +8,8 @@ import json
 import subprocess
 import sys
 import time
+from tool_constants import CREATE_DOMAIN, CREATE_NODE, LIST_DOMAINS
+
 
 class MCPClient:
     def __init__(self, server_path):
@@ -139,7 +141,7 @@ def main():
         # 4. 도메인 목록 조회
         print("\n4. Listing domains...")
         domains_response = client.send_request("tools/call", {
-            "name": "list_domains",
+            "name": LIST_DOMAINS,
             "arguments": {}
         })
         
@@ -152,7 +154,7 @@ def main():
         # 5. 테스트 도메인 생성
         print("\n5. Creating test domain...")
         create_domain_response = client.send_request("tools/call", {
-            "name": "create_domain",
+            "name": CREATE_DOMAIN,
             "arguments": {
                 "name": "test-domain",
                 "description": "Test domain for MCP integration"
@@ -170,7 +172,7 @@ def main():
         # 6. 테스트 노드 생성
         print("\n6. Creating test node...")
         create_node_response = client.send_request("tools/call", {
-            "name": "create_node",
+            "name": CREATE_NODE,
             "arguments": {
                 "domain_name": "test-domain",
                 "url": "https://example.com/test",

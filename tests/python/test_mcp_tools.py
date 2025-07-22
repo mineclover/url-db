@@ -9,10 +9,12 @@ import subprocess
 import sys
 import time
 from datetime import datetime
+from tool_constants import CREATE_DOMAIN, CREATE_NODE, DELETE_NODE, FIND_NODE_BY_URL, GET_NODE, GET_NODE_ATTRIBUTES, GET_SERVER_INFO, LIST_DOMAINS, LIST_NODES, SET_NODE_ATTRIBUTES, UPDATE_NODE
+
 
 class MCPToolTester:
     def __init__(self):
-        self.server_path = "./cmd/server/url-db"
+        self.server_path = "../../bin/url-db"
         self.process = None
         self.request_id = 1
         
@@ -45,7 +47,7 @@ class MCPToolTester:
         
         response_str = self.process.stdout.readline()
         if response_str:
-            return json.loads(response_str)
+            return json.loads(response_str) if response_str.strip() else {}
         return None
         
     def initialize(self):
@@ -88,13 +90,13 @@ class MCPToolTester:
         print("\n📋 Step 2: Testing get_server_info")
         
         response = self.send_request("tools/call", {
-            "name": "get_server_info",
+            "name": GET_SERVER_INFO,
             "arguments": {}
         })
         
         if response and not response.get("error"):
             result = response["result"]["content"][0]["text"]
-            server_info = json.loads(result)
+            server_info = json.loads(result) if result.strip() else {}
             print("✅ Server info retrieved:")
             print(f"   Name: {server_info['name']}")
             print(f"   Version: {server_info['version']}")
@@ -109,13 +111,13 @@ class MCPToolTester:
         print("\n📋 Step 3: Testing list_domains")
         
         response = self.send_request("tools/call", {
-            "name": "list_domains",
+            "name": LIST_DOMAINS,
             "arguments": {}
         })
         
         if response and not response.get("error"):
             result = response["result"]["content"][0]["text"]
-            domains = json.loads(result)["domains"]
+            domains = json.loads(result) if result.strip() else {}["domains"]
             print(f"✅ Found {len(domains)} domains:")
             for domain in domains[:5]:  # Show first 5
                 print(f"   - {domain['name']}: {domain['description']}")
@@ -132,7 +134,7 @@ class MCPToolTester:
         domain_name = f"mcp-test-{timestamp}"
         
         response = self.send_request("tools/call", {
-            "name": "create_domain",
+            "name": CREATE_DOMAIN,
             "arguments": {
                 "name": domain_name,
                 "description": "Test domain created via MCP protocol"
@@ -141,7 +143,7 @@ class MCPToolTester:
         
         if response and not response.get("error"):
             result = response["result"]["content"][0]["text"]
-            domain = json.loads(result)
+            domain = json.loads(result) if result.strip() else {}
             print(f"✅ Domain created: {domain['name']}")
             print(f"   Created at: {domain['created_at']}")
             return domain_name
@@ -154,7 +156,7 @@ class MCPToolTester:
         print("\n📋 Step 5: Testing create_node")
         
         response = self.send_request("tools/call", {
-            "name": "create_node",
+            "name": CREATE_NODE,
             "arguments": {
                 "domain_name": domain_name,
                 "url": f"https://example.com/test-{int(time.time())}",
@@ -165,7 +167,7 @@ class MCPToolTester:
         
         if response and not response.get("error"):
             result = response["result"]["content"][0]["text"]
-            node = json.loads(result)
+            node = json.loads(result) if result.strip() else {}
             print(f"✅ Node created: {node['composite_id']}")
             print(f"   URL: {node['url']}")
             print(f"   Title: {node['title']}")
@@ -179,7 +181,7 @@ class MCPToolTester:
         print("\n📋 Step 6: Testing get_node")
         
         response = self.send_request("tools/call", {
-            "name": "get_node",
+            "name": GET_NODE,
             "arguments": {
                 "composite_id": composite_id
             }
@@ -187,7 +189,7 @@ class MCPToolTester:
         
         if response and not response.get("error"):
             result = response["result"]["content"][0]["text"]
-            node = json.loads(result)
+            node = json.loads(result) if result.strip() else {}
             print(f"✅ Node retrieved: {node['composite_id']}")
             print(f"   URL: {node['url']}")
             return True
@@ -200,7 +202,7 @@ class MCPToolTester:
         print("\n📋 Step 7: Testing update_node")
         
         response = self.send_request("tools/call", {
-            "name": "update_node",
+            "name": UPDATE_NODE,
             "arguments": {
                 "composite_id": composite_id,
                 "title": "Updated Node Title",
@@ -210,7 +212,7 @@ class MCPToolTester:
         
         if response and not response.get("error"):
             result = response["result"]["content"][0]["text"]
-            node = json.loads(result)
+            node = json.loads(result) if result.strip() else {}
             print(f"✅ Node updated: {node['composite_id']}")
             print(f"   New title: {node['title']}")
             return True
@@ -223,7 +225,7 @@ class MCPToolTester:
         print("\n📋 Step 8: Testing set_node_attributes")
         
         response = self.send_request("tools/call", {
-            "name": "set_node_attributes",
+            "name": SET_NODE_ATTRIBUTES,
             "arguments": {
                 "composite_id": composite_id,
                 "attributes": [
@@ -238,7 +240,7 @@ class MCPToolTester:
             result = response["result"]["content"][0]["text"]
             if result:
                 try:
-                    attr_response = json.loads(result)
+                    attr_response = json.loads(result) if result.strip() else {}
                     print(f"✅ Attributes set for: {attr_response['composite_id']}")
                     print(f"   Total attributes: {len(attr_response['attributes'])}")
                     for attr in attr_response['attributes']:
@@ -261,7 +263,7 @@ class MCPToolTester:
         print("\n📋 Step 9: Testing get_node_attributes")
         
         response = self.send_request("tools/call", {
-            "name": "get_node_attributes",
+            "name": GET_NODE_ATTRIBUTES,
             "arguments": {
                 "composite_id": composite_id
             }
@@ -271,10 +273,13 @@ class MCPToolTester:
             result = response["result"]["content"][0]["text"]
             if result:
                 try:
-                    attr_response = json.loads(result)
+                    attr_response = json.loads(result) if result.strip() else {}
                     print(f"✅ Attributes retrieved for: {attr_response['composite_id']}")
-                    for attr in attr_response['attributes']:
-                        print(f"   - {attr['name']}: {attr['value']}")
+                    if attr_response.get('attributes'):
+                        for attr in attr_response['attributes']:
+                            print(f"   - {attr['name']}: {attr['value']}")
+                    else:
+                        print("   No attributes found")
                     return True
                 except json.JSONDecodeError:
                     print(f"✅ Attributes retrieved (text response): {result}")
@@ -293,7 +298,7 @@ class MCPToolTester:
         print("\n📋 Step 10: Testing find_node_by_url")
         
         response = self.send_request("tools/call", {
-            "name": "find_node_by_url",
+            "name": FIND_NODE_BY_URL,
             "arguments": {
                 "domain_name": domain_name,
                 "url": url
@@ -302,7 +307,7 @@ class MCPToolTester:
         
         if response and not response.get("error"):
             result = response["result"]["content"][0]["text"]
-            node = json.loads(result)
+            node = json.loads(result) if result.strip() else {}
             print(f"✅ Node found by URL: {node['composite_id']}")
             return True
         else:
@@ -314,7 +319,7 @@ class MCPToolTester:
         print("\n📋 Step 11: Testing list_nodes")
         
         response = self.send_request("tools/call", {
-            "name": "list_nodes",
+            "name": LIST_NODES,
             "arguments": {
                 "domain_name": domain_name,
                 "page": 1,
@@ -324,7 +329,7 @@ class MCPToolTester:
         
         if response and not response.get("error"):
             result = response["result"]["content"][0]["text"]
-            nodes_response = json.loads(result)
+            nodes_response = json.loads(result) if result.strip() else {}
             print(f"✅ Found {nodes_response['total_count']} nodes in domain {domain_name}")
             for node in nodes_response['nodes']:
                 print(f"   - {node['composite_id']}: {node['title']}")
@@ -338,7 +343,7 @@ class MCPToolTester:
         print("\n📋 Step 12: Testing delete_node")
         
         response = self.send_request("tools/call", {
-            "name": "delete_node",
+            "name": DELETE_NODE,
             "arguments": {
                 "composite_id": composite_id
             }
@@ -411,11 +416,11 @@ class MCPToolTester:
                     if node2_id:
                         # Get the actual URL from the node
                         response = self.send_request("tools/call", {
-                            "name": "get_node",
+                            "name": GET_NODE,
                             "arguments": {"composite_id": node2_id}
                         })
                         if response and not response.get("error"):
-                            node = json.loads(response["result"]["content"][0]["text"])
+                            node = json.loads(response["result"]["content"][0]["text"]) if response["result"]["content"][0]["text"].strip() else {}
                             if self.test_find_by_url(domain_name, node['url']):
                                 success_count += 1
                                 

@@ -10,6 +10,8 @@ import sys
 import time
 from typing import Dict, List, Any, Optional
 from dataclasses import dataclass
+from tool_constants import CREATE_DOMAIN, CREATE_NODE, DELETE_NODE, FIND_NODE_BY_URL, GET_NODE, GET_NODE_ATTRIBUTES, GET_SERVER_INFO, LIST_DOMAINS, LIST_NODES, SET_NODE_ATTRIBUTES, UPDATE_NODE
+
 
 @dataclass
 class TestResult:
@@ -164,10 +166,10 @@ class MCPTestRunner:
         notes = []
         
         expected_tools = [
-            "list_domains", "create_domain", "list_nodes",
-            "create_node", "get_node", "update_node",
-            "delete_node", "find_node_by_url", "get_node_attributes",
-            "set_node_attributes", "get_server_info"
+            LIST_DOMAINS, CREATE_DOMAIN, LIST_NODES,
+            CREATE_NODE, GET_NODE, UPDATE_NODE,
+            DELETE_NODE, FIND_NODE_BY_URL, GET_NODE_ATTRIBUTES,
+            SET_NODE_ATTRIBUTES, GET_SERVER_INFO
         ]
         
         try:
@@ -247,7 +249,7 @@ class MCPTestRunner:
         try:
             # List initial domains
             domains_response = self.send_request("tools/call", {
-                "name": "list_domains",
+                "name": LIST_DOMAINS,
                 "arguments": {}
             })
             
@@ -260,7 +262,7 @@ class MCPTestRunner:
             # Create test domain with unique name
             unique_name = f"test-scenario-{int(time.time())}"
             create_response = self.send_request("tools/call", {
-                "name": "create_domain",
+                "name": CREATE_DOMAIN,
                 "arguments": {
                     "name": unique_name,
                     "description": "Test domain for LLM judge scenarios"
@@ -282,7 +284,7 @@ class MCPTestRunner:
             
             # List domains again to verify
             domains_response2 = self.send_request("tools/call", {
-                "name": "list_domains",
+                "name": LIST_DOMAINS,
                 "arguments": {}
             })
             
@@ -297,7 +299,7 @@ class MCPTestRunner:
             
             # Test duplicate domain creation
             duplicate_response = self.send_request("tools/call", {
-                "name": "create_domain",
+                "name": CREATE_DOMAIN,
                 "arguments": {
                     "name": unique_name,
                     "description": "Duplicate domain"
@@ -336,7 +338,7 @@ class MCPTestRunner:
         try:
             # Create node (using existing test domain)
             create_response = self.send_request("tools/call", {
-                "name": "create_node",
+                "name": CREATE_NODE,
                 "arguments": {
                     "domain_name": "test-domain",  # Use existing domain
                     "url": f"https://example.com/test-page-{int(time.time())}",  # Unique URL
@@ -366,7 +368,7 @@ class MCPTestRunner:
             if composite_id:
                 # Retrieve node by composite key
                 get_response = self.send_request("tools/call", {
-                    "name": "get_node",
+                    "name": GET_NODE,
                     "arguments": {"composite_id": composite_id}
                 })
                 
@@ -379,7 +381,7 @@ class MCPTestRunner:
                 
                 # Update node
                 update_response = self.send_request("tools/call", {
-                    "name": "update_node",
+                    "name": UPDATE_NODE,
                     "arguments": {
                         "composite_id": composite_id,
                         "title": "Updated Test Page",
@@ -395,7 +397,7 @@ class MCPTestRunner:
                 # Find node by URL
                 test_url = f"https://example.com/test-page-{int(time.time())}"
                 find_response = self.send_request("tools/call", {
-                    "name": "find_node_by_url",
+                    "name": FIND_NODE_BY_URL,
                     "arguments": {
                         "domain_name": "test-domain",
                         "url": node_data.get("url", test_url)  # Use actual URL from created node
@@ -409,7 +411,7 @@ class MCPTestRunner:
                 
                 # Delete node
                 delete_response = self.send_request("tools/call", {
-                    "name": "delete_node",
+                    "name": DELETE_NODE,
                     "arguments": {"composite_id": composite_id}
                 })
                 

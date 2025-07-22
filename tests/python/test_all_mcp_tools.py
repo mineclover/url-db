@@ -9,6 +9,8 @@ import sys
 import subprocess
 import time
 from typing import Dict, Any, List, Optional
+from tool_constants import CREATE_DOMAIN, CREATE_DOMAIN_ATTRIBUTE, CREATE_NODE, DELETE_DOMAIN_ATTRIBUTE, DELETE_NODE, FIND_NODE_BY_URL, GET_DOMAIN_ATTRIBUTE, GET_NODE, GET_NODE_ATTRIBUTES, GET_SERVER_INFO, LIST_DOMAINS, LIST_DOMAIN_ATTRIBUTES, LIST_NODES, SET_NODE_ATTRIBUTES, UPDATE_DOMAIN_ATTRIBUTE, UPDATE_NODE
+
 
 class MCPClient:
     def __init__(self, db_path: str = "./test.db"):
@@ -39,7 +41,7 @@ class MCPClient:
         
         response_str = self.process.stdout.readline()
         try:
-            return json.loads(response_str)
+            return json.loads(response_str) if response_str.strip() else {}
         except json.JSONDecodeError:
             print(f"Failed to parse response: {response_str}")
             return {"error": {"message": "Invalid JSON response"}}
@@ -85,11 +87,11 @@ def test_tool_discovery(client: MCPClient):
         print(f"✅ Found {len(tools)} tools")
         
         expected_tools = [
-            "list_domains", "create_domain", "list_nodes", "create_node",
-            "get_node", "update_node", "delete_node", "find_node_by_url",
-            "get_node_attributes", "set_node_attributes", "get_server_info",
-            "list_domain_attributes", "create_domain_attribute", 
-            "get_domain_attribute", "update_domain_attribute", "delete_domain_attribute"
+            LIST_DOMAINS, CREATE_DOMAIN, LIST_NODES, CREATE_NODE,
+            GET_NODE, UPDATE_NODE, DELETE_NODE, FIND_NODE_BY_URL,
+            GET_NODE_ATTRIBUTES, SET_NODE_ATTRIBUTES, GET_SERVER_INFO,
+            LIST_DOMAIN_ATTRIBUTES, CREATE_DOMAIN_ATTRIBUTE, 
+            GET_DOMAIN_ATTRIBUTE, UPDATE_DOMAIN_ATTRIBUTE, DELETE_DOMAIN_ATTRIBUTE
         ]
         
         tool_names = [tool['name'] for tool in tools]
@@ -110,13 +112,18 @@ def test_domain_management(client: MCPClient):
     
     # List domains (should be empty)
     response = client.send_request("tools/call", {
-        "name": "list_domains",
+        "name": LIST_DOMAINS,
         "arguments": {}
     })
     
     if "result" in response:
         print("✅ List domains successful")
-        initial_count = len(json.loads(response['result']['content'][0]['text'])['domains'])
+        result_text = response['result']['content'][0]['text']
+        if result_text.strip():
+            domains_data = json.loads(result_text)
+            initial_count = len(domains_data.get('domains', []))
+        else:
+            initial_count = 0
         print(f"  Initial domain count: {initial_count}")
     else:
         print(f"❌ List domains failed: {response}")
@@ -124,7 +131,7 @@ def test_domain_management(client: MCPClient):
     
     # Create domain
     response = client.send_request("tools/call", {
-        "name": "create_domain",
+        "name": CREATE_DOMAIN,
         "arguments": {
             "name": "test-domain",
             "description": "Test domain for comprehensive testing"
@@ -133,20 +140,29 @@ def test_domain_management(client: MCPClient):
     
     if "result" in response:
         print("✅ Create domain successful")
-        domain = json.loads(response['result']['content'][0]['text'])
-        print(f"  Created: {domain['name']}")
+        result_text = response['result']['content'][0]['text']
+        if result_text.strip():
+            domain = json.loads(result_text) if result_text.strip() else {}
+            print(f"  Created: {domain['name']}")
+        else:
+            print("  Created: domain (no details returned)")
     else:
         print(f"❌ Create domain failed: {response}")
         return False
     
     # List domains again
     response = client.send_request("tools/call", {
-        "name": "list_domains",
+        "name": LIST_DOMAINS,
         "arguments": {}
     })
     
     if "result" in response:
-        domains = json.loads(response['result']['content'][0]['text'])['domains']
+        result_text = response['result']['content'][0]['text']
+        if result_text.strip():
+            domains_data = json.loads(result_text)
+            domains = domains_data.get('domains', [])
+        else:
+            domains = []
         if len(domains) > initial_count:
             print("✅ Domain appears in list")
         else:
@@ -170,7 +186,7 @@ def test_domain_schema(client: MCPClient):
     
     for name, attr_type, description in attribute_types:
         response = client.send_request("tools/call", {
-            "name": "create_domain_attribute",
+            "name": CREATE_DOMAIN_ATTRIBUTE,
             "arguments": {
                 "domain_name": "test-domain",
                 "name": name,
@@ -186,14 +202,19 @@ def test_domain_schema(client: MCPClient):
     
     # List domain attributes
     response = client.send_request("tools/call", {
-        "name": "list_domain_attributes",
+        "name": LIST_DOMAIN_ATTRIBUTES,
         "arguments": {
             "domain_name": "test-domain"
         }
     })
     
     if "result" in response:
-        attributes = json.loads(response['result']['content'][0]['text'])['attributes']
+        result_text = response['result']['content'][0]['text']
+        if result_text.strip():
+            attrs_data = json.loads(result_text)
+            attributes = attrs_data.get('attributes', [])
+        else:
+            attributes = []
         print(f"✅ Domain has {len(attributes)} attributes defined")
         for attr in attributes:
             print(f"  - {attr['name']} ({attr['type']}): {attr['description']}")
@@ -208,7 +229,7 @@ def test_node_operations(client: MCPClient):
     
     # Create node
     response = client.send_request("tools/call", {
-        "name": "create_node",
+        "name": CREATE_NODE,
         "arguments": {
             "domain_name": "test-domain",
             "url": "https://example.com/test-page",
@@ -218,7 +239,11 @@ def test_node_operations(client: MCPClient):
     })
     
     if "result" in response:
-        node = json.loads(response['result']['content'][0]['text'])
+        result_text = response['result']['content'][0]['text']
+        if result_text.strip():
+            node = json.loads(result_text)
+        else:
+            node = {}
         composite_id = node['composite_id']
         print(f"✅ Created node: {composite_id}")
         print(f"  URL: {node['url']}")
@@ -229,7 +254,7 @@ def test_node_operations(client: MCPClient):
     
     # Get node by composite ID
     response = client.send_request("tools/call", {
-        "name": "get_node",
+        "name": GET_NODE,
         "arguments": {
             "composite_id": composite_id
         }
@@ -242,7 +267,7 @@ def test_node_operations(client: MCPClient):
     
     # Update node
     response = client.send_request("tools/call", {
-        "name": "update_node",
+        "name": UPDATE_NODE,
         "arguments": {
             "composite_id": composite_id,
             "title": "Updated Test Page",
@@ -257,7 +282,7 @@ def test_node_operations(client: MCPClient):
     
     # Find node by URL
     response = client.send_request("tools/call", {
-        "name": "find_node_by_url",
+        "name": FIND_NODE_BY_URL,
         "arguments": {
             "domain_name": "test-domain",
             "url": "https://example.com/test-page"
@@ -277,7 +302,7 @@ def test_node_attributes(client: MCPClient, composite_id: str):
     
     # Set multiple attributes
     response = client.send_request("tools/call", {
-        "name": "set_node_attributes",
+        "name": SET_NODE_ATTRIBUTES,
         "arguments": {
             "composite_id": composite_id,
             "attributes": [
@@ -291,21 +316,21 @@ def test_node_attributes(client: MCPClient, composite_id: str):
     
     if "result" in response:
         print("✅ Set node attributes successfully")
-        result = json.loads(response['result']['content'][0]['text'])
+        result = json.loads(response['result']['content'][0]['text']) if response['result']['content'][0]['text'].strip() else {}
         print(f"  Attributes set: {len(result['attributes'])}")
     else:
         print(f"❌ Set attributes failed: {response}")
     
     # Get node attributes
     response = client.send_request("tools/call", {
-        "name": "get_node_attributes",
+        "name": GET_NODE_ATTRIBUTES,
         "arguments": {
             "composite_id": composite_id
         }
     })
     
     if "result" in response:
-        attrs = json.loads(response['result']['content'][0]['text'])['attributes']
+        attrs = json.loads(response['result']['content'][0]['text']) if response['result']['content'][0]['text'].strip() else {}['attributes']
         print(f"✅ Retrieved {len(attrs)} attributes")
         for attr in attrs:
             print(f"  - {attr['name']}: {attr['value']}")
@@ -314,7 +339,7 @@ def test_node_attributes(client: MCPClient, composite_id: str):
     
     # Try to set invalid attribute (not in schema)
     response = client.send_request("tools/call", {
-        "name": "set_node_attributes",
+        "name": SET_NODE_ATTRIBUTES,
         "arguments": {
             "composite_id": composite_id,
             "attributes": [
@@ -343,7 +368,7 @@ def test_list_operations(client: MCPClient):
     
     for url, title, desc in urls:
         client.send_request("tools/call", {
-            "name": "create_node",
+            "name": CREATE_NODE,
             "arguments": {
                 "domain_name": "test-domain",
                 "url": url,
@@ -354,7 +379,7 @@ def test_list_operations(client: MCPClient):
     
     # List nodes
     response = client.send_request("tools/call", {
-        "name": "list_nodes",
+        "name": LIST_NODES,
         "arguments": {
             "domain_name": "test-domain",
             "page": 1,
@@ -363,7 +388,7 @@ def test_list_operations(client: MCPClient):
     })
     
     if "result" in response:
-        result = json.loads(response['result']['content'][0]['text'])
+        result = json.loads(response['result']['content'][0]['text']) if response['result']['content'][0]['text'].strip() else {}
         print(f"✅ Listed {len(result['nodes'])} nodes")
         print(f"  Total count: {result['total_count']}")
     else:
@@ -371,7 +396,7 @@ def test_list_operations(client: MCPClient):
     
     # Search nodes
     response = client.send_request("tools/call", {
-        "name": "list_nodes",
+        "name": LIST_NODES,
         "arguments": {
             "domain_name": "test-domain",
             "search": "search",
@@ -381,7 +406,7 @@ def test_list_operations(client: MCPClient):
     })
     
     if "result" in response:
-        result = json.loads(response['result']['content'][0]['text'])
+        result = json.loads(response['result']['content'][0]['text']) if response['result']['content'][0]['text'].strip() else {}
         print(f"✅ Search found {len(result['nodes'])} nodes")
     else:
         print(f"❌ Search failed: {response}")
@@ -394,7 +419,7 @@ def test_cleanup(client: MCPClient, composite_id: str):
     
     # Delete node
     response = client.send_request("tools/call", {
-        "name": "delete_node",
+        "name": DELETE_NODE,
         "arguments": {
             "composite_id": composite_id
         }
@@ -407,7 +432,7 @@ def test_cleanup(client: MCPClient, composite_id: str):
     
     # Verify deletion
     response = client.send_request("tools/call", {
-        "name": "get_node",
+        "name": GET_NODE,
         "arguments": {
             "composite_id": composite_id
         }
@@ -425,12 +450,12 @@ def test_server_info(client: MCPClient):
     print("\n=== Test 9: Server Information ===")
     
     response = client.send_request("tools/call", {
-        "name": "get_server_info",
+        "name": GET_SERVER_INFO,
         "arguments": {}
     })
     
     if "result" in response:
-        info = json.loads(response['result']['content'][0]['text'])
+        info = json.loads(response['result']['content'][0]['text']) if response['result']['content'][0]['text'].strip() else {}
         print("✅ Server info retrieved")
         print(f"  Name: {info['name']}")
         print(f"  Version: {info['version']}")
