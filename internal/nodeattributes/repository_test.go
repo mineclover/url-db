@@ -361,13 +361,13 @@ func TestRepository_ValidateNodeAndAttributeDomain_DomainMismatch(t *testing.T) 
 	_, err := db.Exec(`INSERT INTO domains (id, name, created_at) VALUES (2, 'domain2', '2023-01-01 00:00:00')`)
 	require.NoError(t, err)
 
-	_, err = db.Exec(`INSERT INTO attributes (id, domain_id, name, type, created_at) VALUES (2, 2, 'attr2', 'string', '2023-01-01 00:00:00')`)
+	_, err = db.Exec(`INSERT INTO attributes (id, domain_id, name, type, created_at) VALUES (99, 2, 'attr99', 'string', '2023-01-01 00:00:00')`)
 	require.NoError(t, err)
 
 	repo := nodeattributes.NewRepository(db)
 
 	// Invalid case - node is in domain 1, attribute is in domain 2
-	err = repo.ValidateNodeAndAttributeDomain(1, 2)
+	err = repo.ValidateNodeAndAttributeDomain(1, 99)
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "node and attribute must belong to the same domain")
 }
@@ -380,7 +380,7 @@ func TestRepository_GetAttributeType(t *testing.T) {
 
 	attrType, err := repo.GetAttributeType(1)
 	assert.NoError(t, err)
-	assert.Equal(t, models.AttributeType("string"), attrType)
+	assert.Equal(t, models.AttributeType("tag"), attrType)
 }
 
 func TestRepository_GetAttributeType_NotFound(t *testing.T) {
