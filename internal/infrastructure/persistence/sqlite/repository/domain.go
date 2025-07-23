@@ -7,7 +7,6 @@ import (
 	"url-db/internal/domain/entity"
 	"url-db/internal/domain/repository"
 	"url-db/internal/infrastructure/persistence/sqlite/mapper"
-	"url-db/internal/models"
 )
 
 type domainRepository struct {
@@ -20,7 +19,7 @@ func NewDomainRepository(db *sql.DB) repository.DomainRepository {
 }
 
 func (r *domainRepository) Create(ctx context.Context, domain *entity.Domain) error {
-	dbModel := mapper.ToDBModel(domain)
+	dbModel := mapper.FromDomainEntity(domain)
 
 	query := `INSERT INTO domains (name, description, created_at, updated_at) VALUES (?, ?, ?, ?)`
 	_, err := r.db.ExecContext(ctx, query,
@@ -34,15 +33,15 @@ func (r *domainRepository) Create(ctx context.Context, domain *entity.Domain) er
 }
 
 func (r *domainRepository) GetByID(ctx context.Context, id int) (*entity.Domain, error) {
-	var dbModel models.Domain
+	var dbRow mapper.DatabaseDomain
 
 	query := `SELECT id, name, description, created_at, updated_at FROM domains WHERE id = ?`
 	err := r.db.QueryRowContext(ctx, query, id).Scan(
-		&dbModel.ID,
-		&dbModel.Name,
-		&dbModel.Description,
-		&dbModel.CreatedAt,
-		&dbModel.UpdatedAt,
+		&dbRow.ID,
+		&dbRow.Name,
+		&dbRow.Description,
+		&dbRow.CreatedAt,
+		&dbRow.UpdatedAt,
 	)
 
 	if err == sql.ErrNoRows {
@@ -52,19 +51,19 @@ func (r *domainRepository) GetByID(ctx context.Context, id int) (*entity.Domain,
 		return nil, err
 	}
 
-	return mapper.ToDomainEntity(&dbModel), nil
+	return mapper.ToDomainEntity(&dbRow), nil
 }
 
 func (r *domainRepository) GetByName(ctx context.Context, name string) (*entity.Domain, error) {
-	var dbModel models.Domain
+	var dbRow mapper.DatabaseDomain
 
 	query := `SELECT id, name, description, created_at, updated_at FROM domains WHERE name = ?`
 	err := r.db.QueryRowContext(ctx, query, name).Scan(
-		&dbModel.ID,
-		&dbModel.Name,
-		&dbModel.Description,
-		&dbModel.CreatedAt,
-		&dbModel.UpdatedAt,
+		&dbRow.ID,
+		&dbRow.Name,
+		&dbRow.Description,
+		&dbRow.CreatedAt,
+		&dbRow.UpdatedAt,
 	)
 
 	if err == sql.ErrNoRows {
@@ -74,7 +73,7 @@ func (r *domainRepository) GetByName(ctx context.Context, name string) (*entity.
 		return nil, err
 	}
 
-	return mapper.ToDomainEntity(&dbModel), nil
+	return mapper.ToDomainEntity(&dbRow), nil
 }
 
 func (r *domainRepository) List(ctx context.Context, page, size int) ([]*entity.Domain, int, error) {
@@ -99,19 +98,19 @@ func (r *domainRepository) List(ctx context.Context, page, size int) ([]*entity.
 
 	var domains []*entity.Domain
 	for rows.Next() {
-		var dbModel models.Domain
+		var dbRow mapper.DatabaseDomain
 		err := rows.Scan(
-			&dbModel.ID,
-			&dbModel.Name,
-			&dbModel.Description,
-			&dbModel.CreatedAt,
-			&dbModel.UpdatedAt,
+			&dbRow.ID,
+			&dbRow.Name,
+			&dbRow.Description,
+			&dbRow.CreatedAt,
+			&dbRow.UpdatedAt,
 		)
 		if err != nil {
 			return nil, 0, err
 		}
 
-		domain := mapper.ToDomainEntity(&dbModel)
+		domain := mapper.ToDomainEntity(&dbRow)
 		if domain != nil {
 			domains = append(domains, domain)
 		}
@@ -121,7 +120,7 @@ func (r *domainRepository) List(ctx context.Context, page, size int) ([]*entity.
 }
 
 func (r *domainRepository) Update(ctx context.Context, domain *entity.Domain) error {
-	dbModel := mapper.ToDBModel(domain)
+	dbModel := mapper.FromDomainEntity(domain)
 
 	query := `UPDATE domains SET description = ?, updated_at = ? WHERE name = ?`
 	result, err := r.db.ExecContext(ctx, query,

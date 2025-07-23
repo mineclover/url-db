@@ -7,6 +7,7 @@ import (
 
 // Domain represents a domain entity in the business domain
 type Domain struct {
+	id          int
 	name        string
 	description string
 	createdAt   time.Time
@@ -37,6 +38,7 @@ func NewDomain(name, description string) (*Domain, error) {
 }
 
 // Getters - immutable from outside
+func (d *Domain) ID() int              { return d.id }
 func (d *Domain) Name() string         { return d.name }
 func (d *Domain) Description() string  { return d.description }
 func (d *Domain) CreatedAt() time.Time { return d.createdAt }
@@ -56,4 +58,15 @@ func (d *Domain) UpdateDescription(description string) error {
 // IsValid checks if the domain is in a valid state
 func (d *Domain) IsValid() bool {
 	return d.name != "" && len(d.name) <= 255 && len(d.description) <= 1000
+}
+
+// SetID sets the domain ID (for repository usage)
+func (d *Domain) SetID(id int) {
+	d.id = id
+}
+
+// SetTimestamps sets creation and update timestamps (for repository usage)
+func (d *Domain) SetTimestamps(createdAt, updatedAt time.Time) {
+	d.createdAt = createdAt
+	d.updatedAt = updatedAt
 }

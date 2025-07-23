@@ -18,18 +18,24 @@ type AttributeDBModel struct {
 
 // ToAttributeEntity converts a database model to domain entity
 func ToAttributeEntity(dbModel *AttributeDBModel) *entity.Attribute {
+	if dbModel == nil {
+		return nil
+	}
+
 	// Create entity using the business logic constructor
-	attribute, _ := entity.NewAttribute(
+	attribute, err := entity.NewAttribute(
 		dbModel.Name,
 		dbModel.Type,
 		dbModel.Description,
 		dbModel.DomainID,
 	)
+	if err != nil {
+		return nil
+	}
 	
 	// Set the ID and timestamps from database
 	attribute.SetID(dbModel.ID)
-	// Note: In a more robust implementation, we might need setters for timestamps
-	// or handle this differently to maintain entity integrity
+	attribute.SetTimestamps(dbModel.CreatedAt, dbModel.UpdatedAt)
 	
 	return attribute
 }

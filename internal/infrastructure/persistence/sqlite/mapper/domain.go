@@ -1,35 +1,48 @@
 package mapper
 
 import (
+	"time"
 	"url-db/internal/domain/entity"
-	"url-db/internal/models"
 )
 
-// ToDomainEntity converts a database model to a domain entity
-func ToDomainEntity(dbModel *models.Domain) *entity.Domain {
-	if dbModel == nil {
+// DatabaseDomain represents the domain as stored in database (raw SQL row)
+type DatabaseDomain struct {
+	ID          int       `db:"id"`
+	Name        string    `db:"name"`
+	Description string    `db:"description"`
+	CreatedAt   time.Time `db:"created_at"`
+	UpdatedAt   time.Time `db:"updated_at"`
+}
+
+// ToDomainEntity converts a database row to a domain entity
+func ToDomainEntity(dbRow *DatabaseDomain) *entity.Domain {
+	if dbRow == nil {
 		return nil
 	}
 
-	domain, _ := entity.NewDomain(dbModel.Name, dbModel.Description)
-	if domain != nil {
-		// Note: In a real implementation, you might need to set internal fields
-		// This is a simplified version for demonstration
+	domain, err := entity.NewDomain(dbRow.Name, dbRow.Description)
+	if err != nil {
+		return nil
 	}
+
+	// Set database-specific fields
+	domain.SetID(dbRow.ID)
+	domain.SetTimestamps(dbRow.CreatedAt, dbRow.UpdatedAt)
 
 	return domain
 }
 
-// ToDBModel converts a domain entity to a database model
-func ToDBModel(entity *entity.Domain) *models.Domain {
-	if entity == nil {
+// FromDomainEntity converts a domain entity to database row format
+func FromDomainEntity(domain *entity.Domain) *DatabaseDomain {
+	if domain == nil {
 		return nil
 	}
 
-	return &models.Domain{
-		Name:        entity.Name(),
-		Description: entity.Description(),
-		CreatedAt:   entity.CreatedAt(),
-		UpdatedAt:   entity.UpdatedAt(),
+	return &DatabaseDomain{
+		ID:          domain.ID(),
+		Name:        domain.Name(),
+		Description: domain.Description(),
+		CreatedAt:   domain.CreatedAt(),
+		UpdatedAt:   domain.UpdatedAt(),
 	}
 }

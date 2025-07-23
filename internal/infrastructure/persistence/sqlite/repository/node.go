@@ -8,7 +8,6 @@ import (
 	"url-db/internal/domain/entity"
 	"url-db/internal/domain/repository"
 	"url-db/internal/infrastructure/persistence/sqlite/mapper"
-	"url-db/internal/models"
 )
 
 type nodeRepository struct {
@@ -21,7 +20,7 @@ func NewNodeRepository(db *sql.DB) repository.NodeRepository {
 }
 
 func (r *nodeRepository) Create(ctx context.Context, node *entity.Node) error {
-	dbModel := mapper.ToNodeDBModel(node)
+	dbModel := mapper.FromNodeEntity(node)
 
 	query := `INSERT INTO nodes (content, domain_id, title, description, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)`
 	result, err := r.db.ExecContext(ctx, query,
@@ -47,17 +46,17 @@ func (r *nodeRepository) Create(ctx context.Context, node *entity.Node) error {
 }
 
 func (r *nodeRepository) GetByID(ctx context.Context, id int) (*entity.Node, error) {
-	var dbModel models.Node
+	var dbRow mapper.DatabaseNode
 
 	query := `SELECT id, content, domain_id, title, description, created_at, updated_at FROM nodes WHERE id = ?`
 	err := r.db.QueryRowContext(ctx, query, id).Scan(
-		&dbModel.ID,
-		&dbModel.Content,
-		&dbModel.DomainID,
-		&dbModel.Title,
-		&dbModel.Description,
-		&dbModel.CreatedAt,
-		&dbModel.UpdatedAt,
+		&dbRow.ID,
+		&dbRow.Content,
+		&dbRow.DomainID,
+		&dbRow.Title,
+		&dbRow.Description,
+		&dbRow.CreatedAt,
+		&dbRow.UpdatedAt,
 	)
 
 	if err == sql.ErrNoRows {
@@ -67,24 +66,24 @@ func (r *nodeRepository) GetByID(ctx context.Context, id int) (*entity.Node, err
 		return nil, err
 	}
 
-	return mapper.ToNodeEntity(&dbModel), nil
+	return mapper.ToNodeEntity(&dbRow), nil
 }
 
 func (r *nodeRepository) GetByURL(ctx context.Context, url, domainName string) (*entity.Node, error) {
-	var dbModel models.Node
+	var dbRow mapper.DatabaseNode
 
 	query := `SELECT n.id, n.content, n.domain_id, n.title, n.description, n.created_at, n.updated_at 
 			  FROM nodes n 
 			  JOIN domains d ON n.domain_id = d.id 
 			  WHERE n.content = ? AND d.name = ?`
 	err := r.db.QueryRowContext(ctx, query, url, domainName).Scan(
-		&dbModel.ID,
-		&dbModel.Content,
-		&dbModel.DomainID,
-		&dbModel.Title,
-		&dbModel.Description,
-		&dbModel.CreatedAt,
-		&dbModel.UpdatedAt,
+		&dbRow.ID,
+		&dbRow.Content,
+		&dbRow.DomainID,
+		&dbRow.Title,
+		&dbRow.Description,
+		&dbRow.CreatedAt,
+		&dbRow.UpdatedAt,
 	)
 
 	if err == sql.ErrNoRows {
@@ -94,7 +93,7 @@ func (r *nodeRepository) GetByURL(ctx context.Context, url, domainName string) (
 		return nil, err
 	}
 
-	return mapper.ToNodeEntity(&dbModel), nil
+	return mapper.ToNodeEntity(&dbRow), nil
 }
 
 func (r *nodeRepository) List(ctx context.Context, domainName string, page, size int) ([]*entity.Node, int, error) {
@@ -124,21 +123,21 @@ func (r *nodeRepository) List(ctx context.Context, domainName string, page, size
 
 	var nodes []*entity.Node
 	for rows.Next() {
-		var dbModel models.Node
+		var dbRow mapper.DatabaseNode
 		err := rows.Scan(
-			&dbModel.ID,
-			&dbModel.Content,
-			&dbModel.DomainID,
-			&dbModel.Title,
-			&dbModel.Description,
-			&dbModel.CreatedAt,
-			&dbModel.UpdatedAt,
+			&dbRow.ID,
+			&dbRow.Content,
+			&dbRow.DomainID,
+			&dbRow.Title,
+			&dbRow.Description,
+			&dbRow.CreatedAt,
+			&dbRow.UpdatedAt,
 		)
 		if err != nil {
 			return nil, 0, err
 		}
 
-		node := mapper.ToNodeEntity(&dbModel)
+		node := mapper.ToNodeEntity(&dbRow)
 		if node != nil {
 			nodes = append(nodes, node)
 		}
@@ -148,7 +147,7 @@ func (r *nodeRepository) List(ctx context.Context, domainName string, page, size
 }
 
 func (r *nodeRepository) Update(ctx context.Context, node *entity.Node) error {
-	dbModel := mapper.ToNodeDBModel(node)
+	dbModel := mapper.FromNodeEntity(node)
 
 	query := `UPDATE nodes SET title = ?, description = ?, updated_at = ? WHERE id = ?`
 	result, err := r.db.ExecContext(ctx, query,
@@ -235,21 +234,21 @@ func (r *nodeRepository) GetBatch(ctx context.Context, ids []int) ([]*entity.Nod
 
 	var nodes []*entity.Node
 	for rows.Next() {
-		var dbModel models.Node
+		var dbRow mapper.DatabaseNode
 		err := rows.Scan(
-			&dbModel.ID,
-			&dbModel.Content,
-			&dbModel.DomainID,
-			&dbModel.Title,
-			&dbModel.Description,
-			&dbModel.CreatedAt,
-			&dbModel.UpdatedAt,
+			&dbRow.ID,
+			&dbRow.Content,
+			&dbRow.DomainID,
+			&dbRow.Title,
+			&dbRow.Description,
+			&dbRow.CreatedAt,
+			&dbRow.UpdatedAt,
 		)
 		if err != nil {
 			return nil, err
 		}
 
-		node := mapper.ToNodeEntity(&dbModel)
+		node := mapper.ToNodeEntity(&dbRow)
 		if node != nil {
 			nodes = append(nodes, node)
 		}

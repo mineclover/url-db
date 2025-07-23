@@ -76,3 +76,25 @@ func (a *Attribute) SetID(id int) {
 		a.id = id
 	}
 }
+
+// SetTimestamps sets creation and update timestamps (for repository usage)
+func (a *Attribute) SetTimestamps(createdAt, updatedAt time.Time) {
+	a.createdAt = createdAt
+	a.updatedAt = updatedAt
+}
+
+// IsValid checks if the attribute is in a valid state
+func (a *Attribute) IsValid() bool {
+	validTypes := map[string]bool{
+		"tag":         true,
+		"ordered_tag": true,
+		"number":      true,
+		"string":      true,
+		"markdown":    true,
+		"image":       true,
+	}
+	
+	return a.name != "" && 
+		   a.domainID > 0 && 
+		   validTypes[a.attributeType]
+}

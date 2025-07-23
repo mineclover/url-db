@@ -41,7 +41,7 @@ func (uc *ListNodesUseCase) Execute(ctx context.Context, domainName string, page
 		nodeResponses[i] = response.NodeResponse{
 			ID:          node.ID(),
 			URL:         node.URL(),
-			DomainName:  node.DomainName(),
+			DomainName:  domainName, // Use domain name from parameter
 			Title:       node.Title(),
 			Description: node.Description(),
 			CreatedAt:   node.CreatedAt(),

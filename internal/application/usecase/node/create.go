@@ -36,7 +36,7 @@ func (uc *CreateNodeUseCase) Execute(ctx context.Context, req *request.CreateNod
 	}
 
 	// Create node entity
-	node, err := entity.NewNode(req.URL, req.DomainName, req.Title, req.Description)
+	node, err := entity.NewNode(req.URL, req.Title, req.Description, domain.ID())
 	if err != nil {
 		return nil, err
 	}
@@ -60,7 +60,7 @@ func (uc *CreateNodeUseCase) Execute(ctx context.Context, req *request.CreateNod
 	return &response.NodeResponse{
 		ID:          node.ID(),
 		URL:         node.URL(),
-		DomainName:  node.DomainName(),
+		DomainName:  req.DomainName, // Use domain name from request
 		Title:       node.Title(),
 		Description: node.Description(),
 		CreatedAt:   node.CreatedAt(),
