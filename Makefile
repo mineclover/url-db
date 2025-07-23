@@ -20,7 +20,7 @@ YELLOW=\033[1;33m
 BLUE=\033[0;34m
 NC=\033[0m
 
-.PHONY: all build clean deps run build-all lint fmt dev swagger-gen dev-swagger help
+.PHONY: all build clean deps run build-all lint fmt dev swagger-gen dev-swagger help test test-coverage coverage-analysis
 
 # 기본 타겟
 all: clean deps build
@@ -119,6 +119,24 @@ swagger-gen:
 # Swagger와 함께 개발 모드
 dev-swagger: swagger-gen dev
 
+# 테스트 실행
+test:
+	@echo "$(BLUE)Running tests...$(NC)"
+	@./scripts/test_runner.sh
+	@echo "$(GREEN)✓ Tests completed$(NC)"
+
+# 테스트 + 커버리지
+test-coverage:
+	@echo "$(BLUE)Running tests with coverage...$(NC)"
+	@./scripts/test_runner.sh -m coverage
+	@echo "$(GREEN)✓ Tests with coverage completed$(NC)"
+
+# 커버리지 분석만
+coverage-analysis:
+	@echo "$(BLUE)Running coverage analysis...$(NC)"
+	@./scripts/coverage_analysis.sh
+	@echo "$(GREEN)✓ Coverage analysis completed$(NC)"
+
 # 도움말
 help:
 	@echo "$(BLUE)Available targets:$(NC)"
@@ -134,8 +152,11 @@ help:
 	@echo "  make dev-swagger   - Generate Swagger docs and run dev mode"
 	@echo ""
 	@echo "$(BLUE)Testing commands:$(NC)"
-	@echo "  ./scripts/test.sh  - Run comprehensive tests"
-	@echo "  ./scripts/test.sh --help  - Show test options"
+	@echo "  make test              - Run all tests"
+	@echo "  make test-coverage     - Run tests with detailed coverage analysis"
+	@echo "  make coverage-analysis - Run coverage analysis only"
+	@echo "  ./scripts/test_runner.sh -h  - Show test runner options"
+	@echo "  ./scripts/coverage_analysis.sh - Detailed coverage analysis script"
 	@echo ""
 	@echo "$(BLUE)To run the server:$(NC)"
 	@echo "  ./$(BUILD_DIR)/$(BINARY_NAME)"

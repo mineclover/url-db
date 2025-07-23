@@ -14,9 +14,19 @@ make build                    # Build using Makefile
 go build ./cmd/server         # Direct Go build
 
 # Run tests  
-go test -v ./...             # Run all tests
+./scripts/test_runner.sh                    # Comprehensive test runner with options
+./scripts/test_runner.sh -m coverage       # Run with detailed coverage analysis
+./scripts/test_runner.sh -p internal/mcp   # Test specific package
+./scripts/test_runner.sh -m unit -v        # Unit tests with verbose output
+
+# Coverage analysis
+./scripts/coverage_analysis.sh             # Detailed coverage analysis and recommendations
+go test -coverprofile=coverage.out ./...   # Basic coverage
+go tool cover -html=coverage.out -o coverage.html  # Generate HTML coverage report
+
+# Legacy test commands
+go test -v ./...             # Run all tests (basic)
 go test -v ./internal/mcp/... # Run specific package tests
-./scripts/test.sh            # Comprehensive test suite with coverage
 
 # Lint and format
 make lint                    # Run golangci-lint (install: brew install golangci-lint)
@@ -215,6 +225,46 @@ go tool cover -func=coverage.out
 go test -v ./internal/database/... -tags=integration
 ```
 
+### Test Automation Scripts
+
+#### Coverage Analysis Script (`./scripts/coverage_analysis.sh`)
+Comprehensive coverage analysis with actionable insights:
+```bash
+./scripts/coverage_analysis.sh    # Full analysis with color-coded output
+```
+
+**Features:**
+- **Overall Statistics**: Total coverage with status indicators
+- **Package-level Analysis**: High/Medium/Low coverage categorization
+- **Critical Functions**: Lists 0% coverage functions requiring immediate attention
+- **High Potential**: Functions with 75-95% coverage that can easily reach 100%
+- **Missing Tests**: Identifies packages without test files
+- **HTML Report**: Generates detailed coverage.html report
+- **Improvement Suggestions**: Prioritized recommendations for coverage improvement
+
+#### Test Runner Script (`./scripts/test_runner.sh`)
+Flexible test execution with multiple modes and options:
+```bash
+./scripts/test_runner.sh -h                    # Show all options
+./scripts/test_runner.sh                       # Run all tests
+./scripts/test_runner.sh -m coverage           # Run with coverage analysis
+./scripts/test_runner.sh -p internal/mcp -v    # Test specific package with verbose
+./scripts/test_runner.sh -m unit --timeout 15m # Unit tests with custom timeout
+```
+
+**Modes:**
+- `all`: Run all tests (default)
+- `unit`: Unit tests only (with -short flag)
+- `integration`: Integration tests only (with -tags=integration)
+- `mcp`: MCP-specific tests only
+- `coverage`: Tests with detailed coverage analysis
+
+**Options:**
+- `-v, --verbose`: Detailed test output
+- `-p, --package PKG`: Target specific package
+- `-t, --timeout TIME`: Custom timeout (default: 10m)
+- `--clean`: Clean coverage files before running
+
 ### Test Structure and Coverage (Current: 20.6%)
 
 #### High Coverage Packages (60%+)
@@ -243,6 +293,22 @@ Tests follow the `package_test` pattern for clear separation:
 - **Cleanup**: Automatic cleanup after each test case
 - **Fixtures**: Standardized test data setup via helper functions
 - **Transactions**: Repository tests wrap operations in transactions
+
+### Coverage Improvement Strategy
+Use the coverage analysis script to identify improvement opportunities:
+
+1. **Immediate Impact** (0% coverage packages):
+   - `internal/services/advanced` - 0 test files, high business value
+   - `cmd/server/main.go` - MCP adapter functions (lines 355-522)
+
+2. **Quick Wins** (75-95% functions):
+   - Functions already mostly tested, small gaps to close
+   - Use analysis script to identify specific functions
+
+3. **Medium-term Goals**:
+   - Add missing test files for untested packages
+   - Improve MCP protocol test coverage (currently 14.4%)
+   - Enhance HTTP interface tests (currently 1.5%)
 
 ## Important Implementation Details
 
