@@ -87,7 +87,10 @@ func main() {
 		}
 
 		// Start MCP server
-		log.Printf("Starting MCP server in %s mode", *mcpMode)
+		// Don't log in stdio mode as it interferes with JSON-RPC communication
+		if *mcpMode != constants.MCPModeStdio {
+			log.Printf("Starting MCP server in %s mode", *mcpMode)
+		}
 		mcpServer := mcp.NewMCPServer(factory, *mcpMode)
 		ctx := context.Background()
 		if err := mcpServer.Start(ctx); err != nil {
