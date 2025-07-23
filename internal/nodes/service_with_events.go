@@ -2,6 +2,7 @@ package nodes
 
 import (
 	"fmt"
+	"os"
 
 	"url-db/internal/models"
 	"url-db/internal/services"
@@ -40,7 +41,7 @@ func (s *NodeServiceWithEvents) CreateNode(domainID int, req *models.CreateNodeR
 
 	if eventErr := s.eventService.CreateNodeEvent(int64(node.ID), "node.created", changes); eventErr != nil {
 		// Log the error but don't fail the operation
-		fmt.Printf("Warning: Failed to create event for node creation: %v\n", eventErr)
+		fmt.Fprintf(os.Stderr, "Warning: Failed to create event for node creation: %v\n", eventErr)
 	}
 
 	return node, nil
@@ -85,7 +86,7 @@ func (s *NodeServiceWithEvents) UpdateNode(id int, req *models.UpdateNodeRequest
 
 	if eventErr := s.eventService.CreateNodeEvent(int64(updatedNode.ID), "node.updated", changes); eventErr != nil {
 		// Log the error but don't fail the operation
-		fmt.Printf("Warning: Failed to create event for node update: %v\n", eventErr)
+		fmt.Fprintf(os.Stderr, "Warning: Failed to create event for node update: %v\n", eventErr)
 	}
 
 	return updatedNode, nil
@@ -115,7 +116,7 @@ func (s *NodeServiceWithEvents) DeleteNode(id int) error {
 
 	if eventErr := s.eventService.CreateNodeEvent(int64(existingNode.ID), "node.deleted", changes); eventErr != nil {
 		// Log the error but don't fail the operation
-		fmt.Printf("Warning: Failed to create event for node deletion: %v\n", eventErr)
+		fmt.Fprintf(os.Stderr, "Warning: Failed to create event for node deletion: %v\n", eventErr)
 	}
 
 	return nil

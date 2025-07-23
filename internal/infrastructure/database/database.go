@@ -77,7 +77,7 @@ func (d *Database) createSchema() error {
 	schema, err := d.loadSchemaFromFile()
 	if err != nil {
 		// Fallback to inline schema if file not found
-		fmt.Printf("Warning: Could not load schema.sql file, using inline schema: %v\n", err)
+		fmt.Fprintf(os.Stderr, "Warning: Could not load schema.sql file, using inline schema: %v\n", err)
 		schema = d.getInlineSchema()
 	}
 

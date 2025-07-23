@@ -2,6 +2,7 @@ package services
 
 import (
 	"fmt"
+	"os"
 	"time"
 	"url-db/internal/models"
 )
@@ -308,7 +309,7 @@ func (s *DependencyGraphService) GetDependencyGraph(
 	// Cache the result
 	if err := s.cacheGraph(nodeID, graph); err != nil {
 		// Log error but don't fail
-		fmt.Printf("Failed to cache graph: %v\n", err)
+		fmt.Fprintf(os.Stderr, "Failed to cache graph: %v\n", err)
 	}
 
 	return graph, nil
