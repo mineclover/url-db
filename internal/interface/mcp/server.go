@@ -329,6 +329,59 @@ func (s *MCPServer) handleToolsList(req *JSONRPCRequest) {
 				"required": []string{"domain_name", "name", "type"},
 			},
 		},
+		{
+			"name":        "create_dependency",
+			"description": "Create dependency relationship between nodes",
+			"inputSchema": map[string]interface{}{
+				"type": "object",
+				"properties": map[string]interface{}{
+					"dependent_node_id":  map[string]interface{}{"type": "string", "description": "Composite ID of the dependent node (format: tool:domain:id)"},
+					"dependency_node_id": map[string]interface{}{"type": "string", "description": "Composite ID of the dependency node (format: tool:domain:id)"},
+					"dependency_type": map[string]interface{}{
+						"type":        "string",
+						"description": "Type of dependency",
+						"enum":        []string{"hard", "soft", "reference"},
+					},
+					"cascade_delete": map[string]interface{}{"type": "boolean", "default": false, "description": "Whether to cascade delete"},
+					"cascade_update": map[string]interface{}{"type": "boolean", "default": false, "description": "Whether to cascade update"},
+					"description":    map[string]interface{}{"type": "string", "description": "Optional description of the dependency"},
+				},
+				"required": []string{"dependent_node_id", "dependency_node_id", "dependency_type"},
+			},
+		},
+		{
+			"name":        "list_node_dependencies",
+			"description": "List what a node depends on",
+			"inputSchema": map[string]interface{}{
+				"type": "object",
+				"properties": map[string]interface{}{
+					"composite_id": map[string]interface{}{"type": "string", "description": "Composite ID of the node (format: tool:domain:id)"},
+				},
+				"required": []string{"composite_id"},
+			},
+		},
+		{
+			"name":        "list_node_dependents",
+			"description": "List what depends on a node",
+			"inputSchema": map[string]interface{}{
+				"type": "object",
+				"properties": map[string]interface{}{
+					"composite_id": map[string]interface{}{"type": "string", "description": "Composite ID of the node (format: tool:domain:id)"},
+				},
+				"required": []string{"composite_id"},
+			},
+		},
+		{
+			"name":        "delete_dependency",
+			"description": "Remove dependency relationship",
+			"inputSchema": map[string]interface{}{
+				"type": "object",
+				"properties": map[string]interface{}{
+					"dependency_id": map[string]interface{}{"type": "integer", "description": "ID of the dependency relationship to delete"},
+				},
+				"required": []string{"dependency_id"},
+			},
+		},
 	}
 
 	result := map[string]interface{}{
@@ -381,6 +434,14 @@ func (s *MCPServer) handleToolCall(ctx context.Context, req *JSONRPCRequest) {
 		result, err = s.toolHandler.handleListDomainAttributes(ctx, params.Arguments)
 	case "create_domain_attribute":
 		result, err = s.toolHandler.handleCreateDomainAttribute(ctx, params.Arguments)
+	case "create_dependency":
+		result, err = s.toolHandler.handleCreateDependency(ctx, params.Arguments)
+	case "list_node_dependencies":
+		result, err = s.toolHandler.handleListNodeDependencies(ctx, params.Arguments)
+	case "list_node_dependents":
+		result, err = s.toolHandler.handleListNodeDependents(ctx, params.Arguments)
+	case "delete_dependency":
+		result, err = s.toolHandler.handleDeleteDependency(ctx, params.Arguments)
 	default:
 		s.sendError(req.ID, MethodNotFound, fmt.Sprintf("Tool not found: %s", params.Name), nil)
 		return

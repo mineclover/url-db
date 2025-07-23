@@ -176,7 +176,7 @@ URL-DB features an enterprise-grade dependency management system with advanced c
 ### Core Tables
 ```sql
 dependency_types           -- Type registry with 8 built-in types
-node_dependencies_v2       -- Enhanced dependency management
+node_dependencies          -- Enhanced dependency management
 dependency_history         -- Complete change tracking
 dependency_graph_cache     -- Performance optimization cache
 dependency_rules           -- Validation and constraint rules

@@ -88,25 +88,8 @@ CREATE TABLE IF NOT EXISTS dependency_types (
 	created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
--- 노드 의존성 테이블 (기존 호환성용)
+-- 노드 의존성 테이블 (엔터프라이즈급 의존성 관리)
 CREATE TABLE IF NOT EXISTS node_dependencies (
-	id INTEGER PRIMARY KEY AUTOINCREMENT,
-	dependent_node_id INTEGER NOT NULL,
-	dependency_node_id INTEGER NOT NULL,
-	dependency_type TEXT NOT NULL,
-	cascade_delete BOOLEAN DEFAULT FALSE,
-	cascade_update BOOLEAN DEFAULT FALSE,
-	metadata TEXT, -- JSON metadata
-	description TEXT,
-	is_required BOOLEAN DEFAULT 1,
-	created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-	FOREIGN KEY (dependent_node_id) REFERENCES nodes(id) ON DELETE CASCADE,
-	FOREIGN KEY (dependency_node_id) REFERENCES nodes(id) ON DELETE CASCADE,
-	UNIQUE(dependent_node_id, dependency_node_id, dependency_type)
-);
-
--- 고도화된 노드 의존성 테이블 V2
-CREATE TABLE IF NOT EXISTS node_dependencies_v2 (
 	id INTEGER PRIMARY KEY AUTOINCREMENT,
 	dependent_node_id INTEGER NOT NULL,
 	dependency_node_id INTEGER NOT NULL,
@@ -138,7 +121,7 @@ CREATE TABLE IF NOT EXISTS dependency_history (
 	change_reason TEXT,
 	changed_by TEXT,
 	changed_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-	FOREIGN KEY (dependency_id) REFERENCES node_dependencies_v2(id)
+	FOREIGN KEY (dependency_id) REFERENCES node_dependencies(id)
 );
 
 -- 의존성 그래프 캐시
@@ -201,19 +184,15 @@ CREATE INDEX IF NOT EXISTS idx_node_connections_target ON node_connections(targe
 CREATE INDEX IF NOT EXISTS idx_node_subscriptions_node ON node_subscriptions(subscribed_node_id);
 CREATE INDEX IF NOT EXISTS idx_node_subscriptions_service ON node_subscriptions(subscriber_service);
 
--- 기존 의존성 인덱스
+-- 의존성 인덱스 (성능 최적화)
 CREATE INDEX IF NOT EXISTS idx_node_dependencies_dependent ON node_dependencies(dependent_node_id);
 CREATE INDEX IF NOT EXISTS idx_node_dependencies_dependency ON node_dependencies(dependency_node_id);
-
--- 고도화된 의존성 인덱스
-CREATE INDEX IF NOT EXISTS idx_deps_v2_dependent ON node_dependencies_v2(dependent_node_id);
-CREATE INDEX IF NOT EXISTS idx_deps_v2_dependency ON node_dependencies_v2(dependency_node_id);
-CREATE INDEX IF NOT EXISTS idx_deps_v2_type ON node_dependencies_v2(dependency_type_id);
-CREATE INDEX IF NOT EXISTS idx_deps_v2_active ON node_dependencies_v2(is_active);
-CREATE INDEX IF NOT EXISTS idx_deps_v2_valid_from ON node_dependencies_v2(valid_from);
-CREATE INDEX IF NOT EXISTS idx_deps_v2_valid_until ON node_dependencies_v2(valid_until);
-CREATE INDEX IF NOT EXISTS idx_deps_v2_strength ON node_dependencies_v2(strength);
-CREATE INDEX IF NOT EXISTS idx_deps_v2_priority ON node_dependencies_v2(priority);
+CREATE INDEX IF NOT EXISTS idx_node_dependencies_type ON node_dependencies(dependency_type_id);
+CREATE INDEX IF NOT EXISTS idx_node_dependencies_active ON node_dependencies(is_active);
+CREATE INDEX IF NOT EXISTS idx_node_dependencies_valid_from ON node_dependencies(valid_from);
+CREATE INDEX IF NOT EXISTS idx_node_dependencies_valid_until ON node_dependencies(valid_until);
+CREATE INDEX IF NOT EXISTS idx_node_dependencies_strength ON node_dependencies(strength);
+CREATE INDEX IF NOT EXISTS idx_node_dependencies_priority ON node_dependencies(priority);
 
 -- 의존성 히스토리 인덱스
 CREATE INDEX IF NOT EXISTS idx_deps_history_dep ON dependency_history(dependency_id);

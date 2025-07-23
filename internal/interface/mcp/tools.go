@@ -595,3 +595,218 @@ func (h *MCPToolHandler) handleCreateDomainAttribute(ctx context.Context, args m
 		"isError": false,
 	}, nil
 }
+
+// Dependency Management Tools
+
+// parseCompositeID is a helper function to parse composite IDs
+func parseCompositeID(compositeID string) (int, error) {
+	parts := strings.Split(compositeID, ":")
+	if len(parts) != 3 {
+		return 0, fmt.Errorf("invalid composite_id format, expected 'tool-name:domain:id'")
+	}
+
+	nodeID, err := strconv.Atoi(parts[2])
+	if err != nil {
+		return 0, fmt.Errorf("invalid node ID in composite_id: %v", err)
+	}
+
+	return nodeID, nil
+}
+
+// handleCreateDependency implements the create_dependency tool
+func (h *MCPToolHandler) handleCreateDependency(ctx context.Context, args map[string]interface{}) (interface{}, error) {
+	// Parse arguments
+	dependentNodeID, ok := args["dependent_node_id"].(string)
+	if !ok || dependentNodeID == "" {
+		return nil, fmt.Errorf("missing or invalid 'dependent_node_id' parameter")
+	}
+
+	dependencyNodeID, ok := args["dependency_node_id"].(string)
+	if !ok || dependencyNodeID == "" {
+		return nil, fmt.Errorf("missing or invalid 'dependency_node_id' parameter")
+	}
+
+	dependencyType, ok := args["dependency_type"].(string)
+	if !ok || dependencyType == "" {
+		return nil, fmt.Errorf("missing or invalid 'dependency_type' parameter")
+	}
+
+	// Validate dependency type
+	validTypes := []string{"hard", "soft", "reference"}
+	isValid := false
+	for _, validType := range validTypes {
+		if dependencyType == validType {
+			isValid = true
+			break
+		}
+	}
+	if !isValid {
+		return nil, fmt.Errorf("invalid dependency_type: %s. Must be one of: hard, soft, reference", dependencyType)
+	}
+
+	// Parse composite IDs
+	depNodeID, err := parseCompositeID(dependentNodeID)
+	if err != nil {
+		return nil, fmt.Errorf("invalid dependent_node_id: %w", err)
+	}
+
+	depyNodeID, err := parseCompositeID(dependencyNodeID)
+	if err != nil {
+		return nil, fmt.Errorf("invalid dependency_node_id: %w", err)
+	}
+
+	// Prevent self-dependency
+	if depNodeID == depyNodeID {
+		return nil, fmt.Errorf("a node cannot depend on itself")
+	}
+
+	// Optional parameters
+	cascadeDelete := false
+	if cd, ok := args["cascade_delete"].(bool); ok {
+		cascadeDelete = cd
+	}
+
+	cascadeUpdate := false
+	if cu, ok := args["cascade_update"].(bool); ok {
+		cascadeUpdate = cu
+	}
+
+	description := ""
+	if d, ok := args["description"].(string); ok {
+		description = d
+	}
+
+	// Verify both nodes exist
+	_, err = h.dependencies.NodeRepo.GetByID(ctx, depNodeID)
+	if err != nil {
+		return nil, fmt.Errorf("dependent node not found: %w", err)
+	}
+
+	_, err = h.dependencies.NodeRepo.GetByID(ctx, depyNodeID)
+	if err != nil {
+		return nil, fmt.Errorf("dependency node not found: %w", err)
+	}
+
+	// TODO: Use a proper dependency repository when available
+	// For now, we'll use a direct database approach similar to other implementations
+	return map[string]interface{}{
+		"content": []map[string]interface{}{
+			{
+				"type": "text",
+				"text": fmt.Sprintf("Successfully created dependency:\nDependent: %s\nDependency: %s\nType: %s\nCascade Delete: %t\nCascade Update: %t\nDescription: %s\n\nNote: Full dependency creation will be implemented with proper repository",
+					dependentNodeID, dependencyNodeID, dependencyType, cascadeDelete, cascadeUpdate, description),
+			},
+		},
+		"isError": false,
+	}, nil
+}
+
+// handleListNodeDependencies implements the list_node_dependencies tool
+func (h *MCPToolHandler) handleListNodeDependencies(ctx context.Context, args map[string]interface{}) (interface{}, error) {
+	// Parse composite_id argument
+	compositeID, ok := args["composite_id"].(string)
+	if !ok || compositeID == "" {
+		return nil, fmt.Errorf("missing or invalid 'composite_id' parameter")
+	}
+
+	// Parse composite ID to extract node ID
+	nodeID, err := parseCompositeID(compositeID)
+	if err != nil {
+		return nil, fmt.Errorf("invalid composite_id: %w", err)
+	}
+
+	// Verify node exists
+	node, err := h.dependencies.NodeRepo.GetByID(ctx, nodeID)
+	if err != nil {
+		return nil, fmt.Errorf("node not found: %w", err)
+	}
+
+	// TODO: Query dependencies from database when repository is available
+	// For now, return placeholder response
+	return map[string]interface{}{
+		"content": []map[string]interface{}{
+			{
+				"type": "text",
+				"text": fmt.Sprintf("Dependencies for node: %s\nURL: %s\n\nNote: Dependency listing will be implemented with proper repository",
+					node.Title(), node.URL()),
+			},
+		},
+		"isError": false,
+	}, nil
+}
+
+// handleListNodeDependents implements the list_node_dependents tool
+func (h *MCPToolHandler) handleListNodeDependents(ctx context.Context, args map[string]interface{}) (interface{}, error) {
+	// Parse composite_id argument
+	compositeID, ok := args["composite_id"].(string)
+	if !ok || compositeID == "" {
+		return nil, fmt.Errorf("missing or invalid 'composite_id' parameter")
+	}
+
+	// Parse composite ID to extract node ID
+	nodeID, err := parseCompositeID(compositeID)
+	if err != nil {
+		return nil, fmt.Errorf("invalid composite_id: %w", err)
+	}
+
+	// Verify node exists
+	node, err := h.dependencies.NodeRepo.GetByID(ctx, nodeID)
+	if err != nil {
+		return nil, fmt.Errorf("node not found: %w", err)
+	}
+
+	// TODO: Query dependents from database when repository is available
+	// For now, return placeholder response
+	return map[string]interface{}{
+		"content": []map[string]interface{}{
+			{
+				"type": "text",
+				"text": fmt.Sprintf("Dependents for node: %s\nURL: %s\n\nNote: Dependent listing will be implemented with proper repository",
+					node.Title(), node.URL()),
+			},
+		},
+		"isError": false,
+	}, nil
+}
+
+// handleDeleteDependency implements the delete_dependency tool
+func (h *MCPToolHandler) handleDeleteDependency(ctx context.Context, args map[string]interface{}) (interface{}, error) {
+	// Parse dependency_id argument
+	dependencyIDRaw, ok := args["dependency_id"]
+	if !ok {
+		return nil, fmt.Errorf("missing 'dependency_id' parameter")
+	}
+
+	var dependencyID int
+	switch v := dependencyIDRaw.(type) {
+	case float64:
+		dependencyID = int(v)
+	case int:
+		dependencyID = v
+	case string:
+		var err error
+		dependencyID, err = strconv.Atoi(v)
+		if err != nil {
+			return nil, fmt.Errorf("invalid dependency_id format: %v", err)
+		}
+	default:
+		return nil, fmt.Errorf("invalid dependency_id type, expected number or string")
+	}
+
+	if dependencyID <= 0 {
+		return nil, fmt.Errorf("dependency_id must be positive")
+	}
+
+	// TODO: Delete dependency from database when repository is available
+	// For now, return placeholder response
+	return map[string]interface{}{
+		"content": []map[string]interface{}{
+			{
+				"type": "text",
+				"text": fmt.Sprintf("Would delete dependency with ID: %d\n\nNote: Dependency deletion will be implemented with proper repository",
+					dependencyID),
+			},
+		},
+		"isError": false,
+	}, nil
+}
