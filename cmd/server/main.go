@@ -92,8 +92,8 @@ func main() {
 			log.Printf("Starting MCP server in %s mode", *mcpMode)
 		}
 		
-		// Use new MCP server implementation with mcp-golang
-		mcpServer := mcp.NewMCPServerV2(factory)
+		// Use original working MCP server implementation
+		mcpServer := mcp.NewMCPServer(factory, *mcpMode)
 		ctx := context.Background()
 		if err := mcpServer.Start(ctx); err != nil {
 			log.Fatal("Failed to start MCP server:", err)

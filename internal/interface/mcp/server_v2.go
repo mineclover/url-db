@@ -8,8 +8,10 @@ import (
 	"github.com/metoro-io/mcp-golang/transport/stdio"
 
 	"url-db/internal/application/dto/request"
+	"url-db/internal/application/usecase/node"
 	"url-db/internal/constants"
 	"url-db/internal/interface/setup"
+	"url-db/internal/compositekey"
 )
 
 // MCPServerV2 implements MCP server using mcp-golang library
@@ -199,21 +201,94 @@ func (s *MCPServerV2) handleFindNodeByURL(args FindNodeByURLArgs) (*mcp_golang.T
 	return mcp_golang.NewToolResponse(mcp_golang.NewTextContent("Find node by URL feature coming soon")), nil
 }
 
-// Placeholder handlers for attributes and dependencies
+// Node attributes handlers
 func (s *MCPServerV2) handleGetNodeAttributes(args GetNodeAttributesArgs) (*mcp_golang.ToolResponse, error) {
-	return mcp_golang.NewToolResponse(mcp_golang.NewTextContent("Node attributes feature coming soon")), nil
+	// TODO: Implement get node attributes - need to create GetNodeAttributesUseCase
+	return mcp_golang.NewToolResponse(mcp_golang.NewTextContent("Get node attributes feature coming soon")), nil
 }
 
 func (s *MCPServerV2) handleSetNodeAttributes(args SetNodeAttributesArgs) (*mcp_golang.ToolResponse, error) {
-	return mcp_golang.NewToolResponse(mcp_golang.NewTextContent("Set node attributes feature coming soon")), nil
+	ctx := context.Background()
+	useCase := s.factory.CreateSetNodeAttributesUseCase()
+
+	// Parse composite ID to get node ID
+	compositeKey, err := compositekey.Parse(args.CompositeID)
+	if err != nil {
+		return nil, fmt.Errorf("invalid composite ID format: %w", err)
+	}
+
+	// Convert MCP attributes to UseCase attributes
+	attributes := make([]node.AttributeInput, len(args.Attributes))
+	for i, attr := range args.Attributes {
+		attributes[i] = node.AttributeInput{
+			Name:       attr.Name,
+			Value:      attr.Value,
+			OrderIndex: attr.OrderIndex,
+		}
+	}
+
+	err = useCase.Execute(ctx, compositeKey.ID, attributes)
+	if err != nil {
+		return nil, fmt.Errorf("failed to set node attributes: %w", err)
+	}
+
+	content := fmt.Sprintf("Successfully set %d attributes for node: %s", len(args.Attributes), args.CompositeID)
+	return mcp_golang.NewToolResponse(mcp_golang.NewTextContent(content)), nil
 }
 
 func (s *MCPServerV2) handleListDomainAttributes(args ListDomainAttributesArgs) (*mcp_golang.ToolResponse, error) {
-	return mcp_golang.NewToolResponse(mcp_golang.NewTextContent("List domain attributes feature coming soon")), nil
+	ctx := context.Background()
+	
+	// Get domain by name to get ID
+	domain, err := s.factory.GetDomainByName(ctx, args.DomainName)
+	if err != nil {
+		return nil, fmt.Errorf("failed to find domain '%s': %w", args.DomainName, err)
+	}
+
+	useCase := s.factory.CreateListAttributesUseCase()
+	response, err := useCase.Execute(ctx, domain.ID())
+	if err != nil {
+		return nil, fmt.Errorf("failed to list domain attributes: %w", err)
+	}
+
+	content := fmt.Sprintf("Attributes for domain '%s':\n", args.DomainName)
+	for _, attr := range response.Attributes {
+		content += fmt.Sprintf("• %s (%s): %s\n", attr.Name, attr.Type, attr.Description)
+	}
+
+	if len(response.Attributes) == 0 {
+		content = fmt.Sprintf("No attributes defined for domain '%s'.", args.DomainName)
+	}
+
+	return mcp_golang.NewToolResponse(mcp_golang.NewTextContent(content)), nil
 }
 
 func (s *MCPServerV2) handleCreateDomainAttribute(args CreateDomainAttributeArgs) (*mcp_golang.ToolResponse, error) {
-	return mcp_golang.NewToolResponse(mcp_golang.NewTextContent("Create domain attribute feature coming soon")), nil
+	ctx := context.Background()
+	
+	// Get domain by name to get ID
+	domain, err := s.factory.GetDomainByName(ctx, args.DomainName)
+	if err != nil {
+		return nil, fmt.Errorf("failed to find domain '%s': %w", args.DomainName, err)
+	}
+
+	useCase := s.factory.CreateCreateAttributeUseCase()
+	request := &request.CreateAttributeRequest{
+		DomainID:    domain.ID(),
+		Name:        args.Name,
+		Type:        args.Type,
+		Description: args.Description,
+	}
+
+	response, err := useCase.Execute(ctx, request)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create domain attribute: %w", err)
+	}
+
+	content := fmt.Sprintf("Successfully created domain attribute:\nDomain: %s\nName: %s\nType: %s\nDescription: %s\nCreated: %s",
+		args.DomainName, response.Name, response.Type, response.Description, response.CreatedAt.Format("2006-01-02 15:04:05"))
+
+	return mcp_golang.NewToolResponse(mcp_golang.NewTextContent(content)), nil
 }
 
 func (s *MCPServerV2) handleGetDomainAttribute(args GetDomainAttributeArgs) (*mcp_golang.ToolResponse, error) {

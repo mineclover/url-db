@@ -1,12 +1,14 @@
 package setup
 
 import (
+	"context"
 	"database/sql"
 
 	"github.com/jmoiron/sqlx"
 	"url-db/internal/application/usecase/attribute"
 	"url-db/internal/application/usecase/domain"
 	"url-db/internal/application/usecase/node"
+	"url-db/internal/domain/entity"
 	"url-db/internal/domain/repository"
 	domainAttribute "url-db/internal/domain/attribute"
 	sqliteRepo "url-db/internal/infrastructure/persistence/sqlite/repository"
@@ -165,4 +167,31 @@ func (f *ApplicationFactory) CreateCreateNodeUseCase() *node.CreateNodeUseCase {
 	return createUseCase
 }
 
-// TODO: Add missing UseCase factory methods as needed
+// Node attributes UseCase factory methods
+func (f *ApplicationFactory) CreateSetNodeAttributesUseCase() *node.SetNodeAttributesUseCase {
+	nodeRepo := f.CreateNodeRepository()
+	attributeRepo := f.CreateAttributeRepository()
+	nodeAttributeRepo := f.CreateNodeAttributeRepository()
+	return node.NewSetNodeAttributesUseCase(nodeRepo, attributeRepo, nodeAttributeRepo)
+}
+
+// Domain attributes (schema) UseCase factory methods
+func (f *ApplicationFactory) CreateListAttributesUseCase() *attribute.ListAttributesUseCase {
+	attributeRepo := f.CreateAttributeRepository()
+	domainRepo := f.CreateDomainRepository()
+	_, listUseCase := f.CreateAttributeUseCases(attributeRepo, domainRepo)
+	return listUseCase
+}
+
+func (f *ApplicationFactory) CreateCreateAttributeUseCase() *attribute.CreateAttributeUseCase {
+	attributeRepo := f.CreateAttributeRepository()
+	domainRepo := f.CreateDomainRepository()
+	createUseCase, _ := f.CreateAttributeUseCases(attributeRepo, domainRepo)
+	return createUseCase
+}
+
+// Helper method to get domain by name
+func (f *ApplicationFactory) GetDomainByName(ctx context.Context, domainName string) (*entity.Domain, error) {
+	domainRepo := f.CreateDomainRepository()
+	return domainRepo.GetByName(ctx, domainName)
+}
