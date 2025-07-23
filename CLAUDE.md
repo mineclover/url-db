@@ -196,21 +196,53 @@ All tools are defined in `/internal/mcp/tools.go` with built-in validation. Tool
 
 ## Testing Approach
 
+### Test Organization and Separation
+
+**Test-Business Logic Separation Principle**: All tests are organized using Go's `package_test` pattern to ensure clean separation between test code and business logic implementation.
+
 ```bash
-# Run specific test
+# Run specific test  
 go test -v -run TestCreateNode ./internal/repositories/
 
 # Run MCP tests
 go test -v ./internal/mcp/...
 
+# Run tests with coverage
+go test -coverprofile=coverage.out ./...
+go tool cover -func=coverage.out
+
 # Integration tests
 go test -v ./internal/database/... -tags=integration
 ```
 
-Tests use in-memory SQLite databases for isolation. Key test files:
-- Repository tests: `*_test.go` in `/internal/repositories/`
-- MCP protocol tests: `/internal/mcp/*_test.go`
-- Integration tests: `/internal/database/database_test.go`
+### Test Structure and Coverage (Current: 20.6%)
+
+#### High Coverage Packages (60%+)
+- `internal/compositekey`: **100.0%** - Complete composite key functionality
+- `internal/config`: **100.0%** - Configuration management  
+- `internal/shared/utils`: **99.3%** - Utility functions
+- `internal/database`: **70.3%** - Database connections and operations
+- `internal/attributes`: **65.2%** - Attribute type system
+
+#### Test File Organization
+Tests follow the `package_test` pattern for clear separation:
+- **Repository tests**: `*_test.go` in separate `*_test` packages
+- **MCP protocol tests**: `/internal/mcp/*_test.go` 
+- **Integration tests**: `/internal/database/database_test.go`
+- **Unit tests**: Component-specific test files with `package_test` naming
+
+#### Key Test Categories
+1. **Unit Tests**: Individual function/method testing with mocks
+2. **Integration Tests**: Database operations with in-memory SQLite
+3. **MCP Protocol Tests**: JSON-RPC 2.0 compliance and tool execution
+4. **Validation Tests**: Input validation, error handling, edge cases
+5. **Utility Tests**: String processing, normalization, composite keys
+
+### Test Database Strategy
+- **Isolation**: Each test uses independent in-memory SQLite databases
+- **Cleanup**: Automatic cleanup after each test case
+- **Fixtures**: Standardized test data setup via helper functions
+- **Transactions**: Repository tests wrap operations in transactions
 
 ## Important Implementation Details
 
@@ -224,6 +256,23 @@ Tests use in-memory SQLite databases for isolation. Key test files:
 8. **Code Generation**: Use `scripts/generate-tool-constants.py` to update constants
 
 ## Development Principles
+
+### Test-Business Logic Separation
+**Core Principle**: Maintain strict separation between test code and business logic to ensure clean, maintainable code architecture.
+
+#### Package Test Pattern (`package_test`)
+- **Separation**: All test files use `package_test` naming (e.g., `package compositekey_test`)
+- **Isolation**: Tests access only public APIs of the packages they test
+- **Independence**: Business logic remains unaware of test implementation details
+- **Maintainability**: Changes to business logic don't break test organization
+
+#### Test Development Guidelines
+1. **Test Package Naming**: Always use `package [packagename]_test` 
+2. **Import Strategy**: Import the package being tested explicitly
+3. **Public API Focus**: Test only exported functions and types
+4. **Mock Dependencies**: Use interfaces and dependency injection for testability
+5. **Test Data Isolation**: Each test should create its own test data
+6. **Cleanup**: Ensure proper cleanup after each test case
 
 ### MCP-First Development
 This project prioritizes MCP functionality as the primary interface. Follow these principles:
@@ -239,9 +288,17 @@ When implementing new features:
 1. **Start with MCP Tool Design**: Define the MCP tool interface first
 2. **Implement Backend Support**: Add repository/service layers as needed
 3. **Create MCP Tool Implementation**: Implement the tool in `/internal/mcp/tools.go`
-4. **Add REST API (if needed)**: REST endpoints are secondary to MCP tools
-5. **Write Tests**: Focus on MCP integration tests first
-6. **Update Documentation**: Document MCP usage patterns and examples
+4. **Write Tests with Separation**: Use `package_test` pattern for all test files
+5. **Add REST API (if needed)**: REST endpoints are secondary to MCP tools
+6. **Verify Coverage**: Ensure adequate test coverage for new components
+7. **Update Documentation**: Document MCP usage patterns and examples
+
+#### Test-First Development Process
+1. **Define Test Package**: Create `*_test.go` files with `package [name]_test`
+2. **Write Interface Tests**: Test public APIs and expected behaviors
+3. **Implement Business Logic**: Write minimal code to pass tests
+4. **Refactor with Confidence**: Tests ensure functionality remains intact
+5. **Monitor Coverage**: Use `go test -cover` to track test completeness
 
 ### MCP Tool Design Guidelines
 
