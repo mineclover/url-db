@@ -2,7 +2,7 @@
 
 This directory contains automation scripts for the URL-DB MCP server project.
 
-## Core Scripts (Keep Long-term)
+## Available Scripts
 
 ### `generate-tool-constants.py` ⭐
 **Purpose**: Generates consistent tool constants for Go and Python from YAML specification  
@@ -15,77 +15,57 @@ This directory contains automation scripts for the URL-DB MCP server project.
 
 **Quality**: 9/10 - Excellent architecture, essential for consistency
 
-### `test.sh` ⭐
-**Purpose**: Comprehensive testing infrastructure for the project  
-**Status**: Essential testing - Keep permanently  
-**Usage**: `./test.sh [options]`  
-**Features**: Unit tests, integration tests, coverage reports, linting
+## Usage Guidelines
 
-**Quality**: 9/10 - Well-structured, critical for CI/CD
+### Core Script Usage
+```bash
+# Generate tool constants from YAML specification
+python3 scripts/generate-tool-constants.py
+```
 
-### `test-cursor-mcp.sh` ⭐  
-**Purpose**: Cursor IDE integration testing and configuration helper  
-**Status**: User onboarding tool - Keep permanently  
-**Usage**: `./test-cursor-mcp.sh`  
-**Features**: MCP server testing, configuration examples
+### Generated Files
+- **`generated/tool_constants.go`**: Go constants for MCP tools
+- **`generated/tool_constants.py`**: Python constants for testing
+- **`generated/mcp_tools_schema.json`**: JSON schema for validation
 
-**Quality**: 8/10 - Clear, safe operations, valuable for users
+### Manual Application
+Since automated application scripts were removed due to reliability issues, constants should be applied manually:
 
-## Utility Scripts (Conditional Keep)
-
-### `apply-constants-to-go.py` 🔄
-**Purpose**: Applies generated constants to Go source files  
-**Status**: Needs refactoring - Currently has hardcoded mappings  
-**Usage**: `python3 apply-constants-to-go.py`  
-**Issue**: Brittle due to hardcoded tool mappings
-
-**Quality**: 7/10 - Works but needs improvement  
-**TODO**: Refactor to read from `generate-tool-constants.py` output
-
-### `apply-constants-to-python.py` 🔄
-**Purpose**: Applies generated constants to Python test files  
-**Status**: Needs refactoring - Mixed responsibilities  
-**Usage**: `python3 apply-constants-to-python.py`  
-**Issue**: Monolithic, hardcoded mappings, mixed concerns
-
-**Quality**: 6/10 - Complex, needs splitting  
-**TODO**: Split into focused, reusable components
+1. **Go Code**: Copy constants from `generated/tool_constants.go` to `internal/interfaces/mcp/tool_constants.go`
+2. **Python Tests**: Copy constants from `generated/tool_constants.py` when Python test infrastructure is added
 
 ## Maintenance Guidelines
 
-### Immediate Actions
-1. **Add unit tests** to `generate-tool-constants.py`
-2. **Document removal timeline** for utility scripts
-3. **Ensure migration** is complete before removing scripts
+### Current Status
+1. ✅ **Core script** `generate-tool-constants.py` is working perfectly
+2. ✅ **Clean directory** with only essential scripts
+3. ✅ **Accurate documentation** reflecting actual state
 
-### Short-term Improvements  
-1. **Refactor** `apply-constants-to-go.py` to use generated constants
-2. **Split** `apply-constants-to-python.py` into focused components
-3. **Integrate** constant generation into build process
+### Future Improvements
+1. **Add unit tests** to `generate-tool-constants.py`
+2. **Integrate constant generation** into build process
+3. **Create testing infrastructure** when needed
+4. **Add comprehensive error handling** to core script
 
 ### Long-term Considerations
-1. **Move test scripts** to `/scripts/testing/` subdirectory
-2. **Add comprehensive error handling** across all scripts
-3. **Document usage patterns** in project documentation
+1. **Move test scripts** to `/scripts/testing/` subdirectory when created
+2. **Document usage patterns** in project documentation
+3. **Automate constant application** when Go code structure stabilizes
 
 ## Script Quality Matrix
 
-| Script | Quality | Value | Action |
+| Script | Quality | Value | Status |
 |--------|---------|-------|--------|
-| `generate-tool-constants.py` | 9/10 | High | Keep + Improve |
-| `test.sh` | 9/10 | High | Keep |
-| `test-cursor-mcp.sh` | 8/10 | High | Keep |
-| `apply-constants-to-go.py` | 7/10 | Medium | Refactor |
-| `apply-constants-to-python.py` | 6/10 | Medium | Refactor |
+| `generate-tool-constants.py` | 9/10 | High | ✅ Keep + Improve |
 
 ## Usage Notes
 
-- **Core scripts** should be maintained and improved
-- **Utility scripts** need refactoring before long-term use
-- **All scripts** should be tested before major changes
+- **Core script** `generate-tool-constants.py` should be maintained and improved
 - **Generated files** should not be manually edited
+- **Constants should be applied manually** until automated solution is stable
+- **Test scripts will be created** when testing infrastructure is needed
 
 ---
 
-*Last updated: 2025-07-22*  
-*Analysis completed by: Claude Code Assistant*
+*Last updated: 2025-07-23*  
+*Status: Clean and functional*

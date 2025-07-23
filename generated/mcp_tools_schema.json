@@ -194,6 +194,12 @@
               }
             }
           }
+        },
+        "auto_create_attributes": {
+          "type": "boolean",
+          "required": false,
+          "default": true,
+          "description": "Automatically create attributes if they don't exist"
         }
       }
     },
