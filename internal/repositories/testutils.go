@@ -5,6 +5,7 @@ import (
 	"testing"
 	"time"
 	"url-db/internal/models"
+	"url-db/internal/shared/testdb"
 
 	"github.com/jmoiron/sqlx"
 	_ "github.com/mattn/go-sqlite3"
@@ -30,8 +31,8 @@ func SetupTestDB(t *testing.T) *TestDB {
 	_, err = db.Exec("PRAGMA foreign_keys = ON")
 	require.NoError(t, err)
 
-	// 테스트용 스키마 생성
-	createTestSchema(t, db)
+	// 중앙화된 스키마 로드
+	testdb.LoadSchema(t, db)
 
 	return &TestDB{DB: db}
 }
@@ -41,98 +42,6 @@ func (tdb *TestDB) Close() {
 	tdb.DB.Close()
 }
 
-// createTestSchema 는 테스트용 스키마를 생성합니다.
-func createTestSchema(t *testing.T, db *sql.DB) {
-	schema := `
-		CREATE TABLE domains (
-			id INTEGER PRIMARY KEY AUTOINCREMENT,
-			name TEXT NOT NULL UNIQUE,
-			description TEXT,
-			created_at DATETIME NOT NULL,
-			updated_at DATETIME NOT NULL
-		);
-
-		CREATE TABLE nodes (
-			id INTEGER PRIMARY KEY AUTOINCREMENT,
-			content TEXT NOT NULL,
-			domain_id INTEGER NOT NULL,
-			title TEXT,
-			description TEXT,
-			created_at DATETIME NOT NULL,
-			updated_at DATETIME NOT NULL,
-			FOREIGN KEY (domain_id) REFERENCES domains(id) ON DELETE CASCADE,
-			UNIQUE(content, domain_id)
-		);
-
-		CREATE TABLE attributes (
-			id INTEGER PRIMARY KEY AUTOINCREMENT,
-			domain_id INTEGER NOT NULL,
-			name TEXT NOT NULL,
-			type TEXT NOT NULL CHECK (type IN ('tag', 'ordered_tag', 'number', 'string', 'markdown', 'image')),
-			description TEXT,
-			created_at DATETIME NOT NULL,
-			FOREIGN KEY (domain_id) REFERENCES domains(id) ON DELETE CASCADE,
-			UNIQUE(domain_id, name)
-		);
-
-		CREATE TABLE node_attributes (
-			id INTEGER PRIMARY KEY AUTOINCREMENT,
-			node_id INTEGER NOT NULL,
-			attribute_id INTEGER NOT NULL,
-			value TEXT NOT NULL,
-			order_index INTEGER DEFAULT 0,
-			created_at DATETIME NOT NULL,
-			FOREIGN KEY (node_id) REFERENCES nodes(id) ON DELETE CASCADE,
-			FOREIGN KEY (attribute_id) REFERENCES attributes(id) ON DELETE CASCADE,
-			UNIQUE(node_id, attribute_id, order_index)
-		);
-
-		CREATE TABLE node_connections (
-			id INTEGER PRIMARY KEY AUTOINCREMENT,
-			source_node_id INTEGER NOT NULL,
-			target_node_id INTEGER NOT NULL,
-			relationship_type TEXT NOT NULL,
-			description TEXT,
-			created_at DATETIME NOT NULL,
-			FOREIGN KEY (source_node_id) REFERENCES nodes(id) ON DELETE CASCADE,
-			FOREIGN KEY (target_node_id) REFERENCES nodes(id) ON DELETE CASCADE,
-			UNIQUE(source_node_id, target_node_id, relationship_type)
-		);
-
-		CREATE TABLE node_subscriptions (
-			id INTEGER PRIMARY KEY AUTOINCREMENT,
-			subscriber_service TEXT NOT NULL,
-			subscriber_endpoint TEXT,
-			subscribed_node_id INTEGER NOT NULL,
-			event_types TEXT NOT NULL,
-			filter_conditions TEXT,
-			is_active BOOLEAN DEFAULT TRUE,
-			created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-			updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-			FOREIGN KEY (subscribed_node_id) REFERENCES nodes(id) ON DELETE CASCADE
-		);
-
-		CREATE TABLE node_events (
-			id INTEGER PRIMARY KEY AUTOINCREMENT,
-			node_id INTEGER NOT NULL,
-			event_type TEXT NOT NULL,
-			event_data TEXT,
-			occurred_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-			processed_at DATETIME,
-			FOREIGN KEY (node_id) REFERENCES nodes(id) ON DELETE CASCADE
-		);
-
-		-- 인덱스 생성
-		CREATE INDEX idx_nodes_domain_id ON nodes(domain_id);
-		CREATE INDEX idx_nodes_content ON nodes(content);
-		CREATE INDEX idx_attributes_domain_id ON attributes(domain_id);
-		CREATE INDEX idx_node_attributes_node_id ON node_attributes(node_id);
-		CREATE INDEX idx_node_attributes_attribute_id ON node_attributes(attribute_id);
-	`
-
-	_, err := db.Exec(schema)
-	require.NoError(t, err)
-}
 
 // TestDomainBuilder 는 테스트용 도메인 빌더입니다.
 type TestDomainBuilder struct {

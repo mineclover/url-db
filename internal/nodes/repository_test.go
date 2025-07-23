@@ -9,40 +9,18 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"url-db/internal/models"
+	"url-db/internal/shared/testdb"
 )
 
 func setupTestDB(t *testing.T) *sql.DB {
 	db, err := sql.Open("sqlite3", ":memory:")
 	require.NoError(t, err)
 
-	schema := `
-		CREATE TABLE domains (
-			id INTEGER PRIMARY KEY AUTOINCREMENT,
-			name TEXT NOT NULL UNIQUE,
-			description TEXT,
-			created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-			updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
-		);
-		
-		CREATE TABLE nodes (
-			id INTEGER PRIMARY KEY AUTOINCREMENT,
-			content TEXT NOT NULL,
-			domain_id INTEGER NOT NULL,
-			title TEXT,
-			description TEXT,
-			created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-			updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-			FOREIGN KEY (domain_id) REFERENCES domains(id) ON DELETE CASCADE,
-			UNIQUE(content, domain_id)
-		);
-		
-		CREATE INDEX idx_nodes_domain ON nodes(domain_id);
-		CREATE INDEX idx_nodes_content ON nodes(content);
-		
-		INSERT INTO domains (name, description) VALUES ('test-domain', 'Test domain');
-	`
+	// Load centralized schema
+	testdb.LoadSchema(t, db)
 
-	_, err = db.Exec(schema)
+	// Insert test data
+	_, err = db.Exec("INSERT INTO domains (name, description) VALUES ('test-domain', 'Test domain')")
 	require.NoError(t, err)
 
 	return db

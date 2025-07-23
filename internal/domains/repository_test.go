@@ -11,23 +11,15 @@ import (
 	"github.com/stretchr/testify/require"
 	"url-db/internal/domains"
 	"url-db/internal/models"
+	"url-db/internal/shared/testdb"
 )
 
 func setupTestDB(t *testing.T) *sql.DB {
 	db, err := sql.Open("sqlite3", ":memory:")
 	require.NoError(t, err)
 
-	// Create domains table
-	_, err = db.Exec(`
-		CREATE TABLE domains (
-			id INTEGER PRIMARY KEY AUTOINCREMENT,
-			name TEXT NOT NULL UNIQUE,
-			description TEXT NOT NULL DEFAULT '',
-			created_at DATETIME NOT NULL,
-			updated_at DATETIME NOT NULL
-		)
-	`)
-	require.NoError(t, err)
+	// Load centralized schema
+	testdb.LoadSchema(t, db)
 
 	return db
 }
