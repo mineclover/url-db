@@ -492,6 +492,6 @@ func TestAttributeService_DeleteAttribute_HasValuesError(t *testing.T) {
 	err := service.DeleteAttribute(ctx, 1)
 
 	assert.Error(t, err)
-	assert.Contains(t, err.Error(), "failed to check if attribute has values")
+	assert.Contains(t, err.Error(), "failed to check attribute values")
 	mockRepo.AssertExpectations(t)
 }
