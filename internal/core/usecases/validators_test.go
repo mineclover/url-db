@@ -283,8 +283,8 @@ func TestImageValidator_Validate(t *testing.T) {
 			wantErr: ErrValueRequired,
 		},
 		{
-			name:    "too long value", 
-			value:   "https://example.com/" + strings.Repeat("a", 2030) + ".jpg",
+			name:    "too long value",
+			value:   "https://example.com/" + strings.Repeat("a", 2050),
 			wantErr: ErrValueTooLong,
 		},
 		{

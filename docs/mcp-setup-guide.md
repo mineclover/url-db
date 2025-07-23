@@ -29,15 +29,21 @@ Add the following to your Claude Desktop configuration file:
 {
   "mcpServers": {
     "url-db": {
-      "command": "/path/to/url-db",
-      "args": ["-mcp-mode=stdio"],
-      "env": {
-        "DATABASE_URL": "file:/path/to/your/database.sqlite"
-      }
+      "command": "/absolute/path/to/url-db/bin/url-db",
+      "args": [
+        "-mcp-mode=stdio",
+        "-db-path=/absolute/path/to/database.sqlite"
+      ],
+      "env": {}
     }
   }
 }
 ```
+
+**⚠️ IMPORTANT**: 
+- Use **absolute paths** only (no `~` or relative paths)
+- After modifying the config, you must **completely restart Claude Desktop**
+- See `docs/MCP_CLAUDE_SETUP.md` for detailed setup instructions and troubleshooting
 
 #### For Cursor
 
@@ -91,11 +97,14 @@ All tools are defined in `/specs/mcp-tools.yaml` with auto-generated constants. 
 ### Testing stdio Mode
 
 ```bash
-# Start in stdio mode
-./bin/url-db -mcp-mode=stdio -db-path=./test.db
+# Test MCP initialization sequence
+echo '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{"tools":{}},"clientInfo":{"name":"test","version":"1.0"}}}
+{"jsonrpc":"2.0","method":"notifications/initialized","params":{}}
+{"jsonrpc":"2.0","id":2,"method":"tools/list","params":{}}' | ./bin/url-db -mcp-mode=stdio
 
-# Send JSON-RPC request (example)
-{"jsonrpc":"2.0","id":1,"method":"tools/list"}
+# You should see:
+# 1. Initialize response with server capabilities
+# 2. List of 18 available tools
 ```
 
 ### Example Usage in Claude
@@ -245,11 +254,30 @@ URL-DB enforces domain schemas:
 
 ## Troubleshooting
 
+### Common Setup Issues
+
+1. **"Cannot connect to MCP server"**
+   - Ensure you're using absolute paths in config
+   - Check file exists: `ls -la /path/to/url-db`
+   - Verify execute permission: `chmod +x /path/to/url-db`
+   - Completely restart Claude Desktop after config changes
+
+2. **"server not initialized"**
+   - This means the MCP initialization sequence wasn't completed
+   - Claude Desktop handles this automatically
+   - For manual testing, send initialize → initialized → request
+
+3. **MCP tools not showing in Claude**
+   - Ensure Claude Desktop was completely restarted
+   - Start a new conversation (existing ones won't have MCP)
+   - Check Developer Tools console for errors
+
 ### Stdio Mode Issues
 
 1. **No response**: Check JSON-RPC format
-2. **Tool not found**: Verify tool name spelling
+2. **Tool not found**: Verify tool name spelling (no "mcp" prefix)
 3. **Composite key errors**: Check format `tool:domain:id`
+4. **Database errors**: Ensure directory exists and has write permissions
 
 ### SSE Mode Issues
 

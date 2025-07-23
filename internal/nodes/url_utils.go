@@ -32,6 +32,11 @@ func GenerateTitleFromURL(rawURL string) string {
 		return host
 	}
 
+	// Handle trailing slash - if path ends with /, treat it as no meaningful path
+	if strings.HasSuffix(path, "/") && len(path) > 1 {
+		return host
+	}
+
 	// Extract meaningful part from path
 	pathParts := strings.Split(strings.Trim(path, "/"), "/")
 	if len(pathParts) > 0 {
@@ -86,6 +91,14 @@ func extractTitleFromRawURL(rawURL string) string {
 					}
 				}
 
+				return host
+			} else {
+				// No slash found, entire remaining part is the host
+				host := remaining
+				// Remove www. prefix
+				if strings.HasPrefix(host, "www.") {
+					host = host[4:]
+				}
 				return host
 			}
 		}

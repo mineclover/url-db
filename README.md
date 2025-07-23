@@ -18,6 +18,13 @@ make run
 ./bin/url-db
 ```
 
+### Claude Desktop Integration
+
+For Claude Desktop MCP integration:
+1. Build the project: `make build`
+2. Configure Claude Desktop: See [MCP Claude Setup Guide](docs/MCP_CLAUDE_SETUP.md)
+3. For general MCP info: See [MCP Setup Guide](docs/mcp-setup-guide.md)
+
 ### Development
 
 ```bash
