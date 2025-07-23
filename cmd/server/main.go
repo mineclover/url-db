@@ -11,6 +11,14 @@ import (
 	"strconv"
 	"strings"
 
+	// Clean Architecture imports
+
+	"url-db/internal/application/usecase/domain"
+	"url-db/internal/application/usecase/node"
+	sqliteRepo "url-db/internal/infrastructure/persistence/sqlite/repository"
+	"url-db/internal/interface/http/handler"
+
+	// Legacy imports (for backward compatibility)
 	"url-db/internal/attributes"
 	"url-db/internal/compositekey"
 	"url-db/internal/config"
@@ -138,6 +146,28 @@ func main() {
 	// Create sqlx.DB for nodeattributes repo
 	sqlxDB := sqlx.NewDb(sqlDB, "sqlite3")
 
+	// ===== CLEAN ARCHITECTURE DEPENDENCY INJECTION =====
+
+	// Initialize Clean Architecture repositories
+	cleanDomainRepo := sqliteRepo.NewDomainRepository(sqlDB)
+	cleanNodeRepo := sqliteRepo.NewNodeRepository(sqlDB)
+
+	// Initialize Clean Architecture domain services (for future use)
+	// cleanDomainService := service.NewDomainService(cleanDomainRepo)
+	// cleanNodeService := service.NewNodeService(cleanNodeRepo, cleanDomainRepo)
+
+	// Initialize Clean Architecture use cases
+	createDomainUC := domain.NewCreateDomainUseCase(cleanDomainRepo)
+	listDomainsUC := domain.NewListDomainsUseCase(cleanDomainRepo)
+	createNodeUC := node.NewCreateNodeUseCase(cleanNodeRepo, cleanDomainRepo)
+	listNodesUC := node.NewListNodesUseCase(cleanNodeRepo)
+
+	// Initialize Clean Architecture handlers
+	cleanDomainHandler := handler.NewDomainHandler(createDomainUC, listDomainsUC)
+	cleanNodeHandler := handler.NewNodeHandler(createNodeUC, listNodesUC)
+
+	// ===== LEGACY DEPENDENCY INJECTION (for backward compatibility) =====
+
 	// Initialize repositories
 	domainRepo := domains.NewDomainRepository(sqlDB)
 	nodeRepo := nodes.NewSQLiteNodeRepository(sqlDB)
@@ -230,6 +260,23 @@ func main() {
 
 	// Register all routes manually to avoid conflicts
 	api := r.Group("/api")
+
+	// ===== CLEAN ARCHITECTURE ROUTES =====
+	// New Clean Architecture endpoints (for testing)
+	api.POST("/v2/domains", func(c *gin.Context) {
+		cleanDomainHandler.CreateDomain(c.Writer, c.Request)
+	})
+	api.GET("/v2/domains", func(c *gin.Context) {
+		cleanDomainHandler.ListDomains(c.Writer, c.Request)
+	})
+	api.POST("/v2/nodes", func(c *gin.Context) {
+		cleanNodeHandler.CreateNode(c.Writer, c.Request)
+	})
+	api.GET("/v2/nodes", func(c *gin.Context) {
+		cleanNodeHandler.ListNodes(c.Writer, c.Request)
+	})
+
+	// ===== LEGACY ROUTES (for backward compatibility) =====
 
 	// Domain routes
 	api.POST("/domains", domainHandler.CreateDomain)
