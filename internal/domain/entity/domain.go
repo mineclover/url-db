@@ -3,6 +3,7 @@ package entity
 import (
 	"errors"
 	"time"
+	"url-db/internal/constants"
 )
 
 // Domain represents a domain entity in the business domain
@@ -20,11 +21,11 @@ func NewDomain(name, description string) (*Domain, error) {
 		return nil, errors.New("domain name cannot be empty")
 	}
 
-	if len(name) > 255 {
+	if len(name) > constants.MaxDomainNameLength {
 		return nil, errors.New("domain name cannot exceed 255 characters")
 	}
 
-	if len(description) > 1000 {
+	if len(description) > constants.MaxDescriptionLength {
 		return nil, errors.New("domain description cannot exceed 1000 characters")
 	}
 
@@ -46,7 +47,7 @@ func (d *Domain) UpdatedAt() time.Time { return d.updatedAt }
 
 // Business logic methods
 func (d *Domain) UpdateDescription(description string) error {
-	if len(description) > 1000 {
+	if len(description) > constants.MaxDescriptionLength {
 		return errors.New("domain description cannot exceed 1000 characters")
 	}
 
@@ -57,7 +58,7 @@ func (d *Domain) UpdateDescription(description string) error {
 
 // IsValid checks if the domain is in a valid state
 func (d *Domain) IsValid() bool {
-	return d.name != "" && len(d.name) <= 255 && len(d.description) <= 1000
+	return d.name != "" && len(d.name) <= constants.MaxDomainNameLength && len(d.description) <= constants.MaxDescriptionLength
 }
 
 // SetID sets the domain ID (for repository usage)

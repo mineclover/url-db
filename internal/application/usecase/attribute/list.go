@@ -2,6 +2,8 @@ package attribute
 
 import (
 	"context"
+	"errors"
+	"url-db/internal/constants"
 	"url-db/internal/domain/repository"
 	"url-db/internal/application/dto/response"
 )
@@ -25,7 +27,7 @@ func (uc *ListAttributesUseCase) Execute(ctx context.Context, domainID int) (*re
 		return nil, err
 	}
 	if domain == nil {
-		return nil, ErrDomainNotFound
+		return nil, errors.New(constants.ErrDomainNotFound)
 	}
 
 	// Get attributes from repository

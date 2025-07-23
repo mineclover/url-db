@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"url-db/internal/constants"
 	"url-db/internal/domain/entity"
 	"url-db/internal/domain/repository"
 	"url-db/internal/infrastructure/persistence/sqlite/mapper"
@@ -138,7 +139,7 @@ func (r *domainRepository) Update(ctx context.Context, domain *entity.Domain) er
 	}
 
 	if rowsAffected == 0 {
-		return errors.New("domain not found")
+		return errors.New(constants.ErrDomainNotFound)
 	}
 
 	return nil
@@ -157,7 +158,7 @@ func (r *domainRepository) Delete(ctx context.Context, name string) error {
 	}
 
 	if rowsAffected == 0 {
-		return errors.New("domain not found")
+		return errors.New(constants.ErrDomainNotFound)
 	}
 
 	return nil

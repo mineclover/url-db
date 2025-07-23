@@ -5,6 +5,7 @@ import (
 	"errors"
 	"url-db/internal/application/dto/request"
 	"url-db/internal/application/dto/response"
+	"url-db/internal/constants"
 	"url-db/internal/domain/entity"
 	"url-db/internal/domain/repository"
 )
@@ -32,7 +33,7 @@ func (uc *CreateNodeUseCase) Execute(ctx context.Context, req *request.CreateNod
 	}
 
 	if domain == nil {
-		return nil, errors.New("domain not found")
+		return nil, errors.New(constants.ErrDomainNotFound)
 	}
 
 	// Create node entity
@@ -48,7 +49,7 @@ func (uc *CreateNodeUseCase) Execute(ctx context.Context, req *request.CreateNod
 	}
 
 	if exists {
-		return nil, errors.New("node already exists in this domain")
+		return nil, errors.New(constants.ErrDuplicateNode)
 	}
 
 	// Save to repository

@@ -5,11 +5,13 @@ import (
 	"strings"
 )
 
-// 정규화 규칙에 따른 상수들
+import "url-db/internal/constants"
+
+// constants 패키지에서 가져온 상수 사용
 const (
-	MaxToolNameLength   = 50
-	MaxDomainNameLength = 50
-	MaxIDLength         = 20
+	MaxToolNameLength   = constants.MaxToolNameLength
+	MaxDomainNameLength = constants.MaxDomainNameLength
+	MaxIDLength         = constants.MaxIDLength
 )
 
 // 특수문자를 하이픈으로 변환하는 정규표현식

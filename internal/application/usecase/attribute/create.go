@@ -2,6 +2,8 @@ package attribute
 
 import (
 	"context"
+	"errors"
+	"url-db/internal/constants"
 	"url-db/internal/domain/entity"
 	"url-db/internal/domain/repository"
 	"url-db/internal/application/dto/request"
@@ -27,7 +29,7 @@ func (uc *CreateAttributeUseCase) Execute(ctx context.Context, req *request.Crea
 		return nil, err
 	}
 	if domain == nil {
-		return nil, ErrDomainNotFound
+		return nil, errors.New(constants.ErrDomainNotFound)
 	}
 
 	// Create attribute entity

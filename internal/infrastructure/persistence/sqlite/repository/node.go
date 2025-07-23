@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"strings"
+	"url-db/internal/constants"
 	"url-db/internal/domain/entity"
 	"url-db/internal/domain/repository"
 	"url-db/internal/infrastructure/persistence/sqlite/mapper"
@@ -166,7 +167,7 @@ func (r *nodeRepository) Update(ctx context.Context, node *entity.Node) error {
 	}
 
 	if rowsAffected == 0 {
-		return errors.New("node not found")
+		return errors.New(constants.ErrNodeNotFound)
 	}
 
 	return nil
@@ -185,7 +186,7 @@ func (r *nodeRepository) Delete(ctx context.Context, id int) error {
 	}
 
 	if rowsAffected == 0 {
-		return errors.New("node not found")
+		return errors.New(constants.ErrNodeNotFound)
 	}
 
 	return nil

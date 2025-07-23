@@ -5,6 +5,7 @@ import (
 	"errors"
 	"url-db/internal/application/dto/request"
 	"url-db/internal/application/dto/response"
+	"url-db/internal/constants"
 	"url-db/internal/domain/entity"
 	"url-db/internal/domain/repository"
 )
@@ -34,7 +35,7 @@ func (uc *CreateDomainUseCase) Execute(ctx context.Context, req *request.CreateD
 	}
 
 	if exists {
-		return nil, errors.New("domain already exists")
+		return nil, errors.New(constants.ErrDuplicateDomain)
 	}
 
 	// Save to repository

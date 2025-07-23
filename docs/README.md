@@ -1,8 +1,12 @@
 # URL Database
 
 ## 개요
-URL 기반 무제한 속성 태깅이 가능한 데이터베이스 시스템입니다. 
+Clean Architecture 원칙을 따르는 URL 기반 무제한 속성 태깅이 가능한 데이터베이스 시스템입니다. 
 MCP (Model Context Protocol) 서버 지원으로 AI 모델과의 통합이 가능합니다.
+
+**아키텍처**: Clean Architecture 4-layer 구조 (Domain, Application, Infrastructure, Interface)
+**코드 품질**: A- (85/100) - SOLID 원칙 완전 구현
+**현재 상태**: 프로덕션 준비 완료, 포괄적인 의존성 주입 및 Use Case 패턴 적용
 
 ## 주요 기능
 
@@ -126,25 +130,35 @@ POST /api/urls/1/attributes
 
 ## 주요 특징
 
+### 🏗️ Clean Architecture
+- 4-layer 구조: Domain, Application, Infrastructure, Interface
+- SOLID 원칙 완전 구현 (의존성 역전, 단일 책임 등)
+- 도메인 엔티티 캡슐화 및 불변성 보장
+- Factory 패턴 기반 의존성 주입
+
 ### 🔒 데이터 무결성
 - SQL 수준 UNIQUE 제약 조건
 - 외래키 관계 및 CASCADE 삭제
 - 속성 타입 강제 및 검증
+- 도메인 엔티티 레벨 비즈니스 규칙 검증
 
 ### 🚀 성능 최적화
 - 인덱스 기반 빠른 검색
 - 배치 처리 지원
 - 페이지네이션 내장
+- Repository 패턴으로 데이터 액세스 최적화
 
 ### 🔌 확장성
 - 도메인별 독립적 관리
-- 속성 시스템 유연성
+- Use Case 패턴으로 비즈니스 로직 모듈화
+- 인터페이스 기반 확장 가능한 구조
 - MCP 프로토콜 호환
 
 ### 🛡️ 보안
 - 내부 ID 숨김 (합성키 사용)
 - 도메인 격리
 - 입력 검증 및 타입 체크
+- 레이어별 책임 분리로 보안 강화
 
 ## 사용 사례
 

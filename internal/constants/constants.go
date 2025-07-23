@@ -22,6 +22,8 @@ const (
 
 	// Limits and validation
 	MaxDomainNameLength     = 50
+	MaxToolNameLength       = 50
+	MaxIDLength            = 20
 	MaxTitleLength          = 255
 	MaxDescriptionLength    = 1000
 	MaxURLLength            = 2048
@@ -53,6 +55,7 @@ const (
 	ErrAttributeNotFound    = "attribute not found"
 	ErrInvalidCompositeID   = "invalid composite ID format"
 	ErrDuplicateDomain      = "domain already exists"
+	ErrDuplicateNode        = "node already exists in this domain"
 	ErrDuplicateAttribute   = "attribute already exists"
 	ErrInvalidURL           = "invalid URL format"
 	ErrInvalidParameters    = "invalid parameters"
