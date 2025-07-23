@@ -74,7 +74,7 @@ func main() {
 	defer db.Close()
 
 	// Initialize Clean Architecture factory
-	factory := setup.NewApplicationFactory(db.DB(), nil, cfg.ToolName)
+	factory := setup.NewApplicationFactory(db.DB(), db.SQLXDB(), cfg.ToolName)
 
 	// Check if MCP mode is requested
 	if *mcpMode != "" {

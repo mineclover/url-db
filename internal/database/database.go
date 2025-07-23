@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/jmoiron/sqlx"
 	_ "github.com/mattn/go-sqlite3"
 )
 
@@ -14,6 +15,7 @@ const schemaFilePath = "schema.sql"
 
 type Database struct {
 	db     *sql.DB
+	sqlxDB *sqlx.DB
 	config *Config
 }
 
@@ -32,8 +34,12 @@ func New(config *Config) (*Database, error) {
 		return nil, fmt.Errorf("failed to configure database: %w", err)
 	}
 
+	// Create sqlx wrapper
+	sqlxDB := sqlx.NewDb(db, "sqlite3")
+
 	database := &Database{
 		db:     db,
+		sqlxDB: sqlxDB,
 		config: config,
 	}
 
@@ -161,6 +167,11 @@ func (d *Database) WithTransaction(fn func(*sql.Tx) error) error {
 	}
 
 	return tx.Commit()
+}
+
+// SQLXDB returns the sqlx database instance
+func (d *Database) SQLXDB() *sqlx.DB {
+	return d.sqlxDB
 }
 
 // InitDB initializes the database with the given URL

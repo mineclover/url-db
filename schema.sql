@@ -32,6 +32,7 @@ CREATE TABLE IF NOT EXISTS attributes (
 	type TEXT NOT NULL CHECK (type IN ('tag', 'ordered_tag', 'number', 'string', 'markdown', 'image')),
 	description TEXT,
 	created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+	updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
 	FOREIGN KEY (domain_id) REFERENCES domains(id) ON DELETE CASCADE,
 	UNIQUE(domain_id, name)
 );
