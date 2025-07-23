@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"log"
@@ -10,6 +11,7 @@ import (
 	"url-db/internal/config"
 	"url-db/internal/constants"
 	"url-db/internal/database"
+	"url-db/internal/interface/mcp"
 	"url-db/internal/interface/setup"
 )
 
@@ -23,6 +25,7 @@ func main() {
 		dbPath   = flag.String("db-path", "", "Path to the database file")
 		toolName = flag.String("tool-name", constants.DefaultServerName, "Tool name for composite keys")
 		port     = flag.String("port", "8080", "Port for HTTP server")
+		mcpMode  = flag.String("mcp-mode", "", "MCP server mode (stdio, sse, http) - if set, runs MCP server instead of HTTP")
 		showHelp = flag.Bool("help", false, "Show help message")
 		version  = flag.Bool("version", false, "Show version information")
 	)
@@ -37,6 +40,7 @@ func main() {
 		fmt.Println("  -db-path string    Path to the database file")
 		fmt.Println("  -tool-name string  Tool name for composite keys")
 		fmt.Println("  -port string       Port for HTTP server (default: 8080)")
+		fmt.Println("  -mcp-mode string   MCP server mode (stdio, sse, http) - if set, runs MCP server instead of HTTP")
 		fmt.Println("  -help             Show help message")
 		fmt.Println("  -version          Show version information")
 		os.Exit(0)
@@ -71,13 +75,33 @@ func main() {
 
 	// Initialize Clean Architecture factory
 	factory := setup.NewApplicationFactory(db.DB(), nil, cfg.ToolName)
-	
-	// Create router (this would be implemented in setup package)
+
+	// Check if MCP mode is requested
+	if *mcpMode != "" {
+		// Validate MCP mode
+		switch *mcpMode {
+		case constants.MCPModeStdio, constants.MCPModeSSE, constants.MCPModeHTTP:
+			// Valid modes
+		default:
+			log.Fatalf("Invalid MCP mode: %s. Valid modes: stdio, sse, http", *mcpMode)
+		}
+
+		// Start MCP server
+		log.Printf("Starting MCP server in %s mode", *mcpMode)
+		mcpServer := mcp.NewMCPServer(factory, *mcpMode)
+		ctx := context.Background()
+		if err := mcpServer.Start(ctx); err != nil {
+			log.Fatal("Failed to start MCP server:", err)
+		}
+		return
+	}
+
+	// Create router for HTTP mode
 	router := setup.SetupCleanRouter(factory)
-	
-	// Start server
-	log.Printf("Starting Clean Architecture server on port %s", cfg.Port)
+
+	// Start HTTP server
+	log.Printf("Starting Clean Architecture HTTP server on port %s", cfg.Port)
 	if err := router.Run(":" + cfg.Port); err != nil {
-		log.Fatal("Failed to start server:", err)
+		log.Fatal("Failed to start HTTP server:", err)
 	}
 }

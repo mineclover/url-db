@@ -15,6 +15,11 @@ const (
 	HTTPScheme          = "http"
 	HTTPSScheme         = "https"
 
+	// MCP operating modes
+	MCPModeStdio = "stdio"
+	MCPModeSSE   = "sse"
+	MCPModeHTTP  = "http"
+
 	// Database
 	DefaultDBPath   = "url-db.sqlite"
 	DefaultDBDriver = "sqlite3"
@@ -23,7 +28,7 @@ const (
 	// Limits and validation
 	MaxDomainNameLength     = 50
 	MaxToolNameLength       = 50
-	MaxIDLength            = 20
+	MaxIDLength             = 20
 	MaxTitleLength          = 255
 	MaxDescriptionLength    = 1000
 	MaxURLLength            = 2048
