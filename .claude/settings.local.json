@@ -71,7 +71,8 @@
       "Bash(python:*)",
       "Bash(git reset:*)",
       "Bash(./scripts/coverage_analysis.sh:*)",
-      "Bash(./scripts/test_runner.sh:*)"
+      "Bash(./scripts/test_runner.sh:*)",
+      "Bash(/dev/null)"
     ],
     "deny": []
   }

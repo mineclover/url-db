@@ -96,3 +96,32 @@ func TestCompositeKeyStruct(t *testing.T) {
 	assert.Equal(t, "test", key.DomainName)
 	assert.Equal(t, 123, key.ID)
 }
+
+// Server model tests
+func TestMCPServerInfo(t *testing.T) {
+	serverInfo := models.MCPServerInfo{
+		Name:               "url-db",
+		Version:            "1.0.0",
+		Description:        "URL Database Server",
+		Capabilities:       []string{"nodes", "domains"},
+		CompositeKeyFormat: "tool-name:domain:id",
+	}
+
+	assert.Equal(t, "url-db", serverInfo.Name)
+	assert.Equal(t, "1.0.0", serverInfo.Version)
+	assert.Equal(t, "URL Database Server", serverInfo.Description)
+	assert.Len(t, serverInfo.Capabilities, 2)
+	assert.Contains(t, serverInfo.Capabilities, "nodes")
+	assert.Contains(t, serverInfo.Capabilities, "domains")
+	assert.Equal(t, "tool-name:domain:id", serverInfo.CompositeKeyFormat)
+}
+
+func TestMCPAttributeRequest(t *testing.T) {
+	req := models.MCPAttributeRequest{
+		Name:  "category",
+		Value: "tech",
+	}
+
+	assert.Equal(t, "category", req.Name)
+	assert.Equal(t, "tech", req.Value)
+}
