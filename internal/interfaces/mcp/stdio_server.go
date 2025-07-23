@@ -11,6 +11,7 @@ import (
 	"strings"
 	"sync"
 
+	"url-db/internal/config"
 	"url-db/internal/constants"
 )
 
@@ -27,12 +28,12 @@ type StdioServer struct {
 }
 
 // NewStdioServer creates a new MCP stdio server
-func NewStdioServer(service MCPService) *StdioServer {
+func NewStdioServer(service MCPService, cfg *config.Config) *StdioServer {
 	return &StdioServer{
 		service:          service,
 		reader:           bufio.NewReader(os.Stdin),
 		writer:           os.Stdout,
-		toolRegistry:     NewToolRegistry(service),
+		toolRegistry:     NewToolRegistry(service, cfg),
 		resourceRegistry: NewResourceRegistry(service),
 		initialized:      false,
 		shutdown:         make(chan struct{}),

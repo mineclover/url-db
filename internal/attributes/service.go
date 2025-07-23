@@ -15,6 +15,7 @@ type AttributeService interface {
 	ListAttributes(ctx context.Context, domainID int) (*models.AttributeListResponse, error)
 	UpdateAttribute(ctx context.Context, id int, req *models.UpdateAttributeRequest) (*models.Attribute, error)
 	DeleteAttribute(ctx context.Context, id int) error
+	GetAttributeByName(ctx context.Context, domainID int, name string) (*models.Attribute, error)
 }
 
 // DomainService interface for domain validation
@@ -175,7 +176,7 @@ func (s *attributeService) DeleteAttribute(ctx context.Context, id int) error {
 	// Check if attribute exists
 	_, err := s.repo.GetByID(ctx, id)
 	if err != nil {
-		return err
+		return ErrAttributeNotFound
 	}
 
 	// Check if attribute has values
@@ -194,4 +195,9 @@ func (s *attributeService) DeleteAttribute(ctx context.Context, id int) error {
 	}
 
 	return nil
+}
+
+// GetAttributeByName gets an attribute by name in a domain
+func (s *attributeService) GetAttributeByName(ctx context.Context, domainID int, name string) (*models.Attribute, error) {
+	return s.repo.GetByDomainIDAndName(ctx, domainID, name)
 }

@@ -121,3 +121,20 @@ type MCPDomainAttributeListResponse struct {
 	Attributes []MCPDomainAttribute `json:"attributes"`
 	TotalCount int                  `json:"total_count"`
 }
+
+// Auto-creation related models
+type NodeAttributeRequest struct {
+	Name       string `json:"name"`
+	Value      string `json:"value"`
+	OrderIndex *int   `json:"order_index"`
+}
+
+type NodeAttributesResponse struct {
+	CompositeID string         `json:"composite_id"`
+	Attributes  []MCPAttribute `json:"attributes"`
+}
+
+type SetNodeAttributesWithAutoCreateRequest struct {
+	Attributes           []NodeAttributeRequest `json:"attributes" binding:"required"`
+	AutoCreateAttributes bool                   `json:"auto_create_attributes" default:"false"`
+}

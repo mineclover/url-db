@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"url-db/internal/config"
 	"url-db/internal/models"
 )
 
@@ -13,12 +14,14 @@ import (
 type ToolRegistry struct {
 	service MCPService
 	tools   []Tool
+	config  *config.Config
 }
 
 // NewToolRegistry creates a new tool registry
-func NewToolRegistry(service MCPService) *ToolRegistry {
+func NewToolRegistry(service MCPService, config *config.Config) *ToolRegistry {
 	registry := &ToolRegistry{
 		service: service,
+		config:  config,
 	}
 	registry.registerTools()
 	return registry
@@ -297,6 +300,11 @@ func (tr *ToolRegistry) registerTools() {
 							"required": []string{"name", "value"},
 						},
 						"description": "Array of attributes to set",
+					},
+					"auto_create_attributes": map[string]interface{}{
+						"type":        "boolean",
+						"description": "Automatically create attributes if they don't exist",
+						"default":     tr.config.AutoCreateAttributes,
 					},
 				},
 				"required": []string{"composite_id", "attributes"},
@@ -765,8 +773,50 @@ func (tr *ToolRegistry) callSetNodeAttributes(ctx context.Context, arguments int
 		})
 	}
 
+	// Check for auto_create_attributes parameter
+	autoCreateAttributes := tr.config.AutoCreateAttributes // 기본값을 설정에서 가져옴
+	if autoCreateRaw, exists := argsMap["auto_create_attributes"]; exists {
+		if autoCreateBool, ok := autoCreateRaw.(bool); ok {
+			autoCreateAttributes = autoCreateBool
+		}
+	}
+
 	req := &models.SetMCPNodeAttributesRequest{
 		Attributes: attributes,
+	}
+
+	// If auto-create is enabled, use the enhanced request
+	if autoCreateAttributes {
+		autoCreateReq := &models.SetNodeAttributesWithAutoCreateRequest{
+			Attributes:           make([]models.NodeAttributeRequest, len(attributes)),
+			AutoCreateAttributes: true,
+		}
+
+		for i, attr := range attributes {
+			autoCreateReq.Attributes[i] = models.NodeAttributeRequest{
+				Name:       attr.Name,
+				Value:      attr.Value,
+				OrderIndex: attr.OrderIndex,
+			}
+		}
+
+		// Use the auto-create service if available
+		if autoService, ok := tr.service.(interface {
+			SetNodeAttributesWithAutoCreate(context.Context, string, []models.NodeAttributeRequest, bool) (*models.NodeAttributesResponse, error)
+		}); ok {
+			response, err := autoService.SetNodeAttributesWithAutoCreate(ctx, compositeID, autoCreateReq.Attributes, true)
+			if err != nil {
+				return &CallToolResult{
+					Content: []Content{{Type: "text", Text: fmt.Sprintf("Error setting node attributes: %v", err)}},
+					IsError: true,
+				}, nil
+			}
+
+			result, _ := json.MarshalIndent(response, "", "  ")
+			return &CallToolResult{
+				Content: []Content{{Type: "text", Text: string(result)}},
+			}, nil
+		}
 	}
 
 	response, err := tr.service.SetNodeAttributes(ctx, compositeID, req)

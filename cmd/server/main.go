@@ -325,7 +325,7 @@ func main() {
 	switch *mcpMode {
 	case "stdio":
 		// stdio mode: MCP communication via stdin/stdout, then exit
-		stdioServer := mcp.NewStdioServer(mcpService)
+		stdioServer := mcp.NewStdioServer(mcpService, cfg)
 		if err := stdioServer.Start(); err != nil {
 			os.Exit(1)
 		}

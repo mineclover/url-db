@@ -118,6 +118,7 @@ All configuration values are centralized in `/internal/constants/constants.go`:
 - `VERSION` - Build version (default: 1.0.0)
 - `TEST_TIMEOUT` - Test timeout in seconds (default: 300)
 - `COVERAGE_THRESHOLD` - Minimum coverage percentage (default: 80)
+- `AUTO_CREATE_ATTRIBUTES` - Auto-create attributes if they don't exist (default: true)
 
 ## 📊 Test Output
 

@@ -3,6 +3,8 @@ package mcp
 import (
 	"context"
 	"fmt"
+	"regexp"
+	"strings"
 
 	"url-db/internal/models"
 )
@@ -62,10 +64,25 @@ func (s *mcpService) SetNodeAttributes(ctx context.Context, compositeID string, 
 		existingAttrMap[attr.Name] = attr.AttributeID
 	}
 
+	// Check for auto-create option
+	autoCreate := false
+	if autoCreateReq, ok := interface{}(req).(*models.SetNodeAttributesWithAutoCreateRequest); ok {
+		autoCreate = autoCreateReq.AutoCreateAttributes
+	}
+
 	for _, attrReq := range req.Attributes {
 		attribute, err := s.attributeService.GetAttributeByName(ctx, domain.ID, attrReq.Name)
 		if err != nil {
-			return nil, NewValidationError(fmt.Sprintf("attribute '%s' not found", attrReq.Name))
+			if autoCreate {
+				// Auto-create the attribute
+				createdAttr, err := s.autoCreateAttribute(ctx, domain.ID, attrReq.Name, attrReq.Value)
+				if err != nil {
+					return nil, NewInternalServerError(fmt.Sprintf("failed to auto-create attribute '%s': %v", attrReq.Name, err))
+				}
+				attribute = createdAttr
+			} else {
+				return nil, NewValidationError(fmt.Sprintf("attribute '%s' not found", attrReq.Name))
+			}
 		}
 
 		if existingAttrID, exists := existingAttrMap[attrReq.Name]; exists {
@@ -86,6 +103,36 @@ func (s *mcpService) SetNodeAttributes(ctx context.Context, compositeID string, 
 	}
 
 	return s.GetNodeAttributes(ctx, compositeID)
+}
+
+// autoCreateAttribute creates an attribute with inferred type
+func (s *mcpService) autoCreateAttribute(ctx context.Context, domainID int, name, value string) (*models.Attribute, error) {
+	attrType := s.inferAttributeType(value)
+	description := fmt.Sprintf("Auto-created attribute: %s", name)
+
+	createReq := &models.CreateAttributeRequest{
+		Name:        name,
+		Type:        attrType,
+		Description: description,
+	}
+
+	return s.attributeService.CreateAttribute(ctx, domainID, createReq)
+}
+
+// inferAttributeType determines the appropriate attribute type based on value
+func (s *mcpService) inferAttributeType(value string) models.AttributeType {
+	// Check for number pattern
+	if matched, _ := regexp.MatchString(`^\d+(\.\d+)?$`, value); matched {
+		return models.AttributeTypeNumber
+	}
+
+	// Check for URL pattern
+	if strings.HasPrefix(value, "http://") || strings.HasPrefix(value, "https://") {
+		return models.AttributeTypeString
+	}
+
+	// Default to tag
+	return models.AttributeTypeTag
 }
 
 // Domain attribute management methods

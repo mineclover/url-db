@@ -1,157 +1,107 @@
-# 노드 관리 API 엔드포인트
+# URL API
 
 ## 개요
-노드(URL 컨텐츠) 생성, 조회, 수정, 삭제 기능을 제공하는 REST API  
-API에서는 URL로 처리하지만 내부적으로는 nodeid 기반으로 관리
 
-## 엔드포인트 목록
+URL API는 URL 노드의 생성, 조회, 수정, 삭제를 위한 엔드포인트를 제공합니다.
 
-### 1. 노드 생성
-- **POST** `/api/domains/{domain_id}/urls`
-- **요청 본문**:
+## 엔드포인트
+
+### 노드 속성 설정
+
+#### PUT /api/mcp/nodes/{composite_id}/attributes
+
+노드의 속성을 설정합니다.
+
+**요청 본문:**
 ```json
 {
-  "url": "https://example.com/article",
-  "title": "Example Article",
-  "description": "This is an example article"
-}
-```
-- **응답 (201)**:
-```json
-{
-  "id": 1,
-  "content": "https://example.com/article",
-  "domain_id": 1,
-  "title": "Example Article",
-  "description": "This is an example article",
-  "created_at": "2023-01-01T00:00:00Z",
-  "updated_at": "2023-01-01T00:00:00Z"
-}
-```
-
-### 2. 도메인별 노드 목록 조회
-- **GET** `/api/domains/{domain_id}/urls`
-- **쿼리 파라미터**:
-  - `page` (optional): 페이지 번호 (기본값: 1)
-  - `size` (optional): 페이지 크기 (기본값: 20, 최대: 100)
-  - `search` (optional): 검색어 (제목, 컨텐츠에서 검색)
-- **응답 (200)**:
-```json
-{
-  "nodes": [
+  "attributes": [
     {
-      "id": 1,
-      "content": "https://example.com/article",
-      "domain_id": 1,
-      "title": "Example Article",
-      "description": "This is an example article",
-      "created_at": "2023-01-01T00:00:00Z",
-      "updated_at": "2023-01-01T00:00:00Z"
+      "name": "status",
+      "value": "active",
+      "order_index": 1
     }
   ],
-  "total_count": 1,
-  "page": 1,
-  "size": 20,
-  "total_pages": 1
+  "auto_create_attributes": false
 }
 ```
 
-### 3. 노드 조회
-- **GET** `/api/urls/{id}`
-- **응답 (200)**:
+**파라미터:**
+- `composite_id` (path): 노드의 복합 ID (예: `url-db:domain:123`)
+- `attributes` (body): 설정할 속성 배열
+  - `name`: 속성 이름
+  - `value`: 속성 값
+  - `order_index`: 순서 인덱스 (선택사항)
+- `auto_create_attributes` (body): 존재하지 않는 속성을 자동 생성할지 여부 (기본값: false)
+
+**응답:**
 ```json
 {
-  "id": 1,
-  "content": "https://example.com/article",
-  "domain_id": 1,
-  "title": "Example Article",
-  "description": "This is an example article",
-  "created_at": "2023-01-01T00:00:00Z",
-  "updated_at": "2023-01-01T00:00:00Z"
+  "composite_id": "url-db:domain:123",
+  "attributes": [
+    {
+      "name": "status",
+      "type": "tag",
+      "value": "active"
+    }
+  ]
 }
 ```
 
-### 4. 노드 수정
-- **PUT** `/api/urls/{id}`
-- **요청 본문**:
+**자동 속성 생성 기능:**
+
+`auto_create_attributes`가 `true`로 설정되면, 존재하지 않는 속성이 자동으로 생성됩니다:
+
+- **숫자 값**: `number` 타입으로 추론
+- **URL 값**: `string` 타입으로 추론  
+- **기타 값**: `tag` 타입으로 추론
+
+**예시:**
 ```json
 {
-  "title": "Updated Article Title",
-  "description": "Updated description"
+  "attributes": [
+    {"name": "priority", "value": "5"},
+    {"name": "url", "value": "https://example.com"},
+    {"name": "category", "value": "tutorial"}
+  ],
+  "auto_create_attributes": true
 }
 ```
-- **응답 (200)**:
+
+위 요청은 다음 속성들을 자동 생성합니다:
+- `priority`: number 타입 (숫자 값)
+- `url`: string 타입 (URL 값)
+- `category`: tag 타입 (기본값)
+
+**에러 처리:**
+
+자동 생성이 비활성화된 경우 존재하지 않는 속성에 대해 명확한 에러 메시지를 제공합니다:
+
 ```json
 {
-  "id": 1,
-  "content": "https://example.com/article",
-  "domain_id": 1,
-  "title": "Updated Article Title",
-  "description": "Updated description",
-  "created_at": "2023-01-01T00:00:00Z",
-  "updated_at": "2023-01-01T01:00:00Z"
+  "error": "validation_error",
+  "message": "The following attributes do not exist in domain 'test': status, priority. You can either:\n1. Create them manually using create_domain_attribute\n2. Use set_node_attributes_with_auto_create to create them automatically\n3. Use set_node_attributes with auto_create_attributes=true"
 }
 ```
 
-### 5. 노드 삭제
-- **DELETE** `/api/urls/{id}`
-- **응답 (204)**: 본문 없음
+**환경변수 설정:**
 
-### 6. URL로 노드 ID 조회
-- **POST** `/api/domains/{domain_id}/urls/find`
-- **요청 본문**:
-```json
-{
-  "url": "https://example.com/article"
-}
-```
-- **응답 (200)** - 노드가 존재하는 경우:
-```json
-{
-  "id": 1,
-  "content": "https://example.com/article",
-  "domain_id": 1,
-  "title": "Example Article",
-  "description": "This is an example article",
-  "created_at": "2023-01-01T00:00:00Z",
-  "updated_at": "2023-01-01T00:00:00Z",
-  "composite_id": "url-db:tech-articles:1"
-}
-```
-- **응답 (404)** - 노드가 존재하지 않는 경우:
-```json
-{
-  "error": "NODE_NOT_FOUND",
-  "message": "노드를 찾을 수 없습니다"
-}
+서버 시작 시 `AUTO_CREATE_ATTRIBUTES` 환경변수로 기본값을 설정할 수 있습니다:
+
+```bash
+# 자동 속성 생성 활성화 (기본값)
+export AUTO_CREATE_ATTRIBUTES=true
+./bin/url-db
+
+# 자동 속성 생성 비활성화
+export AUTO_CREATE_ATTRIBUTES=false
+./bin/url-db
+
+# 또는 직접 설정
+AUTO_CREATE_ATTRIBUTES=true ./bin/url-db
 ```
 
-## MCP 서버 지원
-
-이 API는 MCP (Model Context Protocol) 서버로도 동작합니다. MCP 전용 엔드포인트는 다음 문서를 참조하세요:
-
-> MCP API 문서: [`06-mcp-api.md`](06-mcp-api.md)  
-> 합성키 컨벤션: [`../spec/composite-key-conventions.md`](../spec/composite-key-conventions.md)
-
-### 기존 API와 MCP API 차이점
-- **식별자**: 기존 API는 내부 ID 사용, MCP API는 합성키 사용
-- **응답 형식**: MCP API는 `composite_id` 필드 포함  
-- **도메인 참조**: MCP API는 `domain_name` 사용, 기존 API는 `domain_id` 사용
-
-## 컨텐츠 처리
-
-### 원본 보존
-- 입력된 URL을 그대로 저장
-- 정규화 처리 없음
-- 사용자가 입력한 형태 그대로 유지
-
-## 에러 응답
-
-> 에러 응답 형식: [`../spec/error-codes.md`](../spec/error-codes.md)  
-> 노드 관련 에러: [`../spec/node-errors.md`](../spec/node-errors.md)
-
-## 검증 규칙
-- `url`: 필수, 최대 2048자 (형식 검증 없음)
-- `title`: 선택, 최대 255자 (비어있으면 컨텐츠에서 자동 생성)
-- `description`: 선택, 최대 1000자
-- 컨텐츠와 domain_id는 수정 불가
+**지원되는 값:**
+- `true`, `1`, `yes`, `on`: 자동 생성 활성화
+- `false`, `0`, `no`, `off`: 자동 생성 비활성화
+- 설정하지 않으면 기본값 `true` 사용

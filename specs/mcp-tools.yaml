@@ -98,6 +98,7 @@ tools:
             name: { type: "string", required: true, description: "Attribute name" }
             value: { type: "string", required: true, description: "Attribute value" }
             order_index: { type: "integer", required: false, description: "Order index (required for ordered_tag type)" }
+      auto_create_attributes: { type: "boolean", required: false, default: true, description: "Automatically create attributes if they don't exist" }
 
   # Domain Schema Management
   list_domain_attributes:

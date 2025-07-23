@@ -96,10 +96,11 @@ const (
 
 // Environment variables
 const (
-	EnvDatabaseURL = "DATABASE_URL"
-	EnvPort        = "PORT"
-	EnvLogLevel    = "LOG_LEVEL"
-	EnvMCPMode     = "MCP_MODE"
+	EnvDatabaseURL          = "DATABASE_URL"
+	EnvPort                 = "PORT"
+	EnvLogLevel             = "LOG_LEVEL"
+	EnvMCPMode              = "MCP_MODE"
+	EnvAutoCreateAttributes = "AUTO_CREATE_ATTRIBUTES"
 )
 
 // Resource URI schemes
