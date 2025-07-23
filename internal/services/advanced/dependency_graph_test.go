@@ -8,59 +8,84 @@ import (
 )
 
 func TestNewDependencyGraphService(t *testing.T) {
-	// Test with nil repositories - should not panic
-	service := services.NewDependencyGraphService(nil, nil)
-	assert.NotNil(t, service)
-}
-
-func TestValidateNewDependency_SelfDependency(t *testing.T) {
-	// Test self-dependency validation which doesn't require database
-	service := services.NewDependencyGraphService(nil, nil)
-
-	result, err := service.ValidateNewDependency(1, 1)
-
-	assert.NoError(t, err)
-	assert.NotNil(t, result)
-	assert.False(t, result.IsValid)
-	assert.Contains(t, result.Errors, "Self-dependencies are not allowed")
-}
-
-// Test helper method coverage
-func TestGetStrengthForDependencyType(t *testing.T) {
-	service := services.NewDependencyGraphService(nil, nil)
-
 	tests := []struct {
 		name         string
-		depType      string
-		expectedMin  int
-		expectedMax  int
+		expectNotNil bool
 	}{
-		{"Hard dependency", "hard", 80, 100},
-		{"Soft dependency", "soft", 30, 70},
-		{"Reference dependency", "reference", 10, 50},
-		{"Default dependency", "unknown", 30, 70},
+		{
+			name:         "with_nil_repositories",
+			expectNotNil: true,
+		},
 	}
 
-	// This tests internal logic that we can verify exists by checking
-	// that the service can be created and basic structure works
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			// We can't test the private method directly, but we verify
-			// the service structure and public interface is working
-			assert.NotNil(t, service)
+			service := services.NewDependencyGraphService(nil, nil)
+			if tt.expectNotNil {
+				assert.NotNil(t, service)
+			} else {
+				assert.Nil(t, service)
+			}
 		})
 	}
 }
 
-func TestGetCategoryForType(t *testing.T) {
-	service := services.NewDependencyGraphService(nil, nil)
+func TestValidateNewDependency_SelfDependency(t *testing.T) {
+	tests := []struct {
+		name         string
+		dependentID  int64
+		dependencyID int64
+		expectValid  bool
+		expectError  string
+	}{
+		{
+			name:         "self_dependency_same_positive_id",
+			dependentID:  1,
+			dependencyID: 1,
+			expectValid:  false,
+			expectError:  "Self-dependencies are not allowed",
+		},
+		{
+			name:         "self_dependency_zero_id",
+			dependentID:  0,
+			dependencyID: 0,
+			expectValid:  false,
+			expectError:  "Self-dependencies are not allowed",
+		},
+		{
+			name:         "self_dependency_negative_id",
+			dependentID:  -1,
+			dependencyID: -1,
+			expectValid:  false,
+			expectError:  "Self-dependencies are not allowed",
+		},
+		{
+			name:         "self_dependency_large_id",
+			dependentID:  999999,
+			dependencyID: 999999,
+			expectValid:  false,
+			expectError:  "Self-dependencies are not allowed",
+		},
+	}
 
-	// Test that service initialization works
-	assert.NotNil(t, service)
-	
-	// Since getCategoryForType is private, we test by verifying
-	// the service can handle different scenarios
-	// This would be integration tested with actual data
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// Test self-dependency validation which doesn't require database
+			service := services.NewDependencyGraphService(nil, nil)
+
+			result, err := service.ValidateNewDependency(tt.dependentID, tt.dependencyID)
+
+			assert.NoError(t, err)
+			assert.NotNil(t, result)
+			assert.Equal(t, tt.expectValid, result.IsValid)
+			
+			if tt.expectError != "" {
+				assert.Contains(t, result.Errors, tt.expectError)
+			} else {
+				assert.Empty(t, result.Errors)
+			}
+		})
+	}
 }
 
 func TestDetectCycles_NilRepository(t *testing.T) {
@@ -74,44 +99,117 @@ func TestDetectCycles_NilRepository(t *testing.T) {
 	assert.Contains(t, err.Error(), "failed to build graph")
 }
 
-// Test service can handle different nodeID values for self-dependency check
-func TestValidateNewDependency_DifferentNodeIds(t *testing.T) {
+func TestGetDependencyGraph_NilRepository(t *testing.T) {
 	service := services.NewDependencyGraphService(nil, nil)
 
+	// The current implementation panics with nil repository
+	// This test documents the current behavior
+	assert.Panics(t, func() {
+		service.GetDependencyGraph(1, 3)
+	})
+}
+
+// Test basic service structure and behavior
+func TestServiceBasicBehavior(t *testing.T) {
+	service := services.NewDependencyGraphService(nil, nil)
+	
+	// Test service creation
+	assert.NotNil(t, service)
+	
+	// Test self-dependency validation (doesn't require database)
+	result, err := service.ValidateNewDependency(42, 42)
+	assert.NoError(t, err)
+	assert.NotNil(t, result)
+	assert.False(t, result.IsValid)
+	assert.Contains(t, result.Errors, "Self-dependencies are not allowed")
+	
+	// Test detect cycles with nil repo (should error gracefully)
+	cycles, err := service.DetectCycles(1)
+	assert.Error(t, err)
+	assert.Nil(t, cycles)
+	assert.Contains(t, err.Error(), "failed to build graph")
+	
+	// Test GetDependencyGraph with nil repo (currently panics)
+	assert.Panics(t, func() {
+		service.GetDependencyGraph(1, 3)
+	})
+}
+
+// Test edge cases for ValidateNewDependency with nil repository
+func TestValidateNewDependency_EdgeCases(t *testing.T) {
+	service := services.NewDependencyGraphService(nil, nil)
+	
 	tests := []struct {
 		name         string
 		dependentID  int64
 		dependencyID int64
-		expectSelfDep bool
 	}{
-		{"Same ID", 1, 1, true},
-		{"Same ID large", 999, 999, true},
-		{"Same ID negative", -1, -1, true},
-		{"Same ID zero", 0, 0, true},
+		{
+			name:         "zero_to_positive",
+			dependentID:  0,
+			dependencyID: 1,
+		},
+		{
+			name:         "negative_to_positive",
+			dependentID:  -1,
+			dependencyID: 1,
+		},
+		{
+			name:         "large_ids",
+			dependentID:  999999,
+			dependencyID: 888888,
+		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result, err := service.ValidateNewDependency(tt.dependentID, tt.dependencyID)
-
-			assert.NoError(t, err)
-			assert.NotNil(t, result)
-			if tt.expectSelfDep {
-				assert.False(t, result.IsValid)
-				assert.Contains(t, result.Errors, "Self-dependencies are not allowed")
-			}
+			// With nil repository, ValidateNewDependency panics when checking existing dependencies
+			assert.Panics(t, func() {
+				service.ValidateNewDependency(tt.dependentID, tt.dependencyID)
+			})
 		})
 	}
 }
 
-// Test basic service structure
-func TestServiceStructure(t *testing.T) {
+// Test DetectCycles edge cases
+func TestDetectCycles_EdgeCases(t *testing.T) {
 	service := services.NewDependencyGraphService(nil, nil)
-	assert.NotNil(t, service)
+	
+	testCases := []int64{0, 1, -1, 999999}
+	
+	for _, domainID := range testCases {
+		t.Run("domain_"+string(rune(domainID+48)), func(t *testing.T) {
+			cycles, err := service.DetectCycles(domainID)
+			
+			// Should always error with nil repository
+			assert.Error(t, err)
+			assert.Nil(t, cycles)
+			assert.Contains(t, err.Error(), "failed to build graph")
+		})
+	}
+}
 
-	// Test self-dependency validation works without database
-	result, err := service.ValidateNewDependency(5, 5)
-	assert.NoError(t, err)
-	assert.NotNil(t, result)
-	assert.False(t, result.IsValid)
+// Test GetDependencyGraph edge cases
+func TestGetDependencyGraph_EdgeCases(t *testing.T) {
+	service := services.NewDependencyGraphService(nil, nil)
+	
+	tests := []struct {
+		name     string
+		nodeID   int64
+		maxDepth int
+	}{
+		{"zero_node_zero_depth", 0, 0},
+		{"positive_node_zero_depth", 1, 0},
+		{"negative_node_positive_depth", -1, 3},
+		{"large_node_large_depth", 999999, 100},
+	}
+	
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// Current implementation panics with nil repository
+			assert.Panics(t, func() {
+				service.GetDependencyGraph(tt.nodeID, tt.maxDepth)
+			})
+		})
+	}
 }
