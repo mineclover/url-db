@@ -22,8 +22,9 @@ make run
 
 For Claude Desktop MCP integration:
 1. Build the project: `make build`
-2. Configure Claude Desktop: See [MCP Claude Setup Guide](docs/MCP_CLAUDE_SETUP.md)
-3. For general MCP info: See [MCP Setup Guide](docs/mcp-setup-guide.md)
+2. **Quick Setup**: See [MCP Server Configuration Guide](docs/MCP_SERVER_CONFIGURATION.md) ⭐
+3. **Detailed Setup**: See [MCP Claude Setup Guide](docs/MCP_CLAUDE_SETUP.md)
+4. **General MCP Info**: See [MCP Setup Guide](docs/mcp-setup-guide.md)
 
 ### Development
 
@@ -194,7 +195,8 @@ The URL-DB server provides native MCP support with 16 tools:
 - [API Documentation](docs/mcp-openapi.yaml) - Complete OpenAPI specification  
 
 ### Setup Guides
-- [MCP Claude Setup Guide](docs/MCP_CLAUDE_SETUP.md) - Comprehensive MCP integration guide
+- [MCP Server Configuration Guide](docs/MCP_SERVER_CONFIGURATION.md) ⭐ - Complete configuration with logging variants
+- [MCP Claude Setup Guide](docs/MCP_CLAUDE_SETUP.md) - Comprehensive MCP integration guide  
 - [MCP Testing Guide](docs/MCP_TESTING_GUIDE.md) - Testing procedures and workflows
 
 ### Technical References
