@@ -48,8 +48,41 @@ else
     exit 1
 fi
 
+# Test list domains
+echo "5. Testing list_domains tool..."
+result=$(echo '{"jsonrpc":"2.0","id":4,"method":"tools/call","params":{"name":"list_domains","arguments":{}}}' | ./bin/url-db -mcp-mode=stdio 2>/dev/null)
+if echo "$result" | grep -q '"type":"text"'; then
+    echo "✅ List domains successful"
+else
+    echo "❌ List domains failed"
+    echo "Result: $result"
+    exit 1
+fi
+
+# Test create domain (should fail if exists)  
+echo "6. Testing create_domain tool..."
+result=$(echo '{"jsonrpc":"2.0","id":5,"method":"tools/call","params":{"name":"create_domain","arguments":{"name":"test-mcp-domain","description":"Test domain for MCP"}}}' | ./bin/url-db -mcp-mode=stdio 2>/dev/null)
+if echo "$result" | grep -q -E '(Successfully created|already exists)'; then
+    echo "✅ Create domain working"
+else
+    echo "❌ Create domain failed"
+    echo "Result: $result"
+    exit 1
+fi
+
+# Test list nodes
+echo "7. Testing list_nodes tool..."
+result=$(echo '{"jsonrpc":"2.0","id":6,"method":"tools/call","params":{"name":"list_nodes","arguments":{"domain_name":"tech"}}}' | ./bin/url-db -mcp-mode=stdio 2>/dev/null)
+if echo "$result" | grep -q -E '(Node ID|No nodes found)'; then
+    echo "✅ List nodes working"
+else
+    echo "❌ List nodes failed"
+    echo "Result: $result"
+    exit 1
+fi
+
 # Test invalid mode
-echo "5. Testing invalid mode validation..."
+echo "8. Testing invalid mode validation..."
 result=$(./bin/url-db -mcp-mode=invalid 2>&1)
 if echo "$result" | grep -q "Invalid MCP mode"; then
     echo "✅ Invalid mode validation working"

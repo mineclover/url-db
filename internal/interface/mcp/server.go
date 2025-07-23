@@ -14,19 +14,21 @@ import (
 
 // MCPServer represents the MCP JSON-RPC 2.0 server
 type MCPServer struct {
-	factory *setup.ApplicationFactory
-	mode    string
-	reader  io.Reader
-	writer  io.Writer
+	factory     *setup.ApplicationFactory
+	toolHandler *MCPToolHandler
+	mode        string
+	reader      io.Reader
+	writer      io.Writer
 }
 
 // NewMCPServer creates a new MCP server instance
 func NewMCPServer(factory *setup.ApplicationFactory, mode string) *MCPServer {
 	return &MCPServer{
-		factory: factory,
-		mode:    mode,
-		reader:  os.Stdin,
-		writer:  os.Stdout,
+		factory:     factory,
+		toolHandler: NewMCPToolHandler(factory),
+		mode:        mode,
+		reader:      os.Stdin,
+		writer:      os.Stdout,
 	}
 }
 
@@ -164,7 +166,57 @@ func (s *MCPServer) handleToolsList(req *JSONRPCRequest) {
 				"properties": map[string]interface{}{},
 			},
 		},
-		// TODO: Add more tools from mcp-tools.yaml specification
+		{
+			"name":        "list_domains",
+			"description": "Get all domains",
+			"inputSchema": map[string]interface{}{
+				"type": "object",
+				"properties": map[string]interface{}{
+					"page": map[string]interface{}{"type": "integer", "default": 1},
+					"size": map[string]interface{}{"type": "integer", "default": 20},
+				},
+			},
+		},
+		{
+			"name":        "create_domain",
+			"description": "Create new domain for organizing URLs",
+			"inputSchema": map[string]interface{}{
+				"type": "object",
+				"properties": map[string]interface{}{
+					"name":        map[string]interface{}{"type": "string", "description": "Domain name"},
+					"description": map[string]interface{}{"type": "string", "description": "Domain description"},
+				},
+				"required": []string{"name", "description"},
+			},
+		},
+		{
+			"name":        "list_nodes",
+			"description": "List URLs in domain",
+			"inputSchema": map[string]interface{}{
+				"type": "object",
+				"properties": map[string]interface{}{
+					"domain_name": map[string]interface{}{"type": "string", "description": "Domain name to list nodes from"},
+					"page":        map[string]interface{}{"type": "integer", "default": 1},
+					"size":        map[string]interface{}{"type": "integer", "default": 20},
+					"search":      map[string]interface{}{"type": "string", "description": "Search query"},
+				},
+				"required": []string{"domain_name"},
+			},
+		},
+		{
+			"name":        "create_node",
+			"description": "Add URL to domain",
+			"inputSchema": map[string]interface{}{
+				"type": "object",
+				"properties": map[string]interface{}{
+					"domain_name": map[string]interface{}{"type": "string", "description": "Domain name"},
+					"url":         map[string]interface{}{"type": "string", "description": "URL to store"},
+					"title":       map[string]interface{}{"type": "string", "description": "Node title"},
+					"description": map[string]interface{}{"type": "string", "description": "Node description"},
+				},
+				"required": []string{"domain_name", "url"},
+			},
+		},
 	}
 
 	result := map[string]interface{}{
@@ -186,12 +238,33 @@ func (s *MCPServer) handleToolCall(ctx context.Context, req *JSONRPCRequest) {
 		return
 	}
 
+	var result interface{}
+	var err error
+
 	switch params.Name {
 	case "get_server_info":
 		s.handleGetServerInfo(req)
+		return
+	case "list_domains":
+		result, err = s.toolHandler.handleListDomains(ctx, params.Arguments)
+	case "create_domain":
+		result, err = s.toolHandler.handleCreateDomain(ctx, params.Arguments)
+	case "list_nodes":
+		result, err = s.toolHandler.handleListNodes(ctx, params.Arguments)
+	case "create_node":
+		result, err = s.toolHandler.handleCreateNode(ctx, params.Arguments)
 	default:
 		s.sendError(req.ID, MethodNotFound, fmt.Sprintf("Tool not found: %s", params.Name), nil)
+		return
 	}
+
+	// Handle the response
+	if err != nil {
+		s.sendError(req.ID, InternalError, "Tool execution failed", err.Error())
+		return
+	}
+
+	s.sendResult(req.ID, result)
 }
 
 // handleGetServerInfo returns server information
