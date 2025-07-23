@@ -3,17 +3,11 @@ package setup
 import (
 	"database/sql"
 	
-	"github.com/jmoiron/sqlx"
-	
 	"url-db/internal/domain/repository"
 	"url-db/internal/application/usecase/domain"
 	"url-db/internal/application/usecase/node"
 	"url-db/internal/application/usecase/attribute"
 	sqliteRepo "url-db/internal/infrastructure/persistence/sqlite/repository"
-	cleanHandler "url-db/internal/interface/http/handler"
-	"url-db/internal/interface/adapter"
-	"url-db/internal/compositekey"
-	"url-db/internal/interfaces/mcp"
 )
 
 // RepositoryFactory creates repository instances
@@ -25,172 +19,97 @@ type RepositoryFactory interface {
 
 // UseCaseFactory creates use case instances
 type UseCaseFactory interface {
-	CreateDomainUseCases() (*domain.CreateDomainUseCase, *domain.ListDomainsUseCase)
-	CreateNodeUseCases() (*node.CreateNodeUseCase, *node.ListNodesUseCase)
-	CreateAttributeUseCases() (*attribute.CreateAttributeUseCase, *attribute.ListAttributesUseCase)
+	CreateDomainUseCases(domainRepo repository.DomainRepository) (*domain.CreateDomainUseCase, *domain.ListDomainsUseCase)
+	CreateNodeUseCases(nodeRepo repository.NodeRepository, domainRepo repository.DomainRepository) (*node.CreateNodeUseCase, *node.ListNodesUseCase)
+	CreateAttributeUseCases(attributeRepo repository.AttributeRepository, domainRepo repository.DomainRepository) (*attribute.CreateAttributeUseCase, *attribute.ListAttributesUseCase)
 }
 
-// HandlerFactory creates handler instances
-type HandlerFactory interface {
-	CreateDomainHandler() *cleanHandler.DomainHandler
-	CreateNodeHandler() *cleanHandler.NodeHandler
-	CreateAttributeHandler() *cleanHandler.AttributeHandler
-}
-
-// AdapterFactory creates adapter instances
-type AdapterFactory interface {
-	CreateMCPUseCaseAdapter() *adapter.MCPUseCaseAdapter
-}
-
-// sqliteRepositoryFactory implements RepositoryFactory for SQLite
-type sqliteRepositoryFactory struct {
-	db *sql.DB
-}
-
-// NewSQLiteRepositoryFactory creates a new SQLite repository factory
-func NewSQLiteRepositoryFactory(db *sql.DB) RepositoryFactory {
-	return &sqliteRepositoryFactory{db: db}
-}
-
-func (f *sqliteRepositoryFactory) CreateDomainRepository() repository.DomainRepository {
-	return sqliteRepo.NewDomainRepository(f.db)
-}
-
-func (f *sqliteRepositoryFactory) CreateNodeRepository() repository.NodeRepository {
-	return sqliteRepo.NewNodeRepository(f.db)
-}
-
-func (f *sqliteRepositoryFactory) CreateAttributeRepository() repository.AttributeRepository {
-	return sqliteRepo.NewAttributeRepository(f.db)
-}
-
-// useCaseFactory implements UseCaseFactory
-type useCaseFactory struct {
-	repoFactory RepositoryFactory
-}
-
-// NewUseCaseFactory creates a new use case factory
-func NewUseCaseFactory(repoFactory RepositoryFactory) UseCaseFactory {
-	return &useCaseFactory{repoFactory: repoFactory}
-}
-
-func (f *useCaseFactory) CreateDomainUseCases() (*domain.CreateDomainUseCase, *domain.ListDomainsUseCase) {
-	domainRepo := f.repoFactory.CreateDomainRepository()
-	return domain.NewCreateDomainUseCase(domainRepo), 
-		   domain.NewListDomainsUseCase(domainRepo)
-}
-
-func (f *useCaseFactory) CreateNodeUseCases() (*node.CreateNodeUseCase, *node.ListNodesUseCase) {
-	nodeRepo := f.repoFactory.CreateNodeRepository()
-	domainRepo := f.repoFactory.CreateDomainRepository()
-	return node.NewCreateNodeUseCase(nodeRepo, domainRepo),
-		   node.NewListNodesUseCase(nodeRepo)
-}
-
-func (f *useCaseFactory) CreateAttributeUseCases() (*attribute.CreateAttributeUseCase, *attribute.ListAttributesUseCase) {
-	attributeRepo := f.repoFactory.CreateAttributeRepository()
-	domainRepo := f.repoFactory.CreateDomainRepository()
-	return attribute.NewCreateAttributeUseCase(attributeRepo, domainRepo),
-		   attribute.NewListAttributesUseCase(attributeRepo, domainRepo)
-}
-
-// handlerFactory implements HandlerFactory
-type handlerFactory struct {
-	useCaseFactory UseCaseFactory
-}
-
-// NewHandlerFactory creates a new handler factory
-func NewHandlerFactory(useCaseFactory UseCaseFactory) HandlerFactory {
-	return &handlerFactory{useCaseFactory: useCaseFactory}
-}
-
-func (f *handlerFactory) CreateDomainHandler() *cleanHandler.DomainHandler {
-	createUC, listUC := f.useCaseFactory.CreateDomainUseCases()
-	return cleanHandler.NewDomainHandler(createUC, listUC)
-}
-
-func (f *handlerFactory) CreateNodeHandler() *cleanHandler.NodeHandler {
-	createUC, listUC := f.useCaseFactory.CreateNodeUseCases()
-	return cleanHandler.NewNodeHandler(createUC, listUC)
-}
-
-func (f *handlerFactory) CreateAttributeHandler() *cleanHandler.AttributeHandler {
-	createUC, listUC := f.useCaseFactory.CreateAttributeUseCases()
-	return cleanHandler.NewAttributeHandler(createUC, listUC)
-}
-
-// adapterFactory implements AdapterFactory
-type adapterFactory struct {
-	useCaseFactory UseCaseFactory
-	toolName       string
-}
-
-// NewAdapterFactory creates a new adapter factory
-func NewAdapterFactory(useCaseFactory UseCaseFactory, toolName string) AdapterFactory {
-	return &adapterFactory{
-		useCaseFactory: useCaseFactory,
-		toolName:       toolName,
-	}
-}
-
-func (f *adapterFactory) CreateMCPUseCaseAdapter() *adapter.MCPUseCaseAdapter {
-	createDomainUC, listDomainsUC := f.useCaseFactory.CreateDomainUseCases()
-	createNodeUC, listNodesUC := f.useCaseFactory.CreateNodeUseCases()
-	createAttributeUC, listAttributesUC := f.useCaseFactory.CreateAttributeUseCases()
-	
-	// Create composite key service and converter
-	compositeKeyService := compositekey.NewService(f.toolName)
-	compositeKeyAdapter := mcp.NewCompositeKeyAdapter(compositeKeyService)
-	mcpConverter := mcp.NewConverter(compositeKeyAdapter, f.toolName)
-	
-	return adapter.NewMCPUseCaseAdapter(
-		createDomainUC,
-		listDomainsUC,
-		createNodeUC,
-		listNodesUC,
-		createAttributeUC,
-		listAttributesUC,
-		mcpConverter,
-	)
-}
-
-// ApplicationFactory is the main factory that orchestrates all other factories
+// ApplicationFactory coordinates all factories
 type ApplicationFactory struct {
-	repoFactory    RepositoryFactory
-	useCaseFactory UseCaseFactory
-	handlerFactory HandlerFactory
-	adapterFactory AdapterFactory
+	db       *sql.DB
+	toolName string
 }
 
 // NewApplicationFactory creates a new application factory
-func NewApplicationFactory(sqlDB *sql.DB, sqlxDB *sqlx.DB, toolName string) *ApplicationFactory {
-	repoFactory := NewSQLiteRepositoryFactory(sqlDB)
-	useCaseFactory := NewUseCaseFactory(repoFactory)
-	handlerFactory := NewHandlerFactory(useCaseFactory)
-	adapterFactory := NewAdapterFactory(useCaseFactory, toolName)
-	
+func NewApplicationFactory(db *sql.DB, sqlxDB interface{}, toolName string) *ApplicationFactory {
 	return &ApplicationFactory{
-		repoFactory:    repoFactory,
-		useCaseFactory: useCaseFactory,
-		handlerFactory: handlerFactory,
-		adapterFactory: adapterFactory,
+		db:       db,
+		toolName: toolName,
 	}
 }
 
-// CreateCleanArchitectureDependencies creates all Clean Architecture dependencies
+// Repository Factory Implementation
+func (f *ApplicationFactory) CreateDomainRepository() repository.DomainRepository {
+	return sqliteRepo.NewDomainRepository(f.db)
+}
+
+func (f *ApplicationFactory) CreateNodeRepository() repository.NodeRepository {
+	return sqliteRepo.NewNodeRepository(f.db)
+}
+
+func (f *ApplicationFactory) CreateAttributeRepository() repository.AttributeRepository {
+	return sqliteRepo.NewAttributeRepository(f.db)
+}
+
+// Use Case Factory Implementation
+func (f *ApplicationFactory) CreateDomainUseCases(domainRepo repository.DomainRepository) (*domain.CreateDomainUseCase, *domain.ListDomainsUseCase) {
+	createUC := domain.NewCreateDomainUseCase(domainRepo)
+	listUC := domain.NewListDomainsUseCase(domainRepo)
+	return createUC, listUC
+}
+
+func (f *ApplicationFactory) CreateNodeUseCases(nodeRepo repository.NodeRepository, domainRepo repository.DomainRepository) (*node.CreateNodeUseCase, *node.ListNodesUseCase) {
+	createUC := node.NewCreateNodeUseCase(nodeRepo, domainRepo)
+	listUC := node.NewListNodesUseCase(nodeRepo)
+	return createUC, listUC
+}
+
+func (f *ApplicationFactory) CreateAttributeUseCases(attributeRepo repository.AttributeRepository, domainRepo repository.DomainRepository) (*attribute.CreateAttributeUseCase, *attribute.ListAttributesUseCase) {
+	createUC := attribute.NewCreateAttributeUseCase(attributeRepo, domainRepo)
+	listUC := attribute.NewListAttributesUseCase(attributeRepo, domainRepo)
+	return createUC, listUC
+}
+
+// CreateCleanArchitectureDependencies creates all dependencies for Clean Architecture
 func (f *ApplicationFactory) CreateCleanArchitectureDependencies() *CleanDependencies {
+	// Create repositories
+	domainRepo := f.CreateDomainRepository()
+	nodeRepo := f.CreateNodeRepository()
+	attributeRepo := f.CreateAttributeRepository()
+
+	// Create use cases
+	createDomainUC, listDomainsUC := f.CreateDomainUseCases(domainRepo)
+	createNodeUC, listNodesUC := f.CreateNodeUseCases(nodeRepo, domainRepo)
+	createAttributeUC, listAttributesUC := f.CreateAttributeUseCases(attributeRepo, domainRepo)
+
 	return &CleanDependencies{
-		DomainHandler:     f.handlerFactory.CreateDomainHandler(),
-		NodeHandler:       f.handlerFactory.CreateNodeHandler(),
-		AttributeHandler:  f.handlerFactory.CreateAttributeHandler(),
-		MCPUseCaseAdapter: f.adapterFactory.CreateMCPUseCaseAdapter(),
+		// Repositories
+		DomainRepo:    domainRepo,
+		NodeRepo:      nodeRepo,
+		AttributeRepo: attributeRepo,
+
+		// Use Cases
+		CreateDomainUC:    createDomainUC,
+		ListDomainsUC:     listDomainsUC,
+		CreateNodeUC:      createNodeUC,
+		ListNodesUC:       listNodesUC,
+		CreateAttributeUC: createAttributeUC,
+		ListAttributesUC:  listAttributesUC,
 	}
 }
 
-// CleanDependencies holds only the Clean Architecture dependencies
+// CleanDependencies holds Clean Architecture dependencies
 type CleanDependencies struct {
-	DomainHandler     *cleanHandler.DomainHandler
-	NodeHandler       *cleanHandler.NodeHandler
-	AttributeHandler  *cleanHandler.AttributeHandler
-	MCPUseCaseAdapter *adapter.MCPUseCaseAdapter
+	// Repositories
+	DomainRepo    repository.DomainRepository
+	NodeRepo      repository.NodeRepository
+	AttributeRepo repository.AttributeRepository
+
+	// Use Cases
+	CreateDomainUC    *domain.CreateDomainUseCase
+	ListDomainsUC     *domain.ListDomainsUseCase
+	CreateNodeUC      *node.CreateNodeUseCase
+	ListNodesUC       *node.ListNodesUseCase
+	CreateAttributeUC *attribute.CreateAttributeUseCase
+	ListAttributesUC  *attribute.ListAttributesUseCase
 }
