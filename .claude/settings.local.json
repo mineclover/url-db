@@ -75,7 +75,8 @@
       "Bash(/dev/null)",
       "Bash(/Users/junwoobang/mcp/url-db/test-mcp-full.sh:*)",
       "Bash(node:*)",
-      "Bash(cat:*)"
+      "Bash(cat:*)",
+      "Bash(tree:*)"
     ],
     "deny": []
   }

@@ -158,7 +158,7 @@ Comprehensive tests generate reports in `test-output/`:
 
 ## 🚀 MCP Integration
 
-The URL-DB server provides native MCP support with 18 tools:
+The URL-DB server provides native MCP support with 16 tools:
 - **Domain Management**: Create and list domains
 - **URL Operations**: Save, search, and manage URLs  
 - **Attribute System**: Tag and categorize URLs with type validation
@@ -166,11 +166,11 @@ The URL-DB server provides native MCP support with 18 tools:
 - **Advanced Queries**: Filter by attributes, batch operations
 - **Resource System**: MCP resource protocol support
 
-### Tool Specification System
+### Tool Specification System  
 - **Single Source**: All tools defined in `/specs/mcp-tools.yaml`
-- **Auto-Generation**: Constants generated for Go and Python
-- **Consistency**: Tool names and descriptions managed centrally
-- **Validation**: Schema-enforced tool definitions
+- **Dynamic Loading**: Go code reads YAML directly via `spec_loader.go`
+- **Optional Constants**: Generate compile-time constants when needed
+- **Streamlined**: No redundant intermediate files or generation processes
 
 ### Common MCP Workflows
 
