@@ -140,7 +140,7 @@ func (s *nodeService) CreateNode(ctx context.Context, domainName, urlStr, title,
 	}
 
 	// Create node entity
-	node, err := entity.NewNode(urlStr, domainName, title, description)
+	node, err := entity.NewNode(urlStr, title, description, domain.ID())
 	if err != nil {
 		return nil, err
 	}

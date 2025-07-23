@@ -330,6 +330,43 @@ func (s *MCPServer) handleToolsList(req *JSONRPCRequest) {
 			},
 		},
 		{
+			"name":        "get_domain_attribute",
+			"description": "Get details of a specific domain attribute",
+			"inputSchema": map[string]interface{}{
+				"type": "object",
+				"properties": map[string]interface{}{
+					"domain_name":    map[string]interface{}{"type": "string", "description": "The domain name"},
+					"attribute_name": map[string]interface{}{"type": "string", "description": "The attribute name to get"},
+				},
+				"required": []string{"domain_name", "attribute_name"},
+			},
+		},
+		{
+			"name":        "update_domain_attribute",
+			"description": "Update domain attribute description",
+			"inputSchema": map[string]interface{}{
+				"type": "object",
+				"properties": map[string]interface{}{
+					"domain_name":    map[string]interface{}{"type": "string", "description": "The domain name"},
+					"attribute_name": map[string]interface{}{"type": "string", "description": "The attribute name to update"},
+					"description":    map[string]interface{}{"type": "string", "description": "New description for the attribute"},
+				},
+				"required": []string{"domain_name", "attribute_name"},
+			},
+		},
+		{
+			"name":        "delete_domain_attribute",
+			"description": "Remove domain attribute definition",
+			"inputSchema": map[string]interface{}{
+				"type": "object",
+				"properties": map[string]interface{}{
+					"domain_name":    map[string]interface{}{"type": "string", "description": "The domain name"},
+					"attribute_name": map[string]interface{}{"type": "string", "description": "The attribute name to delete"},
+				},
+				"required": []string{"domain_name", "attribute_name"},
+			},
+		},
+		{
 			"name":        "create_dependency",
 			"description": "Create dependency relationship between nodes",
 			"inputSchema": map[string]interface{}{
@@ -434,6 +471,12 @@ func (s *MCPServer) handleToolCall(ctx context.Context, req *JSONRPCRequest) {
 		result, err = s.toolHandler.handleListDomainAttributes(ctx, params.Arguments)
 	case "create_domain_attribute":
 		result, err = s.toolHandler.handleCreateDomainAttribute(ctx, params.Arguments)
+	case "get_domain_attribute":
+		result, err = s.toolHandler.handleGetDomainAttribute(ctx, params.Arguments)
+	case "update_domain_attribute":
+		result, err = s.toolHandler.handleUpdateDomainAttribute(ctx, params.Arguments)
+	case "delete_domain_attribute":
+		result, err = s.toolHandler.handleDeleteDomainAttribute(ctx, params.Arguments)
 	case "create_dependency":
 		result, err = s.toolHandler.handleCreateDependency(ctx, params.Arguments)
 	case "list_node_dependencies":

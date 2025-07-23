@@ -30,4 +30,7 @@ type NodeRepository interface {
 
 	// GetBatch retrieves multiple nodes by their IDs
 	GetBatch(ctx context.Context, ids []int) ([]*entity.Node, error)
+
+	// GetDomainByNodeID retrieves the domain for a given node ID
+	GetDomainByNodeID(ctx context.Context, nodeID int) (*entity.Domain, error)
 }

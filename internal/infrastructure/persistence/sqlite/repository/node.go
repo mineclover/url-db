@@ -257,3 +257,31 @@ func (r *nodeRepository) GetBatch(ctx context.Context, ids []int) ([]*entity.Nod
 
 	return nodes, nil
 }
+
+// GetDomainByNodeID retrieves the domain for a given node ID
+func (r *nodeRepository) GetDomainByNodeID(ctx context.Context, nodeID int) (*entity.Domain, error) {
+	query := `
+		SELECT d.id, d.name, d.description, d.created_at, d.updated_at
+		FROM domains d
+		JOIN nodes n ON d.id = n.domain_id
+		WHERE n.id = ?
+	`
+	
+	var dbRow mapper.DatabaseDomain
+	err := r.db.QueryRowContext(ctx, query, nodeID).Scan(
+		&dbRow.ID,
+		&dbRow.Name,
+		&dbRow.Description,
+		&dbRow.CreatedAt,
+		&dbRow.UpdatedAt,
+	)
+	
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, nil // Not found
+		}
+		return nil, err
+	}
+	
+	return mapper.ToDomainEntity(&dbRow), nil
+}
