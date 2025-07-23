@@ -362,3 +362,136 @@ func TestAttributeService_DeleteAttribute_HasValues(t *testing.T) {
 
 	mockRepo.AssertExpectations(t)
 }
+
+// Additional service test cases to improve coverage
+
+func TestAttributeService_CreateAttribute_RepositoryError(t *testing.T) {
+	mockRepo := &MockAttributeRepository{}
+	mockDomainService := &MockDomainService{}
+	service := NewAttributeService(mockRepo, mockDomainService)
+	ctx := context.Background()
+
+	request := &models.CreateAttributeRequest{
+		Name:        "test-attribute",
+		Type:        models.AttributeTypeTag,
+		Description: "Test description",
+	}
+
+	domain := &models.Domain{ID: 1, Name: "test-domain"}
+	mockDomainService.On("GetDomain", ctx, 1).Return(domain, nil)
+	mockRepo.On("GetByDomainIDAndName", ctx, 1, "test-attribute").Return(nil, ErrAttributeNotFound)
+	mockRepo.On("Create", ctx, mock.AnythingOfType("*models.Attribute")).Return(assert.AnError)
+
+	_, err := service.CreateAttribute(ctx, 1, request)
+
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "failed to create attribute")
+	mockRepo.AssertExpectations(t)
+	mockDomainService.AssertExpectations(t)
+}
+
+func TestAttributeService_GetAttribute_RepositoryError(t *testing.T) {
+	mockRepo := &MockAttributeRepository{}
+	mockDomainService := &MockDomainService{}
+	service := NewAttributeService(mockRepo, mockDomainService)
+	ctx := context.Background()
+
+	mockRepo.On("GetByID", ctx, 1).Return(nil, assert.AnError)
+
+	_, err := service.GetAttribute(ctx, 1)
+
+	assert.Error(t, err)
+	mockRepo.AssertExpectations(t)
+}
+
+func TestAttributeService_ListAttributes_RepositoryError(t *testing.T) {
+	mockRepo := &MockAttributeRepository{}
+	mockDomainService := &MockDomainService{}
+	service := NewAttributeService(mockRepo, mockDomainService)
+	ctx := context.Background()
+
+	domain := &models.Domain{ID: 1, Name: "test-domain"}
+	mockDomainService.On("GetDomain", ctx, 1).Return(domain, nil)
+	mockRepo.On("GetByDomainID", ctx, 1).Return(nil, assert.AnError)
+
+	_, err := service.ListAttributes(ctx, 1)
+
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "failed to list attributes")
+	mockRepo.AssertExpectations(t)
+	mockDomainService.AssertExpectations(t)
+}
+
+func TestAttributeService_UpdateAttribute_RepositoryError(t *testing.T) {
+	mockRepo := &MockAttributeRepository{}
+	mockDomainService := &MockDomainService{}
+	service := NewAttributeService(mockRepo, mockDomainService)
+	ctx := context.Background()
+
+	existingAttr := &models.Attribute{
+		ID:       1,
+		DomainID: 1,
+		Name:     "test-attribute",
+		Type:     models.AttributeTypeTag,
+	}
+
+	mockRepo.On("GetByID", ctx, 1).Return(existingAttr, nil)
+	mockRepo.On("Update", ctx, mock.AnythingOfType("*models.Attribute")).Return(assert.AnError)
+
+	request := &models.UpdateAttributeRequest{
+		Description: "Updated description",
+	}
+
+	_, err := service.UpdateAttribute(ctx, 1, request)
+
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "failed to update attribute")
+	mockRepo.AssertExpectations(t)
+}
+
+func TestAttributeService_DeleteAttribute_RepositoryError(t *testing.T) {
+	mockRepo := &MockAttributeRepository{}
+	mockDomainService := &MockDomainService{}
+	service := NewAttributeService(mockRepo, mockDomainService)
+	ctx := context.Background()
+
+	existingAttr := &models.Attribute{
+		ID:       1,
+		DomainID: 1,
+		Name:     "test-attribute",
+		Type:     models.AttributeTypeTag,
+	}
+
+	mockRepo.On("GetByID", ctx, 1).Return(existingAttr, nil)
+	mockRepo.On("HasValues", ctx, 1).Return(false, nil)
+	mockRepo.On("Delete", ctx, 1).Return(assert.AnError)
+
+	err := service.DeleteAttribute(ctx, 1)
+
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "failed to delete attribute")
+	mockRepo.AssertExpectations(t)
+}
+
+func TestAttributeService_DeleteAttribute_HasValuesError(t *testing.T) {
+	mockRepo := &MockAttributeRepository{}
+	mockDomainService := &MockDomainService{}
+	service := NewAttributeService(mockRepo, mockDomainService)
+	ctx := context.Background()
+
+	existingAttr := &models.Attribute{
+		ID:       1,
+		DomainID: 1,
+		Name:     "test-attribute",
+		Type:     models.AttributeTypeTag,
+	}
+
+	mockRepo.On("GetByID", ctx, 1).Return(existingAttr, nil)
+	mockRepo.On("HasValues", ctx, 1).Return(false, assert.AnError)
+
+	err := service.DeleteAttribute(ctx, 1)
+
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "failed to check if attribute has values")
+	mockRepo.AssertExpectations(t)
+}
