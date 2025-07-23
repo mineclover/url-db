@@ -137,3 +137,32 @@ type CleanDependencies struct {
 	ListAttributesUC    *attribute.ListAttributesUseCase
 	SetNodeAttributesUC *node.SetNodeAttributesUseCase
 }
+
+// Individual UseCase factory methods for MCP server
+func (f *ApplicationFactory) CreateListDomainsUseCase() *domain.ListDomainsUseCase {
+	domainRepo := f.CreateDomainRepository()
+	_, listUseCase := f.CreateDomainUseCases(domainRepo)
+	return listUseCase
+}
+
+func (f *ApplicationFactory) CreateCreateDomainUseCase() *domain.CreateDomainUseCase {
+	domainRepo := f.CreateDomainRepository()
+	createUseCase, _ := f.CreateDomainUseCases(domainRepo)
+	return createUseCase
+}
+
+func (f *ApplicationFactory) CreateListNodesUseCase() *node.ListNodesUseCase {
+	nodeRepo := f.CreateNodeRepository()
+	domainRepo := f.CreateDomainRepository()
+	_, listUseCase := f.CreateNodeUseCases(nodeRepo, domainRepo)
+	return listUseCase
+}
+
+func (f *ApplicationFactory) CreateCreateNodeUseCase() *node.CreateNodeUseCase {
+	nodeRepo := f.CreateNodeRepository()
+	domainRepo := f.CreateDomainRepository()
+	createUseCase, _ := f.CreateNodeUseCases(nodeRepo, domainRepo)
+	return createUseCase
+}
+
+// TODO: Add missing UseCase factory methods as needed

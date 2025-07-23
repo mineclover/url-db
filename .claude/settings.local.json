@@ -72,7 +72,10 @@
       "Bash(git reset:*)",
       "Bash(./scripts/coverage_analysis.sh:*)",
       "Bash(./scripts/test_runner.sh:*)",
-      "Bash(/dev/null)"
+      "Bash(/dev/null)",
+      "Bash(/Users/junwoobang/mcp/url-db/test-mcp-full.sh:*)",
+      "Bash(node:*)",
+      "Bash(cat:*)"
     ],
     "deny": []
   }
