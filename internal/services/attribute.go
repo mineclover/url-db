@@ -6,6 +6,7 @@ import (
 	"log"
 	"time"
 
+	"url-db/internal/domains"
 	"url-db/internal/models"
 )
 
@@ -21,11 +22,11 @@ type AttributeRepository interface {
 
 type attributeService struct {
 	attributeRepo AttributeRepository
-	domainRepo    DomainRepository
+	domainRepo    domains.DomainRepository
 	logger        *log.Logger
 }
 
-func NewAttributeService(attributeRepo AttributeRepository, domainRepo DomainRepository, logger *log.Logger) AttributeService {
+func NewAttributeService(attributeRepo AttributeRepository, domainRepo domains.DomainRepository, logger *log.Logger) AttributeService {
 	return &attributeService{
 		attributeRepo: attributeRepo,
 		domainRepo:    domainRepo,

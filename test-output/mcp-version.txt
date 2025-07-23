@@ -1,2 +1,0 @@
-URL Database Server v1.0.0
-Built with Go runtime.Version()

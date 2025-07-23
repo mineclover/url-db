@@ -6,6 +6,7 @@ import (
 	"log"
 	"time"
 
+	"url-db/internal/domains"
 	"url-db/internal/models"
 )
 
@@ -21,11 +22,11 @@ type NodeRepository interface {
 
 type nodeService struct {
 	nodeRepo   NodeRepository
-	domainRepo DomainRepository
+	domainRepo domains.DomainRepository
 	logger     *log.Logger
 }
 
-func NewNodeService(nodeRepo NodeRepository, domainRepo DomainRepository, logger *log.Logger) NodeService {
+func NewNodeService(nodeRepo NodeRepository, domainRepo domains.DomainRepository, logger *log.Logger) NodeService {
 	return &nodeService{
 		nodeRepo:   nodeRepo,
 		domainRepo: domainRepo,
