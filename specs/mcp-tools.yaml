@@ -11,13 +11,15 @@ tools:
   list_domains:
     name: "list_domains"
     category: "domain"
-    description: "Get all domains"
+    description: "Retrieve all available domains with their metadata and URL counts. Essential for understanding the organizational structure of stored URLs."
+    usage: "Use when you need to see what domains are available or get domain statistics before working with URLs."
     parameters: {}
     
   create_domain:
     name: "create_domain"
     category: "domain"
-    description: "Create new domain for organizing URLs"
+    description: "Create a new domain for organizing URLs. Domains act as namespaces that group related URLs together."
+    usage: "Use when adding URLs from a new website or creating a new category for URL organization."
     parameters:
       name: { type: "string", required: true, description: "Domain name" }
       description: { type: "string", required: true, description: "Domain description" }
@@ -26,7 +28,8 @@ tools:
   list_nodes:
     name: "list_nodes"
     category: "node"
-    description: "List URLs in domain"
+    description: "List all URLs (nodes) within a domain with pagination and search support. Returns URL metadata including titles and descriptions."
+    usage: "Use to browse URLs in a domain, search for specific content, or get an overview of stored URLs."
     parameters:
       domain_name: { type: "string", required: true, description: "Domain name to list nodes from" }
       page: { type: "integer", required: false, default: 1, description: "Page number" }
@@ -36,7 +39,8 @@ tools:
   create_node:
     name: "create_node"
     category: "node"
-    description: "Add URL to domain"
+    description: "Add a new URL to a domain with optional title and description. The URL becomes searchable and can have attributes attached."
+    usage: "Use when saving a new URL you want to remember, categorize, or reference later."
     parameters:
       domain_name: { type: "string", required: true, description: "Domain name" }
       url: { type: "string", required: true, description: "URL to store" }
@@ -46,14 +50,16 @@ tools:
   get_node:
     name: "get_node"
     category: "node"
-    description: "Get URL details"
+    description: "Retrieve complete details about a specific URL including all its metadata and when it was added."
+    usage: "Use when you need full information about a URL you've previously saved."
     parameters:
       composite_id: { type: "string", required: true, description: "Composite ID (format: tool:domain:id)" }
       
   update_node:
     name: "update_node"
     category: "node"
-    description: "Update URL title or description"
+    description: "Modify the title or description of an existing URL to keep information current and accurate."
+    usage: "Use when you want to improve the description or fix the title of a saved URL."
     parameters:
       composite_id: { type: "string", required: true, description: "Composite ID (format: tool:domain:id)" }
       title: { type: "string", required: false, description: "New title" }
@@ -62,14 +68,16 @@ tools:
   delete_node:
     name: "delete_node"
     category: "node"
-    description: "Remove URL"
+    description: "Permanently remove a URL and all its associated attributes from the system."
+    usage: "Use when a URL is no longer relevant or needed in your collection."
     parameters:
       composite_id: { type: "string", required: true, description: "Composite ID (format: tool:domain:id)" }
       
   find_node_by_url:
     name: "find_node_by_url"
     category: "node"
-    description: "Search by exact URL"
+    description: "Search for a URL within a domain to check if it's already saved and get its metadata."
+    usage: "Use before adding a URL to avoid duplicates or to find an existing URL's details."
     parameters:
       domain_name: { type: "string", required: true, description: "Domain name" }
       url: { type: "string", required: true, description: "URL to find" }
@@ -78,14 +86,16 @@ tools:
   get_node_attributes:
     name: "get_node_attributes"
     category: "attribute"
-    description: "Get URL tags and attributes"
+    description: "Retrieve all attribute values (tags, metadata) assigned to a specific URL."
+    usage: "Use to see how a URL is categorized and what metadata has been added to it."
     parameters:
       composite_id: { type: "string", required: true, description: "Composite ID (format: tool:domain:id)" }
       
   set_node_attributes:
     name: "set_node_attributes"
     category: "attribute"
-    description: "Add or update URL tags"
+    description: "Add or update multiple attribute values for a URL in a single operation."
+    usage: "Use when tagging a URL with categories, ratings, notes, or other metadata."
     parameters:
       composite_id: { type: "string", required: true, description: "Composite ID (format: tool:domain:id)" }
       attributes: 
@@ -104,14 +114,16 @@ tools:
   list_domain_attributes:
     name: "list_domain_attributes"
     category: "schema"
-    description: "Get available tag types for domain"
+    description: "Get all available attribute types for a domain including their names, types, and descriptions."
+    usage: "Use to see what tags and metadata fields are available before adding attributes to URLs."
     parameters:
       domain_name: { type: "string", required: true, description: "The domain to list attributes for" }
       
   create_domain_attribute:
     name: "create_domain_attribute"
     category: "schema"
-    description: "Define new tag type for domain"
+    description: "Define a new attribute type (tag, number, text, etc.) that can be applied to URLs in a domain."
+    usage: "Use when you want to create a new way to categorize or add metadata to your URLs."
     parameters:
       domain_name: { type: "string", required: true, description: "The domain to add attribute to" }
       name: { type: "string", required: true, description: "Attribute name" }
@@ -121,14 +133,16 @@ tools:
   get_domain_attribute:
     name: "get_domain_attribute"
     category: "schema"
-    description: "Get tag type details"
+    description: "Get detailed information about a specific attribute including its type and validation rules."
+    usage: "Use when you need to understand the format or constraints of an attribute before using it."
     parameters:
       composite_id: { type: "string", required: true, description: "Composite ID (format: tool-name:domain:attr-{id})" }
       
   update_domain_attribute:
     name: "update_domain_attribute"
     category: "schema"
-    description: "Update tag type description"
+    description: "Update the description or other properties of a domain attribute."
+    usage: "Use when you need to modify attribute metadata or descriptions."
     parameters:
       composite_id: { type: "string", required: true, description: "Composite ID (format: tool-name:domain:attr-{id})" }
       description: { type: "string", required: true, description: "New description" }
@@ -136,152 +150,18 @@ tools:
   delete_domain_attribute:
     name: "delete_domain_attribute"
     category: "schema"
-    description: "Remove unused tag type"
+    description: "Remove an attribute type from a domain's schema."
+    usage: "Use when an attribute is no longer needed for a domain."
     parameters:
       composite_id: { type: "string", required: true, description: "Composite ID (format: tool-name:domain:attr-{id})" }
 
-  # Enhanced Query Tools
-  get_node_with_attributes:
-    name: "get_node_with_attributes"
-    category: "query"
-    description: "Get URL with all tags at once"
-    parameters:
-      composite_id: { type: "string", required: true, description: "Composite ID (format: tool-name:domain:id)" }
-      
-  filter_nodes_by_attributes:
-    name: "filter_nodes_by_attributes"
-    category: "query"
-    description: "Search URLs by tag values"
-    parameters:
-      domain_name: { type: "string", required: true, description: "Domain name to search in" }
-      filters:
-        type: "array"
-        required: true
-        description: "Array of attribute filters"
-        items:
-          type: "object"
-          properties:
-            name: { type: "string", required: true, description: "Attribute name" }
-            value: { type: "string", required: true, description: "Attribute value to match" }
-            operator: { type: "string", required: false, default: "equals", description: "Comparison operator", enum: ["equals", "contains", "starts_with", "ends_with"] }
-      page: { type: "integer", required: false, default: 1, description: "Page number" }
-      size: { type: "integer", required: false, default: 20, description: "Page size" }
-
-  # External Dependency Management - Subscriptions
-  create_subscription:
-    name: "create_subscription"
-    category: "subscription"
-    description: "Subscribe to node events"
-    parameters:
-      composite_id: { type: "string", required: true, description: "Composite ID of node to subscribe to" }
-      subscriber_service: { type: "string", required: true, description: "Service identifier for subscriber" }
-      subscriber_endpoint: { type: "string", required: false, description: "Webhook endpoint for notifications" }
-      event_types: 
-        type: "array"
-        required: true
-        description: "Event types to subscribe to"
-        items:
-          type: "string"
-          enum: ["created", "updated", "deleted", "attribute_changed", "connection_changed"]
-      filter_conditions:
-        type: "object"
-        required: false
-        description: "Optional filter conditions for events"
-
-  list_subscriptions:
-    name: "list_subscriptions"
-    category: "subscription"
-    description: "List all subscriptions for a service"
-    parameters:
-      service_name: { type: "string", required: false, description: "Filter by service name (optional)" }
-      page: { type: "integer", required: false, default: 1, description: "Page number" }
-      size: { type: "integer", required: false, default: 20, description: "Page size" }
-
-  get_node_subscriptions:
-    name: "get_node_subscriptions"
-    category: "subscription"
-    description: "Get all subscriptions for a specific node"
-    parameters:
-      composite_id: { type: "string", required: true, description: "Composite ID of node to check subscriptions for" }
-
-  delete_subscription:
-    name: "delete_subscription"
-    category: "subscription"
-    description: "Cancel a subscription"
-    parameters:
-      subscription_id: { type: "integer", required: true, description: "ID of subscription to delete" }
-
-  # External Dependency Management - Dependencies
-  create_dependency:
-    name: "create_dependency"
-    category: "dependency"
-    description: "Create dependency relationship between nodes"
-    parameters:
-      dependent_node_id: { type: "string", required: true, description: "Composite ID of dependent node" }
-      dependency_node_id: { type: "string", required: true, description: "Composite ID of dependency node" }
-      dependency_type: { type: "string", required: true, description: "Type of dependency", enum: ["hard", "soft", "reference"] }
-      cascade_delete: { type: "boolean", required: false, default: false, description: "Delete dependent when dependency is deleted" }
-      cascade_update: { type: "boolean", required: false, default: false, description: "Notify dependent when dependency is updated" }
-      metadata:
-        type: "object"
-        required: false
-        description: "Additional metadata for the dependency"
-
-  list_node_dependencies:
-    name: "list_node_dependencies"
-    category: "dependency"
-    description: "Get all dependencies for a node"
-    parameters:
-      composite_id: { type: "string", required: true, description: "Composite ID of node to check dependencies for" }
-
-  list_node_dependents:
-    name: "list_node_dependents"
-    category: "dependency"
-    description: "Get all nodes that depend on this node"
-    parameters:
-      composite_id: { type: "string", required: true, description: "Composite ID of node to check dependents for" }
-
-  delete_dependency:
-    name: "delete_dependency"
-    category: "dependency"
-    description: "Remove dependency relationship"
-    parameters:
-      dependency_id: { type: "integer", required: true, description: "ID of dependency to delete" }
-
-  # External Dependency Management - Events
-  get_node_events:
-    name: "get_node_events"
-    category: "event"
-    description: "Get event history for a node"
-    parameters:
-      composite_id: { type: "string", required: true, description: "Composite ID of node to get events for" }
-      limit: { type: "integer", required: false, default: 50, description: "Maximum number of events to return" }
-
-  get_pending_events:
-    name: "get_pending_events"
-    category: "event"
-    description: "Get unprocessed events for processing"
-    parameters:
-      limit: { type: "integer", required: false, default: 100, description: "Maximum number of events to return" }
-
-  process_event:
-    name: "process_event"
-    category: "event"
-    description: "Mark an event as processed"
-    parameters:
-      event_id: { type: "integer", required: true, description: "ID of event to mark as processed" }
-
-  get_event_stats:
-    name: "get_event_stats"
-    category: "event"
-    description: "Get system event statistics"
-    parameters: {}
 
   # Server Information
   get_server_info:
     name: "get_server_info"
     category: "meta"
-    description: "Get server info"
+    description: "Get server capabilities, version information, and configuration details for integration planning."
+    usage: "Use to understand what features are available and how to format composite keys."
     parameters: {}
 
 # Tool Categories
@@ -290,8 +170,4 @@ categories:
   node: "Node/URL CRUD operations"
   attribute: "Node attribute management"
   schema: "Domain schema management"
-  query: "Advanced query operations"
-  subscription: "Event subscription management"
-  dependency: "Node dependency management"
-  event: "Event tracking and processing"
   meta: "Server metadata and information"

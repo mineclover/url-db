@@ -43,8 +43,9 @@ make dev                     # Hot reload (requires: go install github.com/cosmt
 ./bin/url-db                 # HTTP mode (default port 8080) 
 ./bin/url-db -mcp-mode=stdio # MCP stdio mode for AI assistants
 
-# Constants management
-python scripts/generate-tool-constants.py  # Generate tool constants from YAML spec
+# MCP Tool specification
+# Single source: /specs/mcp-tools.yaml - contains all tool definitions, descriptions, and usage info
+python scripts/generate-tool-constants.py  # Generate Go constants (only if needed for compile-time constants)
 ```
 
 ## Architecture
