@@ -1,4 +1,4 @@
-package attributes
+package usecases
 
 import (
 	"fmt"

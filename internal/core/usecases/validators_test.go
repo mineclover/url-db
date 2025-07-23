@@ -1,4 +1,4 @@
-package attributes
+package usecases_test
 
 import (
 	"strings"

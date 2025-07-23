@@ -348,12 +348,6 @@ func TestDomainService_DeleteDomain_Success(t *testing.T) {
 	service := domains.NewDomainService(mockRepo)
 	ctx := context.Background()
 	
-	existingDomain := &models.Domain{
-		ID:   1,
-		Name: "test-domain",
-	}
-	
-	mockRepo.On("GetByID", ctx, 1).Return(existingDomain, nil)
 	mockRepo.On("Delete", ctx, 1).Return(nil)
 	
 	err := service.DeleteDomain(ctx, 1)
@@ -367,7 +361,7 @@ func TestDomainService_DeleteDomain_NotFound(t *testing.T) {
 	service := domains.NewDomainService(mockRepo)
 	ctx := context.Background()
 	
-	mockRepo.On("GetByID", ctx, 999).Return(nil, sql.ErrNoRows)
+	mockRepo.On("Delete", ctx, 999).Return(sql.ErrNoRows)
 	
 	err := service.DeleteDomain(ctx, 999)
 	

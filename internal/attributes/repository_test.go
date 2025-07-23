@@ -11,69 +11,10 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"url-db/internal/models"
+	"url-db/internal/testutils"
 )
-
 func setupTestDB(t *testing.T) *sql.DB {
-	db, err := sql.Open("sqlite3", ":memory:")
-	require.NoError(t, err)
-
-	// Create tables
-	_, err = db.Exec(`
-		CREATE TABLE domains (
-			id INTEGER PRIMARY KEY AUTOINCREMENT,
-			name TEXT NOT NULL UNIQUE,
-			created_at DATETIME NOT NULL
-		)
-	`)
-	require.NoError(t, err)
-
-	_, err = db.Exec(`
-		CREATE TABLE attributes (
-			id INTEGER PRIMARY KEY AUTOINCREMENT,
-			domain_id INTEGER NOT NULL,
-			name TEXT NOT NULL,
-			type TEXT NOT NULL,
-			description TEXT NOT NULL DEFAULT '',
-			created_at DATETIME NOT NULL,
-			FOREIGN KEY (domain_id) REFERENCES domains(id) ON DELETE CASCADE,
-			UNIQUE(domain_id, name)
-		)
-	`)
-	require.NoError(t, err)
-
-	_, err = db.Exec(`
-		CREATE TABLE nodes (
-			id INTEGER PRIMARY KEY AUTOINCREMENT,
-			domain_id INTEGER NOT NULL,
-			url TEXT NOT NULL,
-			title TEXT NOT NULL DEFAULT '',
-			description TEXT NOT NULL DEFAULT '',
-			created_at DATETIME NOT NULL,
-			FOREIGN KEY (domain_id) REFERENCES domains(id) ON DELETE CASCADE,
-			UNIQUE(domain_id, url)
-		)
-	`)
-	require.NoError(t, err)
-
-	_, err = db.Exec(`
-		CREATE TABLE node_attributes (
-			id INTEGER PRIMARY KEY AUTOINCREMENT,
-			node_id INTEGER NOT NULL,
-			attribute_id INTEGER NOT NULL,
-			value TEXT NOT NULL,
-			order_index INTEGER,
-			created_at DATETIME NOT NULL,
-			FOREIGN KEY (node_id) REFERENCES nodes(id) ON DELETE CASCADE,
-			FOREIGN KEY (attribute_id) REFERENCES attributes(id) ON DELETE CASCADE
-		)
-	`)
-	require.NoError(t, err)
-
-	// Insert test domain
-	_, err = db.Exec(`INSERT INTO domains (id, name, created_at) VALUES (1, 'test-domain', '2023-01-01 00:00:00')`)
-	require.NoError(t, err)
-
-	return db
+	return testutils.SetupTestDB(t)
 }
 
 func TestSQLiteAttributeRepository_Create(t *testing.T) {

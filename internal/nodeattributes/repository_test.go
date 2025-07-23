@@ -10,6 +10,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"url-db/internal/models"
 	"url-db/internal/nodeattributes"
+	"url-db/internal/testutils"
 )
 
 // Helper function to create *int pointers
@@ -18,75 +19,10 @@ func intPtr(i int) *int {
 }
 
 func setupTestDB(t *testing.T) *sqlx.DB {
-	db, err := sqlx.Open("sqlite3", ":memory:")
-	require.NoError(t, err)
-
-	// Enable foreign key constraints
-	_, err = db.Exec("PRAGMA foreign_keys = ON")
-	require.NoError(t, err)
-
-	// Create tables
-	_, err = db.Exec(`
-		CREATE TABLE domains (
-			id INTEGER PRIMARY KEY AUTOINCREMENT,
-			name TEXT NOT NULL UNIQUE,
-			created_at DATETIME NOT NULL
-		)
-	`)
-	require.NoError(t, err)
-
-	_, err = db.Exec(`
-		CREATE TABLE nodes (
-			id INTEGER PRIMARY KEY AUTOINCREMENT,
-			domain_id INTEGER NOT NULL,
-			url TEXT NOT NULL,
-			title TEXT NOT NULL DEFAULT '',
-			description TEXT NOT NULL DEFAULT '',
-			created_at DATETIME NOT NULL,
-			FOREIGN KEY (domain_id) REFERENCES domains(id) ON DELETE CASCADE,
-			UNIQUE(domain_id, url)
-		)
-	`)
-	require.NoError(t, err)
-
-	_, err = db.Exec(`
-		CREATE TABLE attributes (
-			id INTEGER PRIMARY KEY AUTOINCREMENT,
-			domain_id INTEGER NOT NULL,
-			name TEXT NOT NULL,
-			type TEXT NOT NULL,
-			description TEXT NOT NULL DEFAULT '',
-			created_at DATETIME NOT NULL,
-			FOREIGN KEY (domain_id) REFERENCES domains(id) ON DELETE CASCADE,
-			UNIQUE(domain_id, name)
-		)
-	`)
-	require.NoError(t, err)
-
-	_, err = db.Exec(`
-		CREATE TABLE node_attributes (
-			id INTEGER PRIMARY KEY AUTOINCREMENT,
-			node_id INTEGER NOT NULL,
-			attribute_id INTEGER NOT NULL,
-			value TEXT NOT NULL,
-			order_index INTEGER,
-			created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-			FOREIGN KEY (node_id) REFERENCES nodes(id) ON DELETE CASCADE,
-			FOREIGN KEY (attribute_id) REFERENCES attributes(id) ON DELETE CASCADE
-		)
-	`)
-	require.NoError(t, err)
-
-	// Insert test data
-	_, err = db.Exec(`INSERT INTO domains (id, name, created_at) VALUES (1, 'test-domain', '2023-01-01 00:00:00')`)
-	require.NoError(t, err)
-
-	_, err = db.Exec(`INSERT INTO nodes (id, domain_id, url, created_at) VALUES (1, 1, 'http://example.com', '2023-01-01 00:00:00')`)
-	require.NoError(t, err)
-
-	_, err = db.Exec(`INSERT INTO attributes (id, domain_id, name, type, created_at) VALUES (1, 1, 'test-attr', 'string', '2023-01-01 00:00:00')`)
-	require.NoError(t, err)
-
+	// Get the sql.DB from testutils and wrap it with sqlx
+	sqlDB := testutils.SetupTestDB(t)
+	db := sqlx.NewDb(sqlDB, "sqlite3")
+	
 	return db
 }
 

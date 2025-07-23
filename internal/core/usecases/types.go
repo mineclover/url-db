@@ -1,4 +1,4 @@
-package attributes
+package usecases
 
 import "url-db/internal/models"
 
