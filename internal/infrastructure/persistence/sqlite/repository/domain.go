@@ -33,6 +33,28 @@ func (r *domainRepository) Create(ctx context.Context, domain *entity.Domain) er
 	return err
 }
 
+func (r *domainRepository) GetByID(ctx context.Context, id int) (*entity.Domain, error) {
+	var dbModel models.Domain
+
+	query := `SELECT id, name, description, created_at, updated_at FROM domains WHERE id = ?`
+	err := r.db.QueryRowContext(ctx, query, id).Scan(
+		&dbModel.ID,
+		&dbModel.Name,
+		&dbModel.Description,
+		&dbModel.CreatedAt,
+		&dbModel.UpdatedAt,
+	)
+
+	if err == sql.ErrNoRows {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	return mapper.ToDomainEntity(&dbModel), nil
+}
+
 func (r *domainRepository) GetByName(ctx context.Context, name string) (*entity.Domain, error) {
 	var dbModel models.Domain
 

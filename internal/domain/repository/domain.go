@@ -10,6 +10,9 @@ type DomainRepository interface {
 	// Create creates a new domain
 	Create(ctx context.Context, domain *entity.Domain) error
 
+	// GetByID retrieves a domain by its ID
+	GetByID(ctx context.Context, id int) (*entity.Domain, error)
+
 	// GetByName retrieves a domain by its name
 	GetByName(ctx context.Context, name string) (*entity.Domain, error)
 
