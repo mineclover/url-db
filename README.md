@@ -194,12 +194,13 @@ The URL-DB server provides native MCP support with 18 tools:
 - [API Documentation](docs/mcp-openapi.yaml) - Complete OpenAPI specification  
 
 ### Setup Guides
-- [MCP Setup Guide (Korean)](docs/mcp-setup-guide-ko.md) - MCP integration guide
-- [MCP Setup Guide (English)](docs/mcp-setup-guide.md) - MCP integration guide
+- [MCP Claude Setup Guide](docs/MCP_CLAUDE_SETUP.md) - Comprehensive MCP integration guide
+- [MCP Testing Guide](docs/MCP_TESTING_GUIDE.md) - Testing procedures and workflows
 
 ### Technical References
-- [Constants Usage Report](docs/CONSTANTS_USAGE_REPORT.md) - Constants package usage analysis and improvements
 - [Tool Specification](specs/mcp-tools.yaml) - MCP tools definition
+- [Composite Key Conventions](docs/spec/composite-key-conventions.md) - Key format specifications
+- [Error Codes](docs/spec/error-codes.md) - Error code reference
 
 ### Architecture Quality
 - **Code Quality Score**: A- (85/100)
