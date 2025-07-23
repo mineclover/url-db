@@ -217,6 +217,118 @@ func (s *MCPServer) handleToolsList(req *JSONRPCRequest) {
 				"required": []string{"domain_name", "url"},
 			},
 		},
+		{
+			"name":        "get_node",
+			"description": "Get URL details",
+			"inputSchema": map[string]interface{}{
+				"type": "object",
+				"properties": map[string]interface{}{
+					"composite_id": map[string]interface{}{"type": "string", "description": "Composite ID (format: tool:domain:id)"},
+				},
+				"required": []string{"composite_id"},
+			},
+		},
+		{
+			"name":        "update_node",
+			"description": "Update URL title or description",
+			"inputSchema": map[string]interface{}{
+				"type": "object",
+				"properties": map[string]interface{}{
+					"composite_id": map[string]interface{}{"type": "string", "description": "Composite ID (format: tool:domain:id)"},
+					"title":        map[string]interface{}{"type": "string", "description": "New title"},
+					"description":  map[string]interface{}{"type": "string", "description": "New description"},
+				},
+				"required": []string{"composite_id"},
+			},
+		},
+		{
+			"name":        "delete_node",
+			"description": "Remove URL",
+			"inputSchema": map[string]interface{}{
+				"type": "object",
+				"properties": map[string]interface{}{
+					"composite_id": map[string]interface{}{"type": "string", "description": "Composite ID (format: tool:domain:id)"},
+				},
+				"required": []string{"composite_id"},
+			},
+		},
+		{
+			"name":        "find_node_by_url",
+			"description": "Search by exact URL",
+			"inputSchema": map[string]interface{}{
+				"type": "object",
+				"properties": map[string]interface{}{
+					"domain_name": map[string]interface{}{"type": "string", "description": "Domain name"},
+					"url":         map[string]interface{}{"type": "string", "description": "URL to find"},
+				},
+				"required": []string{"domain_name", "url"},
+			},
+		},
+		{
+			"name":        "get_node_attributes",
+			"description": "Get URL tags and attributes",
+			"inputSchema": map[string]interface{}{
+				"type": "object",
+				"properties": map[string]interface{}{
+					"composite_id": map[string]interface{}{"type": "string", "description": "Composite ID (format: tool:domain:id)"},
+				},
+				"required": []string{"composite_id"},
+			},
+		},
+		{
+			"name":        "set_node_attributes",
+			"description": "Add or update URL tags",
+			"inputSchema": map[string]interface{}{
+				"type": "object",
+				"properties": map[string]interface{}{
+					"composite_id": map[string]interface{}{"type": "string", "description": "Composite ID (format: tool:domain:id)"},
+					"attributes": map[string]interface{}{
+						"type":        "array",
+						"description": "Array of attributes to set",
+						"items": map[string]interface{}{
+							"type": "object",
+							"properties": map[string]interface{}{
+								"name":        map[string]interface{}{"type": "string", "description": "Attribute name"},
+								"value":       map[string]interface{}{"type": "string", "description": "Attribute value"},
+								"order_index": map[string]interface{}{"type": "integer", "description": "Order index (for ordered_tag type)"},
+							},
+							"required": []string{"name", "value"},
+						},
+					},
+					"auto_create_attributes": map[string]interface{}{"type": "boolean", "default": true, "description": "Automatically create attributes if they don't exist"},
+				},
+				"required": []string{"composite_id", "attributes"},
+			},
+		},
+		{
+			"name":        "list_domain_attributes",
+			"description": "Get available tag types for domain",
+			"inputSchema": map[string]interface{}{
+				"type": "object",
+				"properties": map[string]interface{}{
+					"domain_name": map[string]interface{}{"type": "string", "description": "The domain to list attributes for"},
+				},
+				"required": []string{"domain_name"},
+			},
+		},
+		{
+			"name":        "create_domain_attribute",
+			"description": "Define new tag type for domain",
+			"inputSchema": map[string]interface{}{
+				"type": "object",
+				"properties": map[string]interface{}{
+					"domain_name": map[string]interface{}{"type": "string", "description": "The domain to add attribute to"},
+					"name":        map[string]interface{}{"type": "string", "description": "Attribute name"},
+					"type": map[string]interface{}{
+						"type":        "string",
+						"description": "One of: tag, ordered_tag, number, string, markdown, image",
+						"enum":        []string{"tag", "ordered_tag", "number", "string", "markdown", "image"},
+					},
+					"description": map[string]interface{}{"type": "string", "description": "Human-readable description"},
+				},
+				"required": []string{"domain_name", "name", "type"},
+			},
+		},
 	}
 
 	result := map[string]interface{}{
@@ -253,6 +365,22 @@ func (s *MCPServer) handleToolCall(ctx context.Context, req *JSONRPCRequest) {
 		result, err = s.toolHandler.handleListNodes(ctx, params.Arguments)
 	case "create_node":
 		result, err = s.toolHandler.handleCreateNode(ctx, params.Arguments)
+	case "get_node":
+		result, err = s.toolHandler.handleGetNode(ctx, params.Arguments)
+	case "update_node":
+		result, err = s.toolHandler.handleUpdateNode(ctx, params.Arguments)
+	case "delete_node":
+		result, err = s.toolHandler.handleDeleteNode(ctx, params.Arguments)
+	case "find_node_by_url":
+		result, err = s.toolHandler.handleFindNodeByURL(ctx, params.Arguments)
+	case "get_node_attributes":
+		result, err = s.toolHandler.handleGetNodeAttributes(ctx, params.Arguments)
+	case "set_node_attributes":
+		result, err = s.toolHandler.handleSetNodeAttributes(ctx, params.Arguments)
+	case "list_domain_attributes":
+		result, err = s.toolHandler.handleListDomainAttributes(ctx, params.Arguments)
+	case "create_domain_attribute":
+		result, err = s.toolHandler.handleCreateDomainAttribute(ctx, params.Arguments)
 	default:
 		s.sendError(req.ID, MethodNotFound, fmt.Sprintf("Tool not found: %s", params.Name), nil)
 		return
