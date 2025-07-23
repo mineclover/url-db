@@ -6,6 +6,7 @@ import (
 	"time"
 	"url-db/internal/models"
 
+	"github.com/jmoiron/sqlx"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/stretchr/testify/require"
 )
@@ -15,9 +16,18 @@ type TestDB struct {
 	DB *sql.DB
 }
 
+// SqlxDB returns the database as an sqlx.DB for repositories that need it
+func (tdb *TestDB) SqlxDB() *sqlx.DB {
+	return sqlx.NewDb(tdb.DB, "sqlite3")
+}
+
 // SetupTestDB 는 테스트용 인메모리 SQLite 데이터베이스를 설정합니다.
 func SetupTestDB(t *testing.T) *TestDB {
 	db, err := sql.Open("sqlite3", ":memory:")
+	require.NoError(t, err)
+
+	// Enable foreign key constraints
+	_, err = db.Exec("PRAGMA foreign_keys = ON")
 	require.NoError(t, err)
 
 	// 테스트용 스키마 생성
@@ -75,6 +85,41 @@ func createTestSchema(t *testing.T, db *sql.DB) {
 			FOREIGN KEY (node_id) REFERENCES nodes(id) ON DELETE CASCADE,
 			FOREIGN KEY (attribute_id) REFERENCES attributes(id) ON DELETE CASCADE,
 			UNIQUE(node_id, attribute_id, order_index)
+		);
+
+		CREATE TABLE node_connections (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			source_node_id INTEGER NOT NULL,
+			target_node_id INTEGER NOT NULL,
+			relationship_type TEXT NOT NULL,
+			description TEXT,
+			created_at DATETIME NOT NULL,
+			FOREIGN KEY (source_node_id) REFERENCES nodes(id) ON DELETE CASCADE,
+			FOREIGN KEY (target_node_id) REFERENCES nodes(id) ON DELETE CASCADE,
+			UNIQUE(source_node_id, target_node_id, relationship_type)
+		);
+
+		CREATE TABLE node_subscriptions (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			subscriber_service TEXT NOT NULL,
+			subscriber_endpoint TEXT,
+			subscribed_node_id INTEGER NOT NULL,
+			event_types TEXT NOT NULL,
+			filter_conditions TEXT,
+			is_active BOOLEAN DEFAULT TRUE,
+			created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+			updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+			FOREIGN KEY (subscribed_node_id) REFERENCES nodes(id) ON DELETE CASCADE
+		);
+
+		CREATE TABLE node_events (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			node_id INTEGER NOT NULL,
+			event_type TEXT NOT NULL,
+			event_data TEXT,
+			occurred_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+			processed_at DATETIME,
+			FOREIGN KEY (node_id) REFERENCES nodes(id) ON DELETE CASCADE
 		);
 
 		-- 인덱스 생성
