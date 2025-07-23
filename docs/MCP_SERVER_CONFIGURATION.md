@@ -1,6 +1,6 @@
 # MCP Server Configuration Guide
 
-Complete guide for configuring URL-DB MCP server with Claude Desktop, including logging and no-logging variants for optimal user experience.
+Complete guide for configuring URL-DB MCP server with Claude Desktop, including production and development variants for optimal user experience.
 
 ## 🚀 Quick Start
 
@@ -17,7 +17,7 @@ make build
 
 ## 📋 Configuration Variants
 
-### 🔇 Production Configuration (No Logging - Recommended)
+### 🔇 Production Configuration (Recommended)
 
 **Perfect for**: Daily use, clean Claude Desktop experience, production environments
 
@@ -32,9 +32,7 @@ make build
         "-mcp-mode=stdio",
         "-db-path=/Users/yourusername/Documents/url-database.db"
       ],
-      "env": {
-        "LOG_LEVEL": "OFF"
-      }
+      "env": {}
     }
   }
 }
@@ -42,13 +40,13 @@ make build
 
 **Features**:
 - ✅ Clean Claude Desktop interface
-- ✅ No console output interference  
+- ✅ Minimal console output
 - ✅ Optimal for end users
 - ✅ Faster startup
 
-### 🔊 Development Configuration (With Logging)
+### 🔊 Development Configuration
 
-**Perfect for**: Debugging, development, troubleshooting, learning MCP internals
+**Perfect for**: Debugging, development, troubleshooting, testing with separate database
 
 ```json
 {
@@ -59,20 +57,16 @@ make build
         "-mcp-mode=stdio",
         "-db-path=/Users/yourusername/Documents/url-database.db"
       ],
-      "env": {
-        "LOG_LEVEL": "DEBUG",
-        "LOG_FORMAT": "json"
-      }
+      "env": {}
     }
   }
 }
 ```
 
 **Features**:
-- 🔍 Detailed request/response logs
-- 🐛 Error debugging information
-- 📊 Performance metrics
-- 🔧 Development insights
+- 🔧 Same functionality as production
+- 📝 Manual debugging via console output
+- 🧪 Test database for safe experimentation
 
 ## 🎛️ Configuration Options
 
@@ -89,9 +83,9 @@ make build
 
 | Variable | Purpose | Values | Default |
 |----------|---------|--------|---------|
-| `LOG_LEVEL` | Logging verbosity | `OFF`, `ERROR`, `WARN`, `INFO`, `DEBUG` | `INFO` |
-| `LOG_FORMAT` | Log output format | `text`, `json` | `text` |
 | `AUTO_CREATE_ATTRIBUTES` | Auto-create missing attributes | `true`, `false` | `true` |
+
+**Note**: Logging is currently handled through standard Go logging without environment variable control.
 
 ## 📊 Configuration Templates
 
@@ -108,8 +102,6 @@ make build
         "-tool-name=corp-links"
       ],
       "env": {
-        "LOG_LEVEL": "WARN",
-        "LOG_FORMAT": "json",
         "AUTO_CREATE_ATTRIBUTES": "false"
       }
     }
@@ -129,8 +121,6 @@ make build
         "-db-path=/tmp/url-db-dev.sqlite"
       ],
       "env": {
-        "LOG_LEVEL": "DEBUG",
-        "LOG_FORMAT": "text",
         "AUTO_CREATE_ATTRIBUTES": "true"
       }
     }
@@ -150,9 +140,7 @@ make build
         "-db-path=/Users/yourname/Documents/my-bookmarks.db",
         "-tool-name=bookmarks"
       ],
-      "env": {
-        "LOG_LEVEL": "ERROR"
-      }
+      "env": {}
     }
   }
 }
@@ -170,7 +158,7 @@ make build
         "-db-path=/Users/you/work-urls.db",
         "-tool-name=work"
       ],
-      "env": { "LOG_LEVEL": "OFF" }
+      "env": {}
     },
     "personal-urls": {
       "command": "/path/to/url-db/bin/url-db",
@@ -179,7 +167,7 @@ make build
         "-db-path=/Users/you/personal-urls.db", 
         "-tool-name=personal"
       ],
-      "env": { "LOG_LEVEL": "OFF" }
+      "env": {}
     }
   }
 }
@@ -211,12 +199,7 @@ make build
 
 ### ⚠️ Development Guidelines
 
-1. **Enable Debug Logging**
-   ```json
-   "env": { "LOG_LEVEL": "DEBUG", "LOG_FORMAT": "json" }
-   ```
-
-2. **Use Test Database**
+1. **Use Test Database**
    ```json
    "-db-path=/tmp/url-db-test.sqlite"
    ```
@@ -244,16 +227,10 @@ make build
 
 ### Logging Configuration Issues
 
-**Problem**: Too much console output in Claude Desktop
-```json
-// Change from DEBUG to ERROR
-"env": { "LOG_LEVEL": "ERROR" }
-```
-
-**Problem**: Can't see MCP protocol details
-```json
-// Enable detailed logging
-"env": { "LOG_LEVEL": "DEBUG", "LOG_FORMAT": "json" }
+**Problem**: Want to see server startup messages
+```bash
+# Run server manually to see console output
+./bin/url-db -mcp-mode=stdio -db-path=test.db
 ```
 
 ## 🧪 Testing Your Configuration
@@ -271,27 +248,24 @@ Ask Claude:
 "Can you list domains in my URL database?"
 ```
 
-### 3. Logging Verification
-**No Logging**: Clean responses with no extra output
-**With Logging**: Console shows JSON-RPC requests and responses
+### 3. Console Output Verification
+**Normal Operation**: Minimal startup messages, clean responses
+**Manual Testing**: Console shows server activity when run directly
 
 ## 📈 Performance Optimization
 
-### For Speed (No Logging)
+### For Speed
 ```json
 {
-  "env": {
-    "LOG_LEVEL": "OFF"
-  }
+  "env": {}
 }
 ```
 
-### For Monitoring (Minimal Logging)
+### For Development
 ```json
 {
   "env": {
-    "LOG_LEVEL": "WARN",
-    "LOG_FORMAT": "json"
+    "AUTO_CREATE_ATTRIBUTES": "true"
   }
 }
 ```
@@ -336,10 +310,15 @@ Ask Claude:
     "url-db": {
       "command": "/absolute/path/to/url-db/bin/url-db", 
       "args": ["-mcp-mode=stdio", "-db-path=/tmp/debug.db"],
-      "env": { "LOG_LEVEL": "DEBUG" }
+      "env": {}
     }
   }
 }
+```
+
+**For debugging**: Run the server manually in terminal to see console output:
+```bash
+./bin/url-db -mcp-mode=stdio -db-path=/tmp/debug.db
 ```
 
 ## 📚 Related Documentation
