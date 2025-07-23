@@ -1,98 +1,65 @@
-# url-db/docs
-docs/docs.go:3765:2: unknown field LeftDelim in struct literal of type "github.com/swaggo/swag".Spec
-docs/docs.go:3766:2: unknown field RightDelim in struct literal of type "github.com/swaggo/swag".Spec
-# url-db/internal/mcp [url-db/internal/mcp.test]
-internal/mcp/resources_test.go:14:34: cannot use mockService (variable of type *MockMCPService) as MCPService value in argument to NewResourceRegistry: *MockMCPService does not implement MCPService (missing method FilterNodesByAttributes)
-internal/mcp/resources_test.go:56:34: cannot use mockService (variable of type *MockMCPService) as MCPService value in argument to NewResourceRegistry: *MockMCPService does not implement MCPService (missing method FilterNodesByAttributes)
-internal/mcp/resources_test.go:85:34: cannot use mockService (variable of type *MockMCPService) as MCPService value in argument to NewResourceRegistry: *MockMCPService does not implement MCPService (missing method FilterNodesByAttributes)
-internal/mcp/resources_test.go:111:34: cannot use mockService (variable of type *MockMCPService) as MCPService value in argument to NewResourceRegistry: *MockMCPService does not implement MCPService (missing method FilterNodesByAttributes)
-internal/mcp/resources_test.go:138:34: cannot use mockService (variable of type *MockMCPService) as MCPService value in argument to NewResourceRegistry: *MockMCPService does not implement MCPService (missing method FilterNodesByAttributes)
-internal/mcp/resources_test.go:166:34: cannot use mockService (variable of type *MockMCPService) as MCPService value in argument to NewResourceRegistry: *MockMCPService does not implement MCPService (missing method FilterNodesByAttributes)
-internal/mcp/resources_test.go:177:34: cannot use mockService (variable of type *MockMCPService) as MCPService value in argument to NewResourceRegistry: *MockMCPService does not implement MCPService (missing method FilterNodesByAttributes)
-internal/mcp/tools_additional_test.go:14:30: cannot use mockService (variable of type *MockMCPService) as MCPService value in argument to NewToolRegistry: *MockMCPService does not implement MCPService (missing method FilterNodesByAttributes)
-internal/mcp/tools_additional_test.go:45:30: cannot use mockService (variable of type *MockMCPService) as MCPService value in argument to NewToolRegistry: *MockMCPService does not implement MCPService (missing method FilterNodesByAttributes)
-internal/mcp/tools_additional_test.go:74:30: cannot use mockService (variable of type *MockMCPService) as MCPService value in argument to NewToolRegistry: *MockMCPService does not implement MCPService (missing method FilterNodesByAttributes)
-internal/mcp/tools_additional_test.go:74:30: too many errors
 # url-db.test
-ld: warning: '/private/var/folders/t4/5cn643kn7ls_6vyl6y51gnnm0000gn/T/go-link-2016524197/000023.o' has malformed LC_DYSYMTAB, expected 98 undefined symbols to start at index 1626, found 95 undefined symbols starting at index 1626
-# url-db/internal/database.test
-ld: warning: '/private/var/folders/t4/5cn643kn7ls_6vyl6y51gnnm0000gn/T/go-link-2255881117/000023.o' has malformed LC_DYSYMTAB, expected 98 undefined symbols to start at index 1626, found 95 undefined symbols starting at index 1626
+ld: warning: '/private/var/folders/t4/5cn643kn7ls_6vyl6y51gnnm0000gn/T/go-link-3061793134/000023.o' has malformed LC_DYSYMTAB, expected 98 undefined symbols to start at index 1626, found 95 undefined symbols starting at index 1626
 # url-db/internal/attributes.test
-ld: warning: '/private/var/folders/t4/5cn643kn7ls_6vyl6y51gnnm0000gn/T/go-link-3292515843/000023.o' has malformed LC_DYSYMTAB, expected 98 undefined symbols to start at index 1626, found 95 undefined symbols starting at index 1626
+ld: warning: '/private/var/folders/t4/5cn643kn7ls_6vyl6y51gnnm0000gn/T/go-link-2260502081/000023.o' has malformed LC_DYSYMTAB, expected 98 undefined symbols to start at index 1626, found 95 undefined symbols starting at index 1626
+# url-db/internal/database.test
+ld: warning: '/private/var/folders/t4/5cn643kn7ls_6vyl6y51gnnm0000gn/T/go-link-2171072326/000023.o' has malformed LC_DYSYMTAB, expected 98 undefined symbols to start at index 1626, found 95 undefined symbols starting at index 1626
+# url-db/internal/infrastructure/database.test
+ld: warning: '/private/var/folders/t4/5cn643kn7ls_6vyl6y51gnnm0000gn/T/go-link-2491099010/000023.o' has malformed LC_DYSYMTAB, expected 98 undefined symbols to start at index 1626, found 95 undefined symbols starting at index 1626
+# url-db/internal/core/usecases.test
+ld: warning: '/private/var/folders/t4/5cn643kn7ls_6vyl6y51gnnm0000gn/T/go-link-2096750766/000023.o' has malformed LC_DYSYMTAB, expected 98 undefined symbols to start at index 1626, found 95 undefined symbols starting at index 1626
+# url-db/internal/core/usecases/services.test
+ld: warning: '/private/var/folders/t4/5cn643kn7ls_6vyl6y51gnnm0000gn/T/go-link-694905113/000023.o' has malformed LC_DYSYMTAB, expected 98 undefined symbols to start at index 1626, found 95 undefined symbols starting at index 1626
+# url-db/internal/infrastructure/repositories.test
+ld: warning: '/private/var/folders/t4/5cn643kn7ls_6vyl6y51gnnm0000gn/T/go-link-1849537420/000023.o' has malformed LC_DYSYMTAB, expected 98 undefined symbols to start at index 1626, found 95 undefined symbols starting at index 1626
 # url-db/internal/handlers.test
-ld: warning: '/private/var/folders/t4/5cn643kn7ls_6vyl6y51gnnm0000gn/T/go-link-1925459738/000023.o' has malformed LC_DYSYMTAB, expected 98 undefined symbols to start at index 1626, found 95 undefined symbols starting at index 1626
-# url-db/internal/nodes.test
-ld: warning: '/private/var/folders/t4/5cn643kn7ls_6vyl6y51gnnm0000gn/T/go-link-3947994637/000023.o' has malformed LC_DYSYMTAB, expected 98 undefined symbols to start at index 1626, found 95 undefined symbols starting at index 1626
-# url-db/internal/repositories.test
-ld: warning: '/private/var/folders/t4/5cn643kn7ls_6vyl6y51gnnm0000gn/T/go-link-3747135503/000023.o' has malformed LC_DYSYMTAB, expected 98 undefined symbols to start at index 1626, found 95 undefined symbols starting at index 1626
-ok  	url-db	1.244s
-FAIL	url-db/cmd/server [build failed]
-FAIL	url-db/docs [build failed]
---- FAIL: TestImageValidator_Validate (0.00s)
-    --- FAIL: TestImageValidator_Validate/too_long_value (0.00s)
-        validators_test.go:331: 
-            	Error Trace:	/Users/junwoobang/mcp/url-db/internal/attributes/validators_test.go:331
-            	Error:      	Target error should be in err chain:
-            	            	expected: "value too long"
-            	            	in chain: "invalid URL"
-            	Test:       	TestImageValidator_Validate/too_long_value
-FAIL
-FAIL	url-db/internal/attributes	0.495s
-ok  	url-db/internal/compositekey	1.259s
+ld: warning: '/private/var/folders/t4/5cn643kn7ls_6vyl6y51gnnm0000gn/T/go-link-2075006620/000023.o' has malformed LC_DYSYMTAB, expected 98 undefined symbols to start at index 1626, found 95 undefined symbols starting at index 1626
+ok  	url-db	1.243s
+?   	url-db/cmd/server	[no test files]
+?   	url-db/docs	[no test files]
+?   	url-db/generated	[no test files]
+# url-db/internal/interfaces/http.test
+ld: warning: '/private/var/folders/t4/5cn643kn7ls_6vyl6y51gnnm0000gn/T/go-link-1951079737/000023.o' has malformed LC_DYSYMTAB, expected 98 undefined symbols to start at index 1626, found 95 undefined symbols starting at index 1626
+ok  	url-db/internal/attributes	1.303s
+ok  	url-db/internal/compositekey	(cached)
 ?   	url-db/internal/config	[no test files]
---- FAIL: TestConfigureDatabase (0.00s)
-    database_test.go:179: 
-        	Error Trace:	/Users/junwoobang/mcp/url-db/internal/database/database_test.go:179
-        	Error:      	Not equal: 
-        	            	expected: "DELETE"
-        	            	actual  : "memory"
-        	            	
-        	            	Diff:
-        	            	--- Expected
-        	            	+++ Actual
-        	            	@@ -1 +1 @@
-        	            	-DELETE
-        	            	+memory
-        	Test:       	TestConfigureDatabase
-FAIL
-FAIL	url-db/internal/database	0.694s
+?   	url-db/internal/constants	[no test files]
+?   	url-db/internal/core/domain/models	[no test files]
+ok  	url-db/internal/core/usecases	1.277s
+ok  	url-db/internal/core/usecases/services	1.460s
+ok  	url-db/internal/database	1.712s
 ?   	url-db/internal/domains	[no test files]
-ok  	url-db/internal/handlers	1.649s
-FAIL	url-db/internal/mcp [build failed]
+# url-db/internal/nodes.test
+ld: warning: '/private/var/folders/t4/5cn643kn7ls_6vyl6y51gnnm0000gn/T/go-link-1557150080/000023.o' has malformed LC_DYSYMTAB, expected 98 undefined symbols to start at index 1626, found 95 undefined symbols starting at index 1626
+ok  	url-db/internal/handlers	1.684s
+?   	url-db/internal/infrastructure/config	[no test files]
+# url-db/internal/services/advanced
+internal/services/advanced/dependency_graph.go:12:17: undefined: DependencyRepository
+internal/services/advanced/dependency_graph.go:13:17: undefined: NodeRepository
+internal/services/advanced/dependency_graph.go:17:40: undefined: DependencyRepository
+internal/services/advanced/dependency_graph.go:17:71: undefined: NodeRepository
+internal/services/advanced/dependency_graph.go:489:63: undefined: models.DependencyGraphCache
+internal/services/advanced/dependency_graph.go:496:65: undefined: models.DependencyGraphCache
+internal/services/advanced/dependency_impact.go:12:17: undefined: NodeDependencyRepository
+internal/services/advanced/dependency_impact.go:13:17: undefined: NodeRepository
+internal/services/advanced/dependency_impact.go:19:10: undefined: NodeDependencyRepository
+internal/services/advanced/dependency_impact.go:20:11: undefined: NodeRepository
+internal/services/advanced/dependency_impact.go:20:11: too many errors
+# url-db/internal/repositories.test
+ld: warning: '/private/var/folders/t4/5cn643kn7ls_6vyl6y51gnnm0000gn/T/go-link-3248085362/000023.o' has malformed LC_DYSYMTAB, expected 98 undefined symbols to start at index 1626, found 95 undefined symbols starting at index 1626
+ok  	url-db/internal/infrastructure/database	1.899s
+# url-db/internal/services.test
+ld: warning: '/private/var/folders/t4/5cn643kn7ls_6vyl6y51gnnm0000gn/T/go-link-3186729072/000023.o' has malformed LC_DYSYMTAB, expected 98 undefined symbols to start at index 1626, found 95 undefined symbols starting at index 1626
+ok  	url-db/internal/infrastructure/repositories	2.122s
+ok  	url-db/internal/interfaces/http	1.973s
+ok  	url-db/internal/interfaces/mcp	1.850s
+ok  	url-db/internal/mcp	1.963s
 ?   	url-db/internal/models	[no test files]
-ok  	url-db/internal/nodeattributes	1.878s
---- FAIL: TestGenerateTitleFromURL (0.00s)
-    --- FAIL: TestGenerateTitleFromURL/URL_with_trailing_slash (0.00s)
-        url_utils_test.go:75: 
-            	Error Trace:	/Users/junwoobang/mcp/url-db/internal/nodes/url_utils_test.go:75
-            	Error:      	Not equal: 
-            	            	expected: "example.com"
-            	            	actual  : "Article - example.com"
-            	            	
-            	            	Diff:
-            	            	--- Expected
-            	            	+++ Actual
-            	            	@@ -1 +1 @@
-            	            	-example.com
-            	            	+Article - example.com
-            	Test:       	TestGenerateTitleFromURL/URL_with_trailing_slash
---- FAIL: TestExtractTitleFromRawURL (0.00s)
-    --- FAIL: TestExtractTitleFromRawURL/URL_without_path (0.00s)
-        url_utils_test.go:111: 
-            	Error Trace:	/Users/junwoobang/mcp/url-db/internal/nodes/url_utils_test.go:111
-            	Error:      	Not equal: 
-            	            	expected: "example.com"
-            	            	actual  : "https://example.com"
-            	            	
-            	            	Diff:
-            	            	--- Expected
-            	            	+++ Actual
-            	            	@@ -1 +1 @@
-            	            	-example.com
-            	            	+https://example.com
-            	Test:       	TestExtractTitleFromRawURL/URL_without_path
-FAIL
-FAIL	url-db/internal/nodes	0.834s
-ok  	url-db/internal/repositories	1.975s
-?   	url-db/internal/services	[no test files]
+ok  	url-db/internal/nodeattributes	1.867s
+ok  	url-db/internal/nodes	1.721s
+ok  	url-db/internal/repositories	1.708s
+ok  	url-db/internal/services	1.671s
+FAIL	url-db/internal/services/advanced [build failed]
+?   	url-db/internal/shared/constants	[no test files]
+ok  	url-db/internal/shared/utils	1.641s
 FAIL

@@ -73,13 +73,13 @@ func (m *MockNodeService) SearchNodes(domainID int, query string, page, size int
 
 func setupNodeHandlerTest() (*gin.Engine, *MockNodeService, *NodeHandler) {
 	gin.SetMode(gin.TestMode)
-	
+
 	mockService := &MockNodeService{}
 	handler := NewNodeHandler(mockService)
-	
+
 	router := gin.New()
 	handler.RegisterRoutes(router)
-	
+
 	return router, mockService, handler
 }
 
@@ -110,7 +110,7 @@ func TestNodeHandler_CreateNode_Success(t *testing.T) {
 	router.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusCreated, w.Code)
-	
+
 	var response models.Node
 	err := json.Unmarshal(w.Body.Bytes(), &response)
 	assert.NoError(t, err)
@@ -158,7 +158,7 @@ func TestNodeHandler_GetNodesByDomain_Success(t *testing.T) {
 	router.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusOK, w.Code)
-	
+
 	var response models.NodeListResponse
 	err := json.Unmarshal(w.Body.Bytes(), &response)
 	assert.NoError(t, err)
@@ -253,7 +253,7 @@ func TestNodeHandler_GetNode_Success(t *testing.T) {
 	router.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusOK, w.Code)
-	
+
 	var response models.Node
 	err := json.Unmarshal(w.Body.Bytes(), &response)
 	assert.NoError(t, err)
@@ -315,7 +315,7 @@ func TestNodeHandler_UpdateNode_Success(t *testing.T) {
 	router.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusOK, w.Code)
-	
+
 	var response models.Node
 	err := json.Unmarshal(w.Body.Bytes(), &response)
 	assert.NoError(t, err)
@@ -393,7 +393,7 @@ func TestNodeHandler_FindNodeByURL_Success(t *testing.T) {
 	router.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusOK, w.Code)
-	
+
 	var response models.Node
 	err := json.Unmarshal(w.Body.Bytes(), &response)
 	assert.NoError(t, err)

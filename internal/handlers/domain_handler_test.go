@@ -57,13 +57,13 @@ func (m *MockDomainService) DeleteDomain(id int) error {
 
 func setupDomainHandlerTest() (*gin.Engine, *MockDomainService, *DomainHandler) {
 	gin.SetMode(gin.TestMode)
-	
+
 	mockService := &MockDomainService{}
 	handler := NewDomainHandler(mockService)
-	
+
 	router := gin.New()
 	handler.RegisterRoutes(router)
-	
+
 	return router, mockService, handler
 }
 
@@ -91,7 +91,7 @@ func TestDomainHandler_CreateDomain_Success(t *testing.T) {
 	router.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusCreated, w.Code)
-	
+
 	var response models.Domain
 	err := json.Unmarshal(w.Body.Bytes(), &response)
 	assert.NoError(t, err)
@@ -158,7 +158,7 @@ func TestDomainHandler_GetDomains_Success(t *testing.T) {
 	router.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusOK, w.Code)
-	
+
 	var response models.DomainListResponse
 	err := json.Unmarshal(w.Body.Bytes(), &response)
 	assert.NoError(t, err)
@@ -230,7 +230,7 @@ func TestDomainHandler_GetDomain_Success(t *testing.T) {
 	router.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusOK, w.Code)
-	
+
 	var response models.Domain
 	err := json.Unmarshal(w.Body.Bytes(), &response)
 	assert.NoError(t, err)
@@ -289,7 +289,7 @@ func TestDomainHandler_UpdateDomain_Success(t *testing.T) {
 	router.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusOK, w.Code)
-	
+
 	var response models.Domain
 	err := json.Unmarshal(w.Body.Bytes(), &response)
 	assert.NoError(t, err)

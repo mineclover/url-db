@@ -189,3 +189,63 @@ func (r *DependencyRepository) GetDependentsWithCascadeUpdate(nodeID int64) ([]i
 
 	return dependentIDs, nil
 }
+
+// GetDependency retrieves a specific dependency by dependent and dependency node IDs
+func (r *DependencyRepository) GetDependency(dependentID, dependencyID int64) (*models.NodeDependency, error) {
+	var dependency models.NodeDependency
+	query := `
+		SELECT id, dependent_node_id, dependency_node_id, dependency_type,
+			   cascade_delete, cascade_update, metadata, created_at
+		FROM node_dependencies
+		WHERE dependent_node_id = ? AND dependency_node_id = ?
+	`
+
+	err := r.db.Get(&dependency, query, dependentID, dependencyID)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, nil
+		}
+		return nil, fmt.Errorf("failed to get dependency: %w", err)
+	}
+
+	return &dependency, nil
+}
+
+// GetNodeDependencies retrieves all dependencies for a node
+func (r *DependencyRepository) GetNodeDependencies(nodeID int64) ([]*models.NodeDependency, error) {
+	return r.GetByDependentNode(nodeID)
+}
+
+// GetNodeDependents retrieves all nodes that depend on the given node
+func (r *DependencyRepository) GetNodeDependents(nodeID int64) ([]*models.NodeDependency, error) {
+	return r.GetByDependencyNode(nodeID)
+}
+
+// GetActiveRules retrieves active dependency rules for a node
+func (r *DependencyRepository) GetActiveRules(nodeID int64) ([]*models.DependencyRule, error) {
+	var rules []*models.DependencyRule
+	// For now, return empty slice as dependency rules are not fully implemented
+	return rules, nil
+}
+
+// GetCachedGraph retrieves cached dependency graph
+func (r *DependencyRepository) GetCachedGraph(nodeID int64) (*models.DependencyGraphCache, error) {
+	var cache models.DependencyGraphCache
+	query := `
+		SELECT id, node_id, graph_data, max_depth, created_at, expires_at
+		FROM dependency_graph_cache
+		WHERE node_id = ?
+		ORDER BY created_at DESC
+		LIMIT 1
+	`
+
+	err := r.db.Get(&cache, query, nodeID)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, nil
+		}
+		return nil, fmt.Errorf("failed to get cached graph: %w", err)
+	}
+
+	return &cache, nil
+}

@@ -1,38 +1,57 @@
-# url-db/docs
-docs/docs.go:3765:2: unknown field LeftDelim in struct literal of type "github.com/swaggo/swag".Spec
-docs/docs.go:3766:2: unknown field RightDelim in struct literal of type "github.com/swaggo/swag".Spec
-# url-db/internal/mcp [url-db/internal/mcp.test]
-internal/mcp/resources_test.go:14:34: cannot use mockService (variable of type *MockMCPService) as MCPService value in argument to NewResourceRegistry: *MockMCPService does not implement MCPService (missing method FilterNodesByAttributes)
-internal/mcp/resources_test.go:56:34: cannot use mockService (variable of type *MockMCPService) as MCPService value in argument to NewResourceRegistry: *MockMCPService does not implement MCPService (missing method FilterNodesByAttributes)
-internal/mcp/resources_test.go:85:34: cannot use mockService (variable of type *MockMCPService) as MCPService value in argument to NewResourceRegistry: *MockMCPService does not implement MCPService (missing method FilterNodesByAttributes)
-internal/mcp/resources_test.go:111:34: cannot use mockService (variable of type *MockMCPService) as MCPService value in argument to NewResourceRegistry: *MockMCPService does not implement MCPService (missing method FilterNodesByAttributes)
-internal/mcp/resources_test.go:138:34: cannot use mockService (variable of type *MockMCPService) as MCPService value in argument to NewResourceRegistry: *MockMCPService does not implement MCPService (missing method FilterNodesByAttributes)
-internal/mcp/resources_test.go:166:34: cannot use mockService (variable of type *MockMCPService) as MCPService value in argument to NewResourceRegistry: *MockMCPService does not implement MCPService (missing method FilterNodesByAttributes)
-internal/mcp/resources_test.go:177:34: cannot use mockService (variable of type *MockMCPService) as MCPService value in argument to NewResourceRegistry: *MockMCPService does not implement MCPService (missing method FilterNodesByAttributes)
-internal/mcp/tools_additional_test.go:14:30: cannot use mockService (variable of type *MockMCPService) as MCPService value in argument to NewToolRegistry: *MockMCPService does not implement MCPService (missing method FilterNodesByAttributes)
-internal/mcp/tools_additional_test.go:45:30: cannot use mockService (variable of type *MockMCPService) as MCPService value in argument to NewToolRegistry: *MockMCPService does not implement MCPService (missing method FilterNodesByAttributes)
-internal/mcp/tools_additional_test.go:74:30: cannot use mockService (variable of type *MockMCPService) as MCPService value in argument to NewToolRegistry: *MockMCPService does not implement MCPService (missing method FilterNodesByAttributes)
-internal/mcp/tools_additional_test.go:74:30: too many errors
+# url-db/internal/services/advanced
+internal/services/advanced/dependency_graph.go:12:17: undefined: DependencyRepository
+internal/services/advanced/dependency_graph.go:13:17: undefined: NodeRepository
+internal/services/advanced/dependency_graph.go:17:40: undefined: DependencyRepository
+internal/services/advanced/dependency_graph.go:17:71: undefined: NodeRepository
+internal/services/advanced/dependency_graph.go:489:63: undefined: models.DependencyGraphCache
+internal/services/advanced/dependency_graph.go:496:65: undefined: models.DependencyGraphCache
+internal/services/advanced/dependency_impact.go:12:17: undefined: NodeDependencyRepository
+internal/services/advanced/dependency_impact.go:13:17: undefined: NodeRepository
+internal/services/advanced/dependency_impact.go:19:10: undefined: NodeDependencyRepository
+internal/services/advanced/dependency_impact.go:20:11: undefined: NodeRepository
+internal/services/advanced/dependency_impact.go:20:11: too many errors
 FAIL	url-db [build failed]
-FAIL	url-db/cmd/server [build failed]
-FAIL	url-db/docs [build failed]
+?   	url-db/cmd/server	[no test files]
+?   	url-db/docs	[no test files]
+?   	url-db/generated	[no test files]
 PASS
-ok  	url-db/internal/attributes	0.249s
+ok  	url-db/internal/attributes	0.238s
 PASS
-ok  	url-db/internal/compositekey	0.238s
+ok  	url-db/internal/compositekey	0.232s
 ?   	url-db/internal/config	[no test files]
+?   	url-db/internal/constants	[no test files]
+?   	url-db/internal/core/domain/models	[no test files]
 PASS
-ok  	url-db/internal/database	0.240s
+ok  	url-db/internal/core/usecases	0.237s
+PASS
+ok  	url-db/internal/core/usecases/services	0.229s
+PASS
+ok  	url-db/internal/database	0.232s
 ?   	url-db/internal/domains	[no test files]
 PASS
-ok  	url-db/internal/handlers	0.235s
-FAIL	url-db/internal/mcp [build failed]
+ok  	url-db/internal/handlers	0.246s
+?   	url-db/internal/infrastructure/config	[no test files]
+PASS
+ok  	url-db/internal/infrastructure/database	0.229s
+PASS
+ok  	url-db/internal/infrastructure/repositories	0.227s
+PASS
+ok  	url-db/internal/interfaces/http	0.233s
+PASS
+ok  	url-db/internal/interfaces/mcp	0.234s
+PASS
+ok  	url-db/internal/mcp	0.240s
 ?   	url-db/internal/models	[no test files]
 PASS
-ok  	url-db/internal/nodeattributes	0.231s
+ok  	url-db/internal/nodeattributes	0.238s
 PASS
-ok  	url-db/internal/nodes	0.232s
+ok  	url-db/internal/nodes	0.240s
 PASS
-ok  	url-db/internal/repositories	0.229s
-?   	url-db/internal/services	[no test files]
+ok  	url-db/internal/repositories	0.234s
+PASS
+ok  	url-db/internal/services	0.234s
+FAIL	url-db/internal/services/advanced [build failed]
+?   	url-db/internal/shared/constants	[no test files]
+PASS
+ok  	url-db/internal/shared/utils	0.232s
 FAIL

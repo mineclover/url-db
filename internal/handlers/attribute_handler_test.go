@@ -57,13 +57,13 @@ func (m *MockAttributeService) DeleteAttribute(id int) error {
 
 func setupAttributeHandlerTest() (*gin.Engine, *MockAttributeService, *AttributeHandler) {
 	gin.SetMode(gin.TestMode)
-	
+
 	mockService := &MockAttributeService{}
 	handler := NewAttributeHandler(mockService)
-	
+
 	router := gin.New()
 	handler.RegisterRoutes(router)
-	
+
 	return router, mockService, handler
 }
 
@@ -94,7 +94,7 @@ func TestAttributeHandler_CreateAttribute_Success(t *testing.T) {
 	router.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusCreated, w.Code)
-	
+
 	var response models.Attribute
 	err := json.Unmarshal(w.Body.Bytes(), &response)
 	assert.NoError(t, err)
@@ -139,7 +139,7 @@ func TestAttributeHandler_GetAttributesByDomain_Success(t *testing.T) {
 	router.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusOK, w.Code)
-	
+
 	var response map[string][]models.Attribute
 	err := json.Unmarshal(w.Body.Bytes(), &response)
 	assert.NoError(t, err)
@@ -177,7 +177,7 @@ func TestAttributeHandler_GetAttribute_Success(t *testing.T) {
 	router.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusOK, w.Code)
-	
+
 	var response models.Attribute
 	err := json.Unmarshal(w.Body.Bytes(), &response)
 	assert.NoError(t, err)
@@ -222,7 +222,7 @@ func TestAttributeHandler_UpdateAttribute_Success(t *testing.T) {
 	router.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusOK, w.Code)
-	
+
 	var response models.Attribute
 	err := json.Unmarshal(w.Body.Bytes(), &response)
 	assert.NoError(t, err)

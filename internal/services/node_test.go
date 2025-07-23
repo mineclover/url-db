@@ -11,7 +11,7 @@ func TestNodeService_CreateNode(t *testing.T) {
 	service, _, mockDomainRepo := CreateTestNodeService(t)
 
 	ctx := CreateTestContext()
-	
+
 	// Create domain first
 	testDomain := CreateTestDomain("test-domain", "Test domain")
 	mockDomainRepo.Create(ctx, testDomain)
@@ -57,7 +57,7 @@ func TestNodeService_ListNodesByDomain(t *testing.T) {
 
 	node1 := CreateTestNode(testDomain.ID, "https://example1.com", "Example1", "Node 1")
 	node2 := CreateTestNode(testDomain.ID, "https://example2.com", "Example2", "Node 2")
-	
+
 	mockNodeRepo.Create(ctx, node1)
 	mockNodeRepo.Create(ctx, node2)
 

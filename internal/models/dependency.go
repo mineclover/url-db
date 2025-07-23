@@ -84,6 +84,23 @@ func (m *DependencyMetadata) Value() (driver.Value, error) {
 	return string(data), err
 }
 
+// ParseMetadata parses the dependency metadata into a map
+func (d *NodeDependency) ParseMetadata() (map[string]interface{}, error) {
+	if d.Metadata == nil {
+		return make(map[string]interface{}), nil
+	}
+	
+	result := make(map[string]interface{})
+	if d.Metadata.Relationship != "" {
+		result["relationship"] = d.Metadata.Relationship
+	}
+	if d.Metadata.Description != "" {
+		result["description"] = d.Metadata.Description
+	}
+	
+	return result, nil
+}
+
 // DependencyType constants
 const (
 	// Structural dependency types
@@ -267,4 +284,14 @@ type DependencyRule struct {
 	RuleConfig map[string]interface{} `db:"rule_config" json:"rule_config"`
 	IsActive   bool                   `db:"is_active" json:"is_active"`
 	CreatedAt  time.Time              `db:"created_at" json:"created_at"`
+}
+
+// DependencyGraphCache represents cached dependency graph data
+type DependencyGraphCache struct {
+	ID         int64      `db:"id" json:"id"`
+	NodeID     int64      `db:"node_id" json:"node_id"`
+	GraphData  string     `db:"graph_data" json:"graph_data"`
+	MaxDepth   int        `db:"max_depth" json:"max_depth"`
+	CreatedAt  time.Time  `db:"created_at" json:"created_at"`
+	ExpiresAt  *time.Time `db:"expires_at" json:"expires_at,omitempty"`
 }

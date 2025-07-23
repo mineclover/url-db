@@ -47,7 +47,7 @@ func TestDomainService_ListDomains(t *testing.T) {
 	ctx := CreateTestContext()
 	domain1 := CreateTestDomain("domain1", "Description 1")
 	domain2 := CreateTestDomain("domain2", "Description 2")
-	
+
 	mockRepo.Create(ctx, domain1)
 	mockRepo.Create(ctx, domain2)
 

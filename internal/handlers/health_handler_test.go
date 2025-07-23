@@ -31,13 +31,13 @@ func (m *MockHealthService) GetSystemInfo() (*HealthInfo, error) {
 
 func setupHealthHandlerTest() (*gin.Engine, *MockHealthService, *HealthHandler) {
 	gin.SetMode(gin.TestMode)
-	
+
 	mockService := &MockHealthService{}
 	handler := NewHealthHandler(mockService)
-	
+
 	router := gin.New()
 	handler.RegisterRoutes(router)
-	
+
 	return router, mockService, handler
 }
 
@@ -52,7 +52,7 @@ func TestHealthHandler_GetHealth_Healthy(t *testing.T) {
 	router.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusOK, w.Code)
-	
+
 	var response HealthInfo
 	err := json.Unmarshal(w.Body.Bytes(), &response)
 	assert.NoError(t, err)
@@ -76,7 +76,7 @@ func TestHealthHandler_GetHealth_DatabaseUnhealthy(t *testing.T) {
 	router.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusServiceUnavailable, w.Code)
-	
+
 	var response HealthInfo
 	err := json.Unmarshal(w.Body.Bytes(), &response)
 	assert.NoError(t, err)
@@ -96,7 +96,7 @@ func TestHealthHandler_GetLiveness(t *testing.T) {
 	router.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusOK, w.Code)
-	
+
 	var response map[string]interface{}
 	err := json.Unmarshal(w.Body.Bytes(), &response)
 	assert.NoError(t, err)
@@ -115,7 +115,7 @@ func TestHealthHandler_GetReadiness_Ready(t *testing.T) {
 	router.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusOK, w.Code)
-	
+
 	var response map[string]interface{}
 	err := json.Unmarshal(w.Body.Bytes(), &response)
 	assert.NoError(t, err)
@@ -137,7 +137,7 @@ func TestHealthHandler_GetReadiness_NotReady(t *testing.T) {
 	router.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusServiceUnavailable, w.Code)
-	
+
 	var response map[string]interface{}
 	err := json.Unmarshal(w.Body.Bytes(), &response)
 	assert.NoError(t, err)
@@ -157,7 +157,7 @@ func TestHealthHandler_GetVersion(t *testing.T) {
 	router.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusOK, w.Code)
-	
+
 	var response map[string]interface{}
 	err := json.Unmarshal(w.Body.Bytes(), &response)
 	assert.NoError(t, err)

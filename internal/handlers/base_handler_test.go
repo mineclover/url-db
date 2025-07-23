@@ -19,10 +19,10 @@ type TestStruct struct {
 
 func setupBaseHandlerTest() (*gin.Engine, *BaseHandler) {
 	gin.SetMode(gin.TestMode)
-	
+
 	handler := NewBaseHandler()
 	router := gin.New()
-	
+
 	return router, handler
 }
 

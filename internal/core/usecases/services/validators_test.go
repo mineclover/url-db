@@ -93,9 +93,9 @@ func TestValidateTitle(t *testing.T) {
 
 func TestValidateAttributeName(t *testing.T) {
 	tests := []struct {
-		name      string
-		attrName  string
-		wantErr   bool
+		name     string
+		attrName string
+		wantErr  bool
 	}{
 		{
 			name:     "valid attribute name",

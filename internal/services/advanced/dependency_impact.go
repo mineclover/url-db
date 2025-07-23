@@ -5,19 +5,20 @@ import (
 	"fmt"
 	"time"
 	"url-db/internal/models"
+	"url-db/internal/repositories"
 )
 
 // DependencyImpactAnalyzer provides impact analysis for dependency changes
 type DependencyImpactAnalyzer struct {
-	dependencyRepo NodeDependencyRepository
-	nodeRepo       NodeRepository
+	dependencyRepo *repositories.DependencyRepository
+	nodeRepo       repositories.NodeRepository
 	graphService   *DependencyGraphService
 }
 
 // NewDependencyImpactAnalyzer creates a new impact analyzer
 func NewDependencyImpactAnalyzer(
-	depRepo NodeDependencyRepository,
-	nodeRepo NodeRepository,
+	depRepo *repositories.DependencyRepository,
+	nodeRepo repositories.NodeRepository,
 	graphService *DependencyGraphService,
 ) *DependencyImpactAnalyzer {
 	return &DependencyImpactAnalyzer{
@@ -34,7 +35,7 @@ func (a *DependencyImpactAnalyzer) AnalyzeImpact(
 	impactType string,
 ) (*models.ImpactAnalysisResult, error) {
 	// Get source node
-	sourceNode, err := a.nodeRepo.GetByID(ctx, int(sourceNodeID))
+	sourceNode, err := a.nodeRepo.GetByID(int(sourceNodeID))
 	if err != nil {
 		return nil, fmt.Errorf("failed to get source node: %w", err)
 	}
@@ -68,7 +69,7 @@ func (a *DependencyImpactAnalyzer) analyzeDeleteImpact(
 	result *models.ImpactAnalysisResult,
 ) (*models.ImpactAnalysisResult, error) {
 	// Find all nodes that depend on this node
-	dependents, err := a.dependencyRepo.GetNodeDependents(ctx, nodeID)
+	dependents, err := a.dependencyRepo.GetNodeDependents(nodeID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get dependents: %w", err)
 	}
@@ -106,7 +107,7 @@ func (a *DependencyImpactAnalyzer) analyzeUpdateImpact(
 	result *models.ImpactAnalysisResult,
 ) (*models.ImpactAnalysisResult, error) {
 	// Find nodes that depend on this node with cascade_update=true
-	dependents, err := a.dependencyRepo.GetNodeDependents(ctx, nodeID)
+	dependents, err := a.dependencyRepo.GetNodeDependents(nodeID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get dependents: %w", err)
 	}
@@ -144,7 +145,7 @@ func (a *DependencyImpactAnalyzer) analyzeVersionChangeImpact(
 	result *models.ImpactAnalysisResult,
 ) (*models.ImpactAnalysisResult, error) {
 	// Find nodes with version constraints on this node
-	dependents, err := a.dependencyRepo.GetNodeDependents(ctx, nodeID)
+	dependents, err := a.dependencyRepo.GetNodeDependents(nodeID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get dependents: %w", err)
 	}
@@ -187,7 +188,7 @@ func (a *DependencyImpactAnalyzer) analyzeNodeDeleteImpact(
 	}
 	visited[nodeID] = true
 
-	node, err := a.nodeRepo.GetByID(ctx, int(nodeID))
+	node, err := a.nodeRepo.GetByID(int(nodeID))
 	if err != nil {
 		return nil, 0
 	}
@@ -208,7 +209,7 @@ func (a *DependencyImpactAnalyzer) analyzeNodeDeleteImpact(
 	// Recursively analyze cascade effects if cascade_delete is enabled
 	depth := 1
 	if dependency.CascadeDelete {
-		childDeps, _ := a.dependencyRepo.GetNodeDependents(ctx, nodeID)
+		childDeps, _ := a.dependencyRepo.GetNodeDependents(nodeID)
 		for _, childDep := range childDeps {
 			childPath := append(path, nodeID)
 			childAffected, childDepth := a.analyzeNodeDeleteImpact(ctx, childDep, childPath, visited)
@@ -235,7 +236,7 @@ func (a *DependencyImpactAnalyzer) analyzeNodeUpdateImpact(
 	}
 	visited[nodeID] = true
 
-	node, err := a.nodeRepo.GetByID(ctx, int(nodeID))
+	node, err := a.nodeRepo.GetByID(int(nodeID))
 	if err != nil {
 		return nil, 0
 	}
@@ -256,7 +257,7 @@ func (a *DependencyImpactAnalyzer) analyzeNodeUpdateImpact(
 	// Recursively analyze cascade effects
 	depth := 1
 	if dependency.CascadeUpdate {
-		childDeps, _ := a.dependencyRepo.GetNodeDependents(ctx, nodeID)
+		childDeps, _ := a.dependencyRepo.GetNodeDependents(nodeID)
 		for _, childDep := range childDeps {
 			if childDep.CascadeUpdate {
 				childPath := append(path, nodeID)
@@ -285,7 +286,7 @@ func (a *DependencyImpactAnalyzer) analyzeNodeVersionImpact(
 	}
 	visited[nodeID] = true
 
-	node, err := a.nodeRepo.GetByID(ctx, int(nodeID))
+	node, err := a.nodeRepo.GetByID(int(nodeID))
 	if err != nil {
 		return nil, 0
 	}

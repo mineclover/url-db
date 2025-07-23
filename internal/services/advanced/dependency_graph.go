@@ -5,16 +5,17 @@ import (
 	"os"
 	"time"
 	"url-db/internal/models"
+	"url-db/internal/repositories"
 )
 
 // DependencyGraphService provides graph operations for dependencies
 type DependencyGraphService struct {
-	dependencyRepo DependencyRepository
-	nodeRepo       NodeRepository
+	dependencyRepo *repositories.DependencyRepository
+	nodeRepo       repositories.NodeRepository
 }
 
 // NewDependencyGraphService creates a new dependency graph service
-func NewDependencyGraphService(depRepo DependencyRepository, nodeRepo NodeRepository) *DependencyGraphService {
+func NewDependencyGraphService(depRepo *repositories.DependencyRepository, nodeRepo repositories.NodeRepository) *DependencyGraphService {
 	return &DependencyGraphService{
 		dependencyRepo: depRepo,
 		nodeRepo:       nodeRepo,
@@ -205,7 +206,7 @@ func (s *DependencyGraphService) ValidateNewDependency(
 	rules, err := s.dependencyRepo.GetActiveRules(dependentID)
 	if err == nil {
 		for _, rule := range rules {
-			if !s.validateRule(rule, dependentID, dependencyID) {
+			if !s.validateRule(*rule, dependentID, dependencyID) {
 				result.IsValid = false
 				result.Errors = append(result.Errors, fmt.Sprintf("Violates rule: %s", rule.RuleName))
 			}
@@ -336,7 +337,7 @@ func (s *DependencyGraphService) buildDependencyTree(
 	maxFoundDepth := currentDepth
 
 	for _, dep := range deps {
-		node, err := s.nodeRepo.GetByID(dep.DependencyNodeID)
+		node, err := s.nodeRepo.GetByID(int(dep.DependencyNodeID))
 		if err != nil {
 			continue
 		}
@@ -398,7 +399,7 @@ func (s *DependencyGraphService) buildDependentTree(
 	maxFoundDepth := currentDepth
 
 	for _, dep := range deps {
-		node, err := s.nodeRepo.GetByID(dep.DependentNodeID)
+		node, err := s.nodeRepo.GetByID(int(dep.DependentNodeID))
 		if err != nil {
 			continue
 		}
@@ -456,7 +457,7 @@ func (s *DependencyGraphService) buildGraph(domainID int64) (map[int64][]depende
 func (s *DependencyGraphService) getNodeDetails(nodeIDs []int64) ([]string, error) {
 	details := make([]string, 0, len(nodeIDs))
 	for _, id := range nodeIDs {
-		node, err := s.nodeRepo.GetByID(id)
+		node, err := s.nodeRepo.GetByID(int(id))
 		if err != nil {
 			details = append(details, fmt.Sprintf("Node %d (unknown)", id))
 			continue
@@ -510,7 +511,7 @@ func (s *DependencyGraphService) hasCircularDependency(nodeID int64) bool {
 
 func (s *DependencyGraphService) buildCompositeID(node *models.Node) string {
 	// Implementation would build composite ID
-	return fmt.Sprintf("url-db:%s:%d", node.DomainName, node.ID)
+	return fmt.Sprintf("url-db:domain:%d", node.ID)
 }
 
 func (s *DependencyGraphService) getCategoryForType(depType string) string {
