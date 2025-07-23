@@ -7,13 +7,13 @@ import (
 
 // Attribute represents a domain attribute that can be assigned to nodes
 type Attribute struct {
-	id          int
-	name        string
+	id            int
+	name          string
 	attributeType string
-	description string
-	domainID    int
-	createdAt   time.Time
-	updatedAt   time.Time
+	description   string
+	domainID      int
+	createdAt     time.Time
+	updatedAt     time.Time
 }
 
 // NewAttribute creates a new attribute entity with validation
@@ -21,15 +21,15 @@ func NewAttribute(name, attributeType, description string, domainID int) (*Attri
 	if name == "" {
 		return nil, errors.New("attribute name cannot be empty")
 	}
-	
+
 	if attributeType == "" {
 		return nil, errors.New("attribute type cannot be empty")
 	}
-	
+
 	if domainID <= 0 {
 		return nil, errors.New("domain ID must be positive")
 	}
-	
+
 	// Validate attribute type
 	validTypes := map[string]bool{
 		"tag":         true,
@@ -39,11 +39,11 @@ func NewAttribute(name, attributeType, description string, domainID int) (*Attri
 		"markdown":    true,
 		"image":       true,
 	}
-	
+
 	if !validTypes[attributeType] {
 		return nil, errors.New("invalid attribute type")
 	}
-	
+
 	now := time.Now()
 	return &Attribute{
 		name:          name,
@@ -56,11 +56,11 @@ func NewAttribute(name, attributeType, description string, domainID int) (*Attri
 }
 
 // Getters - ensuring immutability from outside
-func (a *Attribute) ID() int          { return a.id }
-func (a *Attribute) Name() string     { return a.name }
-func (a *Attribute) Type() string     { return a.attributeType }
-func (a *Attribute) Description() string { return a.description }
-func (a *Attribute) DomainID() int    { return a.domainID }
+func (a *Attribute) ID() int              { return a.id }
+func (a *Attribute) Name() string         { return a.name }
+func (a *Attribute) Type() string         { return a.attributeType }
+func (a *Attribute) Description() string  { return a.description }
+func (a *Attribute) DomainID() int        { return a.domainID }
 func (a *Attribute) CreatedAt() time.Time { return a.createdAt }
 func (a *Attribute) UpdatedAt() time.Time { return a.updatedAt }
 
@@ -93,8 +93,8 @@ func (a *Attribute) IsValid() bool {
 		"markdown":    true,
 		"image":       true,
 	}
-	
-	return a.name != "" && 
-		   a.domainID > 0 && 
-		   validTypes[a.attributeType]
+
+	return a.name != "" &&
+		a.domainID > 0 &&
+		validTypes[a.attributeType]
 }

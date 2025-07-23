@@ -8,7 +8,7 @@ import (
 // DatabaseNode represents the node as stored in database (raw SQL row)
 type DatabaseNode struct {
 	ID          int       `db:"id"`
-	Content     string    `db:"content"`  // This is the URL field
+	Content     string    `db:"content"` // This is the URL field
 	DomainID    int       `db:"domain_id"`
 	Title       string    `db:"title"`
 	Description string    `db:"description"`

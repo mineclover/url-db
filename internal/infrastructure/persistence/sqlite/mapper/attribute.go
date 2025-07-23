@@ -32,11 +32,11 @@ func ToAttributeEntity(dbModel *AttributeDBModel) *entity.Attribute {
 	if err != nil {
 		return nil
 	}
-	
+
 	// Set the ID and timestamps from database
 	attribute.SetID(dbModel.ID)
 	attribute.SetTimestamps(dbModel.CreatedAt, dbModel.UpdatedAt)
-	
+
 	return attribute
 }
 

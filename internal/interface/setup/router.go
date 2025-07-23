@@ -13,15 +13,15 @@ func SetupCleanRouter(factory *ApplicationFactory) *gin.Engine {
 	// Add basic health check
 	router.GET("/health", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
-			"status":      "healthy",
-			"version":     "1.0.0",
+			"status":       "healthy",
+			"version":      "1.0.0",
 			"architecture": "Clean Architecture",
 		})
 	})
 
 	// Create API group
 	api := router.Group("/api")
-	
+
 	// Domain routes
 	domainGroup := api.Group("/domains")
 	{

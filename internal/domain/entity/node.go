@@ -8,7 +8,7 @@ import (
 // Node represents a node entity in the business domain
 type Node struct {
 	id          int
-	content     string  // This is the URL field in database
+	content     string // This is the URL field in database
 	domainID    int
 	title       string
 	description string
@@ -40,7 +40,7 @@ func NewNode(url, title, description string, domainID int) (*Node, error) {
 
 	now := time.Now()
 	return &Node{
-		content:     url,  // Store URL in content field
+		content:     url, // Store URL in content field
 		domainID:    domainID,
 		title:       title,
 		description: description,

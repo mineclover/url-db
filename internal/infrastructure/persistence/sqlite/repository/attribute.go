@@ -22,7 +22,7 @@ func (r *attributeRepository) Create(ctx context.Context, attribute *entity.Attr
 		INSERT INTO attributes (name, type, description, domain_id, created_at, updated_at) 
 		VALUES (?, ?, ?, ?, ?, ?)
 	`
-	
+
 	result, err := r.db.ExecContext(ctx, query,
 		attribute.Name(),
 		attribute.Type(),
@@ -31,19 +31,19 @@ func (r *attributeRepository) Create(ctx context.Context, attribute *entity.Attr
 		attribute.CreatedAt(),
 		attribute.UpdatedAt(),
 	)
-	
+
 	if err != nil {
 		return err
 	}
-	
+
 	id, err := result.LastInsertId()
 	if err != nil {
 		return err
 	}
-	
+
 	// Set the generated ID back to the entity
 	attribute.SetID(int(id))
-	
+
 	return nil
 }
 
@@ -53,7 +53,7 @@ func (r *attributeRepository) GetByID(ctx context.Context, id int) (*entity.Attr
 		FROM attributes 
 		WHERE id = ?
 	`
-	
+
 	dbModel := &mapper.AttributeDBModel{}
 	err := r.db.QueryRowContext(ctx, query, id).Scan(
 		&dbModel.ID,
@@ -64,14 +64,14 @@ func (r *attributeRepository) GetByID(ctx context.Context, id int) (*entity.Attr
 		&dbModel.CreatedAt,
 		&dbModel.UpdatedAt,
 	)
-	
+
 	if err == sql.ErrNoRows {
 		return nil, nil
 	}
 	if err != nil {
 		return nil, err
 	}
-	
+
 	return mapper.ToAttributeEntity(dbModel), nil
 }
 
@@ -81,7 +81,7 @@ func (r *attributeRepository) GetByName(ctx context.Context, domainID int, name 
 		FROM attributes 
 		WHERE domain_id = ? AND name = ?
 	`
-	
+
 	dbModel := &mapper.AttributeDBModel{}
 	err := r.db.QueryRowContext(ctx, query, domainID, name).Scan(
 		&dbModel.ID,
@@ -92,14 +92,14 @@ func (r *attributeRepository) GetByName(ctx context.Context, domainID int, name 
 		&dbModel.CreatedAt,
 		&dbModel.UpdatedAt,
 	)
-	
+
 	if err == sql.ErrNoRows {
 		return nil, nil
 	}
 	if err != nil {
 		return nil, err
 	}
-	
+
 	return mapper.ToAttributeEntity(dbModel), nil
 }
 
@@ -110,13 +110,13 @@ func (r *attributeRepository) ListByDomainID(ctx context.Context, domainID int) 
 		WHERE domain_id = ?
 		ORDER BY name
 	`
-	
+
 	rows, err := r.db.QueryContext(ctx, query, domainID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	
+
 	var attributes []*entity.Attribute
 	for rows.Next() {
 		dbModel := &mapper.AttributeDBModel{}
@@ -132,10 +132,10 @@ func (r *attributeRepository) ListByDomainID(ctx context.Context, domainID int) 
 		if err != nil {
 			return nil, err
 		}
-		
+
 		attributes = append(attributes, mapper.ToAttributeEntity(dbModel))
 	}
-	
+
 	return attributes, rows.Err()
 }
 
@@ -145,7 +145,7 @@ func (r *attributeRepository) Update(ctx context.Context, attribute *entity.Attr
 		SET name = ?, type = ?, description = ?, updated_at = ?
 		WHERE id = ?
 	`
-	
+
 	_, err := r.db.ExecContext(ctx, query,
 		attribute.Name(),
 		attribute.Type(),
@@ -153,7 +153,7 @@ func (r *attributeRepository) Update(ctx context.Context, attribute *entity.Attr
 		attribute.UpdatedAt(),
 		attribute.ID(),
 	)
-	
+
 	return err
 }
 

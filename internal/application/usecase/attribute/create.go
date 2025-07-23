@@ -3,11 +3,11 @@ package attribute
 import (
 	"context"
 	"errors"
+	"url-db/internal/application/dto/request"
+	"url-db/internal/application/dto/response"
 	"url-db/internal/constants"
 	"url-db/internal/domain/entity"
 	"url-db/internal/domain/repository"
-	"url-db/internal/application/dto/request"
-	"url-db/internal/application/dto/response"
 )
 
 type CreateAttributeUseCase struct {

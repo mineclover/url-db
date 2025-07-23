@@ -4,8 +4,8 @@ import (
 	"net/http"
 	"strconv"
 
-	"url-db/internal/application/usecase/attribute"
 	"url-db/internal/application/dto/request"
+	"url-db/internal/application/usecase/attribute"
 
 	"github.com/gin-gonic/gin"
 )
@@ -30,7 +30,7 @@ func NewAttributeHandler(
 // CreateAttribute handles POST /api/domains/{domain_id}/attributes
 func (h *AttributeHandler) CreateAttribute(c *gin.Context) {
 	domainIDStr := c.Param("domain_id")
-	
+
 	domainID, err := strconv.Atoi(domainIDStr)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid domain ID"})
@@ -42,7 +42,7 @@ func (h *AttributeHandler) CreateAttribute(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
 		return
 	}
-	
+
 	// Set domain ID from URL parameter
 	req.DomainID = domainID
 
@@ -59,7 +59,7 @@ func (h *AttributeHandler) CreateAttribute(c *gin.Context) {
 // ListAttributes handles GET /api/domains/{domain_id}/attributes
 func (h *AttributeHandler) ListAttributes(c *gin.Context) {
 	domainIDStr := c.Param("domain_id")
-	
+
 	domainID, err := strconv.Atoi(domainIDStr)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid domain ID"})

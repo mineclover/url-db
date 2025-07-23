@@ -2,11 +2,11 @@ package setup
 
 import (
 	"database/sql"
-	
-	"url-db/internal/domain/repository"
+
+	"url-db/internal/application/usecase/attribute"
 	"url-db/internal/application/usecase/domain"
 	"url-db/internal/application/usecase/node"
-	"url-db/internal/application/usecase/attribute"
+	"url-db/internal/domain/repository"
 	sqliteRepo "url-db/internal/infrastructure/persistence/sqlite/repository"
 )
 
