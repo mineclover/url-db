@@ -36,6 +36,12 @@ type NodeRepository interface {
 
 	// FilterByAttributes retrieves nodes by domain with attribute filters
 	FilterByAttributes(ctx context.Context, domainName string, filters []AttributeFilter, page, size int) ([]*entity.Node, int, error)
+
+	// CountByDomain counts nodes in a domain
+	CountByDomain(ctx context.Context, domainID int) (int, error)
+
+	// GetByDomainFromCursor retrieves nodes starting from a cursor position
+	GetByDomainFromCursor(ctx context.Context, domainID int, lastNodeID int, limit int) ([]*entity.Node, error)
 }
 
 // AttributeFilter represents a filter condition for node attributes

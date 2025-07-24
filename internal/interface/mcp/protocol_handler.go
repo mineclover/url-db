@@ -185,6 +185,21 @@ func (h *MCPProtocolHandler) handleToolsList(req *JSONRPCRequest) *JSONRPCRespon
 			},
 		},
 		{
+			"name":        "scan_all_content",
+			"description": "Retrieve all URLs and their content from a domain using page-based navigation with token optimization for AI processing",
+			"inputSchema": map[string]interface{}{
+				"type": "object",
+				"properties": map[string]interface{}{
+					"domain_name":         map[string]interface{}{"type": "string", "description": "Domain name to scan"},
+					"max_tokens_per_page": map[string]interface{}{"type": "integer", "description": "Maximum tokens per page (recommended: 6000-10000)", "default": 8000},
+					"page":                map[string]interface{}{"type": "integer", "description": "Page number (1-based)", "default": 1},
+					"include_attributes":  map[string]interface{}{"type": "boolean", "description": "Include node attributes in response", "default": true},
+					"compress_attributes": map[string]interface{}{"type": "boolean", "description": "Remove duplicate attribute values for AI context compression", "default": false},
+				},
+				"required": []string{"domain_name"},
+			},
+		},
+		{
 			"name":        "get_node_attributes",
 			"description": "Get URL tags and attributes",
 			"inputSchema": map[string]interface{}{
@@ -526,6 +541,8 @@ func (h *MCPProtocolHandler) handleToolCall(ctx context.Context, req *JSONRPCReq
 		result, err = h.toolHandler.handleDeleteNode(ctx, params.Arguments)
 	case "find_node_by_url":
 		result, err = h.toolHandler.handleFindNodeByURL(ctx, params.Arguments)
+	case "scan_all_content":
+		result, err = h.toolHandler.handleScanAllContent(ctx, params.Arguments)
 	case "get_node_attributes":
 		result, err = h.toolHandler.handleGetNodeAttributes(ctx, params.Arguments)
 	case "set_node_attributes":

@@ -8,12 +8,15 @@ import (
 
 // NodeAttribute represents a node's attribute value
 type NodeAttribute struct {
-	id          int
-	nodeID      int
-	attributeID int
-	value       string
-	orderIndex  *int // Used for ordered attributes like ordered_tag
-	createdAt   time.Time
+	id            int
+	nodeID        int
+	attributeID   int
+	value         string
+	orderIndex    *int // Used for ordered attributes like ordered_tag
+	createdAt     time.Time
+	// Additional fields for content scanning
+	name          string
+	attributeType *string
 }
 
 // NewNodeAttribute creates a new node attribute
@@ -72,9 +75,23 @@ func (na *NodeAttribute) Value() string        { return na.value }
 func (na *NodeAttribute) OrderIndex() *int     { return na.orderIndex }
 func (na *NodeAttribute) CreatedAt() time.Time { return na.createdAt }
 
+// Additional getters for content scanning
+func (na *NodeAttribute) Name() string        { return na.name }
+func (na *NodeAttribute) AttributeType() *string { return na.attributeType }
+
 // SetID sets the ID (used by repository after insertion)
 func (na *NodeAttribute) SetID(id int) {
 	na.id = id
+}
+
+// SetName sets the attribute name (used by repository)
+func (na *NodeAttribute) SetName(name string) {
+	na.name = name
+}
+
+// SetAttributeType sets the attribute type (used by repository)
+func (na *NodeAttribute) SetAttributeType(attrType *string) {
+	na.attributeType = attrType
 }
 
 // UpdateValue updates the attribute value with validation

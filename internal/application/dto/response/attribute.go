@@ -23,3 +23,11 @@ type NodeAttributeResponse struct {
 	Value         string `json:"value"`
 	OrderIndex    *int   `json:"order_index,omitempty"`
 }
+
+// AttributeValue represents an attribute value for scanning operations
+type AttributeValue struct {
+	Name          string  `json:"name"`
+	Value         string  `json:"value"`
+	AttributeType *string `json:"attribute_type,omitempty"`
+	OrderIndex    *int    `json:"order_index,omitempty"`
+}

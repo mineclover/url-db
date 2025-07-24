@@ -243,6 +243,51 @@ docker run -it --rm -v url-db-data:/data asfdassdssa/url-db:latest -mcp-mode=std
 
 Apache 2.0 License - 자세한 내용은 [LICENSE](LICENSE) 파일을 참조하세요.
 
+## 🛠️ MCP 도구 목록
+
+URL-DB는 다음과 같은 MCP 도구들을 제공합니다:
+
+### 도메인 관리
+- **get_server_info**: Get server information
+- **list_domains**: Get all domains
+- **create_domain**: Create new domain for organizing URLs
+
+### URL(노드) 관리
+- **list_nodes**: List URLs in domain
+- **create_node**: Add URL to domain
+- **get_node**: Get URL details
+- **update_node**: Update URL title or description
+- **delete_node**: Remove URL
+- **find_node_by_url**: Search by exact URL
+- **scan_all_content**: Retrieve all URLs and their content from a domain using page-based navigation with token optimization for AI processing
+
+### 속성 관리
+- **get_node_attributes**: Get URL tags and attributes
+- **set_node_attributes**: Add or update URL tags
+- **list_domain_attributes**: Get available tag types for domain
+- **create_domain_attribute**: Define new tag type for domain
+- **get_domain_attribute**: Get details of a specific domain attribute
+- **update_domain_attribute**: Update domain attribute description
+- **delete_domain_attribute**: Remove domain attribute definition
+- **filter_nodes_by_attributes**: Filter nodes by attribute values
+- **get_node_with_attributes**: Get URL details with all attributes
+
+### 의존성 관리
+- **create_dependency**: Create dependency relationship between nodes
+- **list_node_dependencies**: List what a node depends on
+- **list_node_dependents**: List what depends on a node
+- **delete_dependency**: Remove dependency relationship
+
+### 템플릿 관리
+- **list_templates**: List templates in domain
+- **create_template**: Create new template in domain
+- **get_template**: Get template details
+- **update_template**: Update template
+- **delete_template**: Delete template
+- **clone_template**: Clone existing template
+- **generate_template_scaffold**: Generate template scaffold for given type
+- **validate_template**: Validate template data structure
+
 ---
 
 **💡 팁**: Claude Desktop에서 "URL 관리 도구가 있어?" 라고 물어보면 사용 가능한 모든 기능을 확인할 수 있습니다!
