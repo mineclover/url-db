@@ -1,0 +1,84 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://url-db.internal/schemas/layout.json",
+  "title": "Layout Template Schema",
+  "allOf": [
+    {
+      "$ref": "base.json"
+    },
+    {
+      "if": {
+        "properties": {
+          "type": { "const": "layout" }
+        }
+      },
+      "then": {
+        "required": ["content"],
+        "properties": {
+          "content": {
+            "type": "object",
+            "required": ["structure"],
+            "properties": {
+              "structure": {
+                "type": "object",
+                "required": ["type"],
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "enum": ["grid", "flex", "card", "list"]
+                  },
+                  "container": {
+                    "type": "object",
+                    "properties": {
+                      "maxWidth": {
+                        "type": "string"
+                      },
+                      "padding": {
+                        "type": "string"
+                      },
+                      "margin": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "areas": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "required": ["name"],
+                      "properties": {
+                        "name": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "width": {
+                          "type": "string"
+                        },
+                        "height": {
+                          "type": "string"
+                        },
+                        "position": {
+                          "type": "string",
+                          "enum": ["left", "right", "top", "bottom", "center"]
+                        },
+                        "gridArea": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "components": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

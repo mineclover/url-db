@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://url-db.internal/schemas/custom.json",
+  "title": "Custom Template Schema",
+  "allOf": [
+    {
+      "$ref": "base.json"
+    },
+    {
+      "if": {
+        "properties": {
+          "type": { "const": "custom" }
+        }
+      },
+      "then": {
+        "properties": {
+          "content": {
+            "type": "object",
+            "description": "Custom content structure - no specific validation rules"
+          }
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,111 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://url-db.internal/schemas/form.json",
+  "title": "Form Template Schema",
+  "allOf": [
+    {
+      "$ref": "base.json"
+    },
+    {
+      "if": {
+        "properties": {
+          "type": { "const": "form" }
+        }
+      },
+      "then": {
+        "required": ["schema"],
+        "properties": {
+          "schema": {
+            "type": "object",
+            "required": ["fields"],
+            "properties": {
+              "fields": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": ["name", "type", "label"],
+                  "properties": {
+                    "name": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "type": {
+                      "type": "string",
+                      "enum": ["text", "number", "select", "textarea", "file", "checkbox", "radio", "date", "datetime", "email", "password", "tel", "url", "tags"]
+                    },
+                    "label": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "required": {
+                      "type": "boolean"
+                    },
+                    "placeholder": {
+                      "type": "string"
+                    },
+                    "options": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "required": ["value", "label"],
+                        "properties": {
+                          "value": {
+                            "type": "string"
+                          },
+                          "label": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    },
+                    "validation": {
+                      "type": "object",
+                      "properties": {
+                        "minLength": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "maxLength": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "min": {
+                          "type": "number"
+                        },
+                        "max": {
+                          "type": "number"
+                        },
+                        "pattern": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "sections": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": ["title", "fields"],
+                  "properties": {
+                    "title": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "fields": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,75 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://url-db.internal/schemas/document.json",
+  "title": "Document Template Schema",
+  "allOf": [
+    {
+      "$ref": "base.json"
+    },
+    {
+      "if": {
+        "properties": {
+          "type": { "const": "document" }
+        }
+      },
+      "then": {
+        "required": ["schema"],
+        "properties": {
+          "schema": {
+            "type": "object",
+            "required": ["sections"],
+            "properties": {
+              "sections": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": ["id", "type", "required"],
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "type": {
+                      "type": "string",
+                      "enum": ["header", "body", "footer"]
+                    },
+                    "required": {
+                      "type": "boolean"
+                    },
+                    "fields": {
+                      "type": "object"
+                    },
+                    "blocks": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "required": ["type"],
+                        "properties": {
+                          "type": {
+                            "type": "string",
+                            "enum": ["paragraph", "heading", "image", "code", "quote", "list", "table"]
+                          },
+                          "min": {
+                            "type": "integer",
+                            "minimum": 0
+                          },
+                          "max": {
+                            "type": ["integer", "null"],
+                            "minimum": 0
+                          },
+                          "properties": {
+                            "type": "object"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}
