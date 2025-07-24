@@ -91,7 +91,9 @@ docker run -it --rm \
 
 ## Claude Desktop Integration
 
-To use with Claude Desktop, add to your Claude Desktop configuration:
+### 1. Docker Volume (기본 설정)
+
+기본적인 Docker 볼륨을 사용하는 설정:
 
 ```json
 {
@@ -101,11 +103,210 @@ To use with Claude Desktop, add to your Claude Desktop configuration:
       "args": [
         "run", "-i", "--rm",
         "-v", "url-db-data:/data",
-        "url-db:latest"
+        "asfdassdssa/url-db:latest"
       ]
     }
   }
 }
+```
+
+### 2. 로컬 디렉토리 마운트 (권장)
+
+호스트의 특정 폴더에 SQLite 파일을 저장:
+
+```json
+{
+  "mcpServers": {
+    "url-db": {
+      "command": "docker",
+      "args": [
+        "run", "-i", "--rm",
+        "-v", "/Users/username/url-db-data:/data",
+        "asfdassdssa/url-db:latest"
+      ]
+    }
+  }
+}
+```
+
+### 3. 현재 사용자 홈 디렉토리
+
+홈 디렉토리 하위에 저장 (macOS/Linux):
+
+```json
+{
+  "mcpServers": {
+    "url-db": {
+      "command": "docker",
+      "args": [
+        "run", "-i", "--rm",
+        "-v", "~/Documents/url-db:/data",
+        "asfdassdssa/url-db:latest"
+      ]
+    }
+  }
+}
+```
+
+### 4. 프로젝트별 데이터베이스
+
+특정 프로젝트 폴더에 저장:
+
+```json
+{
+  "mcpServers": {
+    "url-db-project": {
+      "command": "docker",
+      "args": [
+        "run", "-i", "--rm",
+        "-v", "/Users/username/projects/my-project/db:/data",
+        "asfdassdssa/url-db:latest"
+      ]
+    }
+  }
+}
+```
+
+### 5. Windows 사용자용 설정
+
+Windows 경로를 사용하는 경우:
+
+```json
+{
+  "mcpServers": {
+    "url-db": {
+      "command": "docker",
+      "args": [
+        "run", "-i", "--rm",
+        "-v", "C:/Users/username/url-db-data:/data",
+        "asfdassdssa/url-db:latest"
+      ]
+    }
+  }
+}
+```
+
+### 6. 데스크톱에 저장
+
+데스크톱 폴더에 데이터베이스 저장:
+
+```json
+{
+  "mcpServers": {
+    "url-db": {
+      "command": "docker",
+      "args": [
+        "run", "-i", "--rm",
+        "-v", "/Users/username/Desktop/url-db:/data",
+        "asfdassdssa/url-db:latest"
+      ]
+    }
+  }
+}
+```
+
+### 7. 여러 환경 설정
+
+개발용과 운영용 분리:
+
+```json
+{
+  "mcpServers": {
+    "url-db-dev": {
+      "command": "docker",
+      "args": [
+        "run", "-i", "--rm",
+        "-v", "/Users/username/dev/url-db:/data",
+        "asfdassdssa/url-db:latest"
+      ]
+    },
+    "url-db-prod": {
+      "command": "docker",
+      "args": [
+        "run", "-i", "--rm",
+        "-v", "/Users/username/prod/url-db:/data",
+        "asfdassdssa/url-db:latest"
+      ]
+    }
+  }
+}
+```
+
+### 8. 권한 문제 해결 (Linux/macOS)
+
+사용자 권한을 매핑하여 권한 문제 해결:
+
+```json
+{
+  "mcpServers": {
+    "url-db": {
+      "command": "docker",
+      "args": [
+        "run", "-i", "--rm",
+        "-v", "/Users/username/url-db-data:/data",
+        "-u", "1000:1000",
+        "asfdassdssa/url-db:latest"
+      ]
+    }
+  }
+}
+```
+
+### 💡 **경로 설정 팁**
+
+1. **절대 경로 사용**: 상대 경로보다 절대 경로 권장
+2. **폴더 미리 생성**: Docker 실행 전에 호스트 폴더 생성
+3. **권한 확인**: 폴더에 읽기/쓰기 권한이 있는지 확인
+4. **백슬래시 주의**: Windows에서는 경로 구분자 주의
+
+### 📂 **SQLite 파일 위치 확인**
+
+설정 후 다음 경로에서 SQLite 파일을 확인할 수 있습니다:
+- 로컬 경로: `{your-path}/url-db.sqlite`
+- 직접 접근: `sqlite3 {your-path}/url-db.sqlite`
+
+### 🎯 **실제 사용 예시**
+
+현재 사용자(`junwoobang`)의 구체적인 설정 예시:
+
+```json
+{
+  "mcpServers": {
+    "url-db": {
+      "command": "docker",
+      "args": [
+        "run", "-i", "--rm",
+        "-v", "/Users/junwoobang/url-db-data:/data",
+        "asfdassdssa/url-db:latest"
+      ]
+    }
+  }
+}
+```
+
+이 설정을 사용하면:
+- SQLite 파일: `/Users/junwoobang/url-db-data/url-db.sqlite`
+- 직접 접근: `sqlite3 /Users/junwoobang/url-db-data/url-db.sqlite`
+- Finder에서: `open /Users/junwoobang/url-db-data/`
+
+### 🔧 **폴더 생성 및 테스트**
+
+설정 전에 폴더를 미리 생성하고 테스트:
+
+```bash
+# 1. 폴더 생성
+mkdir -p /Users/junwoobang/url-db-data
+
+# 2. 권한 확인
+ls -la /Users/junwoobang/url-db-data
+
+# 3. 테스트 실행
+docker run -it --rm \
+  -v /Users/junwoobang/url-db-data:/data \
+  asfdassdssa/url-db:latest
+
+# 4. 데이터베이스 파일 확인
+ls -la /Users/junwoobang/url-db-data/
 ```
 
 ## Deployment to Container Registry
