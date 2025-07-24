@@ -142,8 +142,13 @@ func (s *MCPServer) handleInitialize(req *JSONRPCRequest) {
 	result := map[string]interface{}{
 		"protocolVersion": constants.MCPProtocolVersion,
 		"capabilities": map[string]interface{}{
-			"tools":     map[string]interface{}{},
-			"resources": map[string]interface{}{},
+			"tools": map[string]interface{}{
+				"listChanged": true,
+			},
+			"resources": map[string]interface{}{
+				"subscribe": true,
+				"listChanged": true,
+			},
 		},
 		"serverInfo": map[string]interface{}{
 			"name":    constants.MCPServerName,

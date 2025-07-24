@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "url-db": {
+      "command": "/Users/junwoobang/mcp/url-db/bin/url-db",
+      "args": [
+        "-mcp-mode=stdio",
+        "-db-path=/Users/junwoobang/mcp/url-db/url-db.sqlite"
+      ],
+      "env": {}
+    }
+  }
+}
