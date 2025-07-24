@@ -69,7 +69,13 @@ func main() {
 	// Initialize database
 	db, err := database.InitDB(cfg.DatabaseURL)
 	if err != nil {
-		log.Fatal("Failed to initialize database:", err)
+		if *mcpMode == constants.MCPModeStdio {
+			// In stdio mode, write error to stderr and exit silently
+			fmt.Fprintf(os.Stderr, "Failed to initialize database: %v\n", err)
+			os.Exit(1)
+		} else {
+			log.Fatal("Failed to initialize database:", err)
+		}
 	}
 	defer db.Close()
 
@@ -83,7 +89,13 @@ func main() {
 		case constants.MCPModeStdio, constants.MCPModeSSE, constants.MCPModeHTTP:
 			// Valid modes
 		default:
-			log.Fatalf("Invalid MCP mode: %s. Valid modes: stdio, sse, http", *mcpMode)
+			if *mcpMode == constants.MCPModeStdio {
+				// In stdio mode, write error to stderr and exit silently
+				fmt.Fprintf(os.Stderr, "Invalid MCP mode: %s. Valid modes: stdio, sse, http\n", *mcpMode)
+				os.Exit(1)
+			} else {
+				log.Fatalf("Invalid MCP mode: %s. Valid modes: stdio, sse, http", *mcpMode)
+			}
 		}
 
 		// Start MCP server
@@ -95,8 +107,18 @@ func main() {
 		// Use refactored MCP server implementation
 		mcpServer, err := mcp.NewMCPServer(factory, *mcpMode)
 		if err != nil {
-			log.Fatalf("Failed to create MCP server: %v", err)
+			if *mcpMode == constants.MCPModeStdio {
+				// In stdio mode, write error to stderr and exit silently
+				fmt.Fprintf(os.Stderr, "Failed to create MCP server: %v\n", err)
+				os.Exit(1)
+			} else {
+				log.Fatalf("Failed to create MCP server: %v", err)
+			}
 		}
+
+		// Create MCP-aware logger for demonstration
+		mcpLogger := mcp.NewMCPLogger(mcpServer, "main")
+		mcpLogger.Infof("MCP server initialized in %s mode", *mcpMode)
 
 		// Set port for SSE/HTTP modes
 		if *mcpMode == constants.MCPModeSSE || *mcpMode == constants.MCPModeHTTP {
@@ -105,7 +127,13 @@ func main() {
 
 		ctx := context.Background()
 		if err := mcpServer.Start(ctx); err != nil {
-			log.Fatal("Failed to start MCP server:", err)
+			if *mcpMode == constants.MCPModeStdio {
+				// In stdio mode, write error to stderr and exit silently
+				fmt.Fprintf(os.Stderr, "Failed to start MCP server: %v\n", err)
+				os.Exit(1)
+			} else {
+				log.Fatal("Failed to start MCP server:", err)
+			}
 		}
 		return
 	}

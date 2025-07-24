@@ -1,6 +1,32 @@
 package mcp
 
-import "encoding/json"
+import (
+	"encoding/json"
+)
+
+// LogLevel represents MCP log message levels
+type LogLevel string
+
+const (
+	LogLevelDebug LogLevel = "debug"
+	LogLevelInfo  LogLevel = "info"
+	LogLevelWarn  LogLevel = "warning"
+	LogLevelError LogLevel = "error"
+)
+
+// LogMessage represents an MCP log message notification
+type LogMessage struct {
+	Level  LogLevel    `json:"level"`
+	Data   interface{} `json:"data"`
+	Logger string      `json:"logger,omitempty"`
+}
+
+// LogNotification represents a log message notification to the client
+type LogNotification struct {
+	JSONRPCVersion string     `json:"jsonrpc"`
+	Method         string     `json:"method"`
+	Params         LogMessage `json:"params"`
+}
 
 // JSONRPCRequest represents a JSON-RPC 2.0 request
 type JSONRPCRequest struct {

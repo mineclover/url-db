@@ -44,6 +44,9 @@ const (
 	// MCP protocol
 	MCPProtocolVersion = "2025-06-18"
 	JSONRPCVersion     = "2.0"
+	
+	// MCP notification methods
+	MCPLogNotificationMethod = "notifications/message"
 
 	// File extensions and types
 	SQLiteExtension = ".sqlite"

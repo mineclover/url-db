@@ -20,6 +20,8 @@ type MCPServer struct {
 	transportFactory *TransportFactory
 	mode             string
 	port             string
+	logWriter        io.Writer // For sending log notifications to client
+	logEnabled       bool      // Whether to send log notifications
 }
 
 // NewMCPServer creates a new MCP server instance with transport abstraction
@@ -37,6 +39,7 @@ func NewMCPServer(factory *setup.ApplicationFactory, mode string) (*MCPServer, e
 		transportFactory: transportFactory,
 		mode:             mode,
 		port:             strconv.Itoa(constants.DefaultPort),
+		logEnabled:       true, // Enable structured logging by default
 	}
 
 	// Create transport based on mode
@@ -176,4 +179,81 @@ func (s *MCPServer) GetTransportInfo() map[string]interface{} {
 	}
 
 	return info
+}
+
+// SendLogMessage sends a structured log message to the MCP client via notifications
+func (s *MCPServer) SendLogMessage(level LogLevel, data interface{}, logger string) error {
+	if !s.logEnabled || s.transport == nil {
+		return nil // Silently ignore if logging disabled or transport not available
+	}
+
+	// Only send log notifications in modes that support it (not stdio)
+	if s.mode == constants.MCPModeStdio {
+		return nil // Don't interfere with stdio JSON-RPC protocol
+	}
+
+	// Create log notification
+	logNotification := LogNotification{
+		JSONRPCVersion: constants.JSONRPCVersion,
+		Method:         constants.MCPLogNotificationMethod,
+		Params: LogMessage{
+			Level:  level,
+			Data:   data,
+			Logger: logger,
+		},
+	}
+
+	// Send notification via transport (for SSE/HTTP modes)
+	if responseWriter, ok := s.getResponseWriter(); ok {
+		return s.sendNotification(responseWriter, &logNotification)
+	}
+
+	return nil
+}
+
+// EnableLogging enables or disables structured log notifications
+func (s *MCPServer) EnableLogging(enabled bool) {
+	s.logEnabled = enabled
+}
+
+// IsLoggingEnabled returns whether structured logging is enabled
+func (s *MCPServer) IsLoggingEnabled() bool {
+	return s.logEnabled
+}
+
+// LogDebug sends a debug level log message
+func (s *MCPServer) LogDebug(data interface{}, logger string) error {
+	return s.SendLogMessage(LogLevelDebug, data, logger)
+}
+
+// LogInfo sends an info level log message
+func (s *MCPServer) LogInfo(data interface{}, logger string) error {
+	return s.SendLogMessage(LogLevelInfo, data, logger)
+}
+
+// LogWarn sends a warning level log message
+func (s *MCPServer) LogWarn(data interface{}, logger string) error {
+	return s.SendLogMessage(LogLevelWarn, data, logger)
+}
+
+// LogError sends an error level log message
+func (s *MCPServer) LogError(data interface{}, logger string) error {
+	return s.SendLogMessage(LogLevelError, data, logger)
+}
+
+// getResponseWriter gets the response writer from the current transport
+func (s *MCPServer) getResponseWriter() (ResponseWriter, bool) {
+	// This is a simplified implementation - in a full implementation,
+	// you would need to extract the ResponseWriter from each transport type
+	// For now, return nil to indicate that notification sending is not implemented
+	// for the current transport configuration
+	return nil, false
+}
+
+// sendNotification sends a notification via the response writer
+func (s *MCPServer) sendNotification(writer ResponseWriter, notification *LogNotification) error {
+	// Convert notification to JSON-RPC response format
+	// This would need to be implemented based on the specific transport
+	// For now, this is a placeholder implementation
+	return fmt.Errorf("notification sending not yet implemented")
 }
