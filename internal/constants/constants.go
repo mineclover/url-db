@@ -124,3 +124,124 @@ const (
 	URLPattern        = `^https?://.*`
 	EmailPattern      = `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`
 )
+
+// Date/Time formatting
+const (
+	DateTimeFormat    = "2006-01-02 15:04:05"
+	ISODateTimeFormat = "2006-01-02T15:04:05Z"
+)
+
+// Pagination and search limits
+const (
+	DefaultSearchLimit         = 10
+	LargeFetchLimit           = 1000
+	DefaultRecentlyModified   = 10
+	DefaultPaginationOffset   = 0
+)
+
+// Attribute validation limits
+const (
+	MaxStringLength    = 500
+	MaxTagLength       = 50
+	MaxMarkdownLength  = 10000
+	MaxImageSize       = 10 * 1024 * 1024 // 10MB
+	MBInBytes         = 1024 * 1024
+	MinOrderIndex     = 0
+	MaxTemplateNameLength = 255
+)
+
+// Database configuration
+const (
+	DefaultMaxOpenConns    = 10
+	DefaultMaxIdleConns    = 5
+	ProductionMaxOpenConns = 100
+	ProductionMaxIdleConns = 50
+	TestMaxConns          = 1
+	DirectoryPermissions  = 0755
+	
+	// Database journal modes
+	JournalModeWAL    = "WAL"
+	JournalModeDelete = "DELETE"
+	
+	// Database synchronous modes  
+	SyncModeNormal = "NORMAL"
+	SyncModeOff    = "OFF"
+	SyncModeFull   = "FULL"
+	
+	// Special database URLs
+	InMemoryDB = ":memory:"
+)
+
+// Template validation error codes
+const (
+	ErrTemplateValueNotAllowed     = "template_value_not_allowed"
+	ErrTemplateRequiredButMissing  = "template_required_but_missing"
+	ErrTemplateValueFormatMismatch = "template_value_format_mismatch"
+)
+
+// Common validation error messages
+const (
+	ValidationErrorCode           = "validation_error"
+	ErrOrderIndexNotAllowed       = "order_index not allowed for %s type"
+	ErrOrderIndexRequired         = "order_index is required for ordered_tag type"
+	ErrOrderIndexNonNegative      = "order_index must be non-negative"
+	ErrInvalidMarkdownSyntax      = "invalid markdown syntax: unbalanced brackets or parentheses"
+	ErrUnsupportedImageType       = "unsupported image type: %s. Supported types: jpeg, png, gif, webp"
+	ErrInvalidBase64Encoding      = "invalid base64 encoding"
+	ErrImageSizeExceeded          = "image size exceeds maximum limit of 10MB (actual: %.2fMB)"
+	ErrInvalidURLFormat           = "invalid URL format"
+	ErrURLMustUseHTTPS            = "URL must use http or https scheme"
+	ErrURLMustHaveHost            = "URL must have a valid host"
+)
+
+// Template service error messages
+const (
+	ErrTemplateDataValidationFailed = "Template data validation failed"
+	ErrInactiveTemplateModification = "inactive templates cannot be modified"
+	ErrTemplateNameEmpty           = "template name cannot be empty"
+	ErrTemplateNameTooLong         = "template name cannot exceed 255 characters"
+	ErrTemplateNameInvalidChars    = "template name can only contain letters, numbers, hyphens, and underscores"
+	ErrTemplateNameInvalidStartEnd = "template name cannot start or end with hyphen or underscore"
+	ErrTemplateNotFound           = "template not found"
+	ErrTemplateTypeNotFound       = "template type not found or not a string"
+	ErrTemplateVersionNotFound    = "template version not found or not a string"
+	ErrInvalidJSON                = "invalid JSON"
+)
+
+// Image validation constants
+const (
+	DataImagePrefix = "data:image/"
+	Base64Separator = ";base64,"
+	Base64Encoding  = "base64"
+	
+	// Image MIME types
+	ImageJPEG = "data:image/jpeg"
+	ImagePNG  = "data:image/png"
+	ImageGIF  = "data:image/gif"
+	ImageWEBP = "data:image/webp"
+)
+
+// Template validation method types
+const (
+	ValidationMethodAllowedValues = "allowed_values"
+	ValidationMethodEnum         = "enum"
+	ValidationMethodPattern      = "pattern"
+	ValidationMethodRange        = "range"
+	ValidationMethodSingleValue  = "single_value"
+	ValidationMethodUnknown      = "unknown"
+	ValidationMethodNoConstraints = "no_template_constraints"
+)
+
+// Slice constants
+var (
+	// Tag forbidden characters
+	TagForbiddenChars = []string{",", ";", "|", "\n", "\t"}
+	
+	// Supported image MIME types
+	SupportedImageTypes = []string{
+		ImageJPEG,
+		ImagePNG,
+		ImageGIF,
+		ImageWEBP,
+	}
+)

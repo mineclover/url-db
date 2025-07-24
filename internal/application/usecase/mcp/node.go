@@ -6,6 +6,7 @@ import (
 	"url-db/internal/application/dto/request"
 	"url-db/internal/application/dto/response"
 	"url-db/internal/application/usecase/node"
+	"url-db/internal/constants"
 )
 
 // NodeUseCases groups node-related use cases for MCP
@@ -99,10 +100,10 @@ func (uc *MCPCreateNodeUseCase) Execute(ctx context.Context, domainName, url, ti
 // Helper functions for MCP formatting
 func formatNodeForMCP(node *response.NodeResponse) string {
 	return fmt.Sprintf("Node ID: %d\nURL: %s\nTitle: %s\nDescription: %s\nCreated: %s",
-		node.ID, node.URL, node.Title, node.Description, node.CreatedAt.Format("2006-01-02 15:04:05"))
+		node.ID, node.URL, node.Title, node.Description, node.CreatedAt.Format(constants.DateTimeFormat))
 }
 
 func formatCreateNodeResultForMCP(result *response.NodeResponse) string {
 	return fmt.Sprintf("Successfully created node in domain '%s'\nURL: %s\nTitle: %s\nDescription: %s\nCreated: %s",
-		result.DomainName, result.URL, result.Title, result.Description, result.CreatedAt.Format("2006-01-02 15:04:05"))
+		result.DomainName, result.URL, result.Title, result.Description, result.CreatedAt.Format(constants.DateTimeFormat))
 }

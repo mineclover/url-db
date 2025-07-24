@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/url"
 	"strings"
+	"url-db/internal/constants"
 )
 
 // ImageValidator implements validation for image attribute type
@@ -21,13 +22,13 @@ func (v *ImageValidator) Validate(value string, orderIndex *int) ValidationResul
 	if orderIndex != nil {
 		return ValidationResult{
 			IsValid:      false,
-			ErrorCode:    "validation_error",
-			ErrorMessage: "order_index not allowed for image type",
+			ErrorCode:    constants.ValidationErrorCode,
+			ErrorMessage: fmt.Sprintf(constants.ErrOrderIndexNotAllowed, "image"),
 		}
 	}
 
 	// Check if it's a data URL or HTTP(S) URL
-	if strings.HasPrefix(value, "data:image/") {
+	if strings.HasPrefix(value, constants.DataImagePrefix) {
 		return v.validateDataURL(value)
 	} else if strings.HasPrefix(value, "http://") || strings.HasPrefix(value, "https://") {
 		return v.validateHTTPURL(value)
@@ -35,7 +36,7 @@ func (v *ImageValidator) Validate(value string, orderIndex *int) ValidationResul
 
 	return ValidationResult{
 		IsValid:      false,
-		ErrorCode:    "validation_error",
+		ErrorCode:    constants.ValidationErrorCode,
 		ErrorMessage: "image must be either data URL (data:image/...) or HTTP(S) URL",
 	}
 }
@@ -43,31 +44,26 @@ func (v *ImageValidator) Validate(value string, orderIndex *int) ValidationResul
 // validateDataURL validates a data URL format
 func (v *ImageValidator) validateDataURL(value string) ValidationResult {
 	// Parse data URL format: data:image/{type};base64,{data}
-	if !strings.Contains(value, ";base64,") {
+	if !strings.Contains(value, constants.Base64Separator) {
 		return ValidationResult{
 			IsValid:      false,
-			ErrorCode:    "validation_error",
+			ErrorCode:    constants.ValidationErrorCode,
 			ErrorMessage: "data URL must use base64 encoding",
 		}
 	}
 
-	parts := strings.SplitN(value, ";base64,", 2)
+	parts := strings.SplitN(value, constants.Base64Separator, 2)
 	if len(parts) != 2 {
 		return ValidationResult{
 			IsValid:      false,
-			ErrorCode:    "validation_error",
+			ErrorCode:    constants.ValidationErrorCode,
 			ErrorMessage: "invalid data URL format",
 		}
 	}
 
 	// Validate MIME type
 	mimeType := parts[0]
-	supportedTypes := []string{
-		"data:image/jpeg",
-		"data:image/png",
-		"data:image/gif",
-		"data:image/webp",
-	}
+	supportedTypes := constants.SupportedImageTypes
 
 	isSupported := false
 	for _, supportedType := range supportedTypes {
@@ -80,9 +76,9 @@ func (v *ImageValidator) validateDataURL(value string) ValidationResult {
 	if !isSupported {
 		return ValidationResult{
 			IsValid:   false,
-			ErrorCode: "validation_error",
-			ErrorMessage: fmt.Sprintf("unsupported image type: %s. Supported types: jpeg, png, gif, webp",
-				strings.TrimPrefix(mimeType, "data:image/")),
+			ErrorCode: constants.ValidationErrorCode,
+			ErrorMessage: fmt.Sprintf(constants.ErrUnsupportedImageType,
+				strings.TrimPrefix(mimeType, constants.DataImagePrefix)),
 		}
 	}
 
@@ -92,19 +88,18 @@ func (v *ImageValidator) validateDataURL(value string) ValidationResult {
 	if err != nil {
 		return ValidationResult{
 			IsValid:      false,
-			ErrorCode:    "validation_error",
-			ErrorMessage: "invalid base64 encoding",
+			ErrorCode:    constants.ValidationErrorCode,
+			ErrorMessage: constants.ErrInvalidBase64Encoding,
 		}
 	}
 
 	// Check size limit (10MB)
-	const maxSize = 10 * 1024 * 1024 // 10MB
-	if len(decodedData) > maxSize {
+	if len(decodedData) > constants.MaxImageSize {
 		return ValidationResult{
 			IsValid:   false,
-			ErrorCode: "validation_error",
-			ErrorMessage: fmt.Sprintf("image size exceeds maximum limit of 10MB (actual: %.2fMB)",
-				float64(len(decodedData))/1024/1024),
+			ErrorCode: constants.ValidationErrorCode,
+			ErrorMessage: fmt.Sprintf(constants.ErrImageSizeExceeded,
+				float64(len(decodedData))/constants.MBInBytes),
 		}
 	}
 
@@ -121,8 +116,8 @@ func (v *ImageValidator) validateHTTPURL(value string) ValidationResult {
 	if err != nil {
 		return ValidationResult{
 			IsValid:      false,
-			ErrorCode:    "validation_error",
-			ErrorMessage: "invalid URL format",
+			ErrorCode:    constants.ValidationErrorCode,
+			ErrorMessage: constants.ErrInvalidURLFormat,
 		}
 	}
 
@@ -130,8 +125,8 @@ func (v *ImageValidator) validateHTTPURL(value string) ValidationResult {
 	if parsedURL.Scheme != "http" && parsedURL.Scheme != "https" {
 		return ValidationResult{
 			IsValid:      false,
-			ErrorCode:    "validation_error",
-			ErrorMessage: "URL must use http or https scheme",
+			ErrorCode:    constants.ValidationErrorCode,
+			ErrorMessage: constants.ErrURLMustUseHTTPS,
 		}
 	}
 
@@ -139,8 +134,8 @@ func (v *ImageValidator) validateHTTPURL(value string) ValidationResult {
 	if parsedURL.Host == "" {
 		return ValidationResult{
 			IsValid:      false,
-			ErrorCode:    "validation_error",
-			ErrorMessage: "URL must have a valid host",
+			ErrorCode:    constants.ValidationErrorCode,
+			ErrorMessage: constants.ErrURLMustHaveHost,
 		}
 	}
 

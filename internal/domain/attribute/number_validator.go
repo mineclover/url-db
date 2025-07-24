@@ -1,5 +1,10 @@
 package attribute
 
+import (
+	"fmt"
+	"url-db/internal/constants"
+)
+
 // NumberValidator implements validation for number attribute type
 type NumberValidator struct{}
 
@@ -14,7 +19,7 @@ func (v *NumberValidator) Validate(value string, orderIndex *int) ValidationResu
 	if err := validateNumber(value); err != nil {
 		return ValidationResult{
 			IsValid:      false,
-			ErrorCode:    "validation_error",
+			ErrorCode:    constants.ValidationErrorCode,
 			ErrorMessage: err.Error(),
 		}
 	}
@@ -23,8 +28,8 @@ func (v *NumberValidator) Validate(value string, orderIndex *int) ValidationResu
 	if orderIndex != nil {
 		return ValidationResult{
 			IsValid:      false,
-			ErrorCode:    "validation_error",
-			ErrorMessage: "order_index not allowed for number type",
+			ErrorCode:    constants.ValidationErrorCode,
+			ErrorMessage: fmt.Sprintf(constants.ErrOrderIndexNotAllowed, "number"),
 		}
 	}
 

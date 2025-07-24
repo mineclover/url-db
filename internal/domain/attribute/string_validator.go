@@ -1,6 +1,10 @@
 package attribute
 
-import "strings"
+import (
+	"fmt"
+	"strings"
+	"url-db/internal/constants"
+)
 
 // StringValidator implements validation for string attribute type
 type StringValidator struct{}
@@ -13,10 +17,10 @@ func NewStringValidator() *StringValidator {
 // Validate validates a string attribute value
 func (v *StringValidator) Validate(value string, orderIndex *int) ValidationResult {
 	// Check length constraint (max 500 characters)
-	if err := validateLength(value, 500); err != nil {
+	if err := validateLength(value, constants.MaxStringLength); err != nil {
 		return ValidationResult{
 			IsValid:      false,
-			ErrorCode:    "validation_error",
+			ErrorCode:    constants.ValidationErrorCode,
 			ErrorMessage: err.Error(),
 		}
 	}
@@ -25,8 +29,8 @@ func (v *StringValidator) Validate(value string, orderIndex *int) ValidationResu
 	if orderIndex != nil {
 		return ValidationResult{
 			IsValid:      false,
-			ErrorCode:    "validation_error",
-			ErrorMessage: "order_index not allowed for string type",
+			ErrorCode:    constants.ValidationErrorCode,
+			ErrorMessage: fmt.Sprintf(constants.ErrOrderIndexNotAllowed, "string"),
 		}
 	}
 

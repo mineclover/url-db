@@ -1,5 +1,10 @@
 package attribute
 
+import (
+	"fmt"
+	"url-db/internal/constants"
+)
+
 // TagValidator implements validation for tag attribute type
 type TagValidator struct{}
 
@@ -11,20 +16,19 @@ func NewTagValidator() *TagValidator {
 // Validate validates a tag attribute value
 func (v *TagValidator) Validate(value string, orderIndex *int) ValidationResult {
 	// Check length constraint (max 50 characters)
-	if err := validateLength(value, 50); err != nil {
+	if err := validateLength(value, constants.MaxTagLength); err != nil {
 		return ValidationResult{
 			IsValid:      false,
-			ErrorCode:    "validation_error",
+			ErrorCode:    constants.ValidationErrorCode,
 			ErrorMessage: err.Error(),
 		}
 	}
 
 	// Check forbidden characters
-	forbiddenChars := []string{",", ";", "|", "\n", "\t"}
-	if err := validateForbiddenChars(value, forbiddenChars); err != nil {
+	if err := validateForbiddenChars(value, constants.TagForbiddenChars); err != nil {
 		return ValidationResult{
 			IsValid:      false,
-			ErrorCode:    "validation_error",
+			ErrorCode:    constants.ValidationErrorCode,
 			ErrorMessage: err.Error(),
 		}
 	}
@@ -33,8 +37,8 @@ func (v *TagValidator) Validate(value string, orderIndex *int) ValidationResult 
 	if orderIndex != nil {
 		return ValidationResult{
 			IsValid:      false,
-			ErrorCode:    "validation_error",
-			ErrorMessage: "order_index not allowed for tag type",
+			ErrorCode:    constants.ValidationErrorCode,
+			ErrorMessage: fmt.Sprintf(constants.ErrOrderIndexNotAllowed, "tag"),
 		}
 	}
 

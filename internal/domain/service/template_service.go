@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"strings"
+	"url-db/internal/constants"
 	"url-db/internal/domain/entity"
 	"url-db/internal/domain/repository"
 	"url-db/internal/infrastructure/validation"
@@ -102,7 +103,7 @@ func (s *templateService) CreateTemplate(ctx context.Context, req *CreateTemplat
 
 	if !result.Valid {
 		return nil, &ValidationError{
-			Message: "Template data validation failed",
+			Message: constants.ErrTemplateDataValidationFailed,
 			Errors:  result.Errors,
 		}
 	}
@@ -167,7 +168,7 @@ func (s *templateService) UpdateTemplate(ctx context.Context, id int, req *Updat
 
 	// Check if template can be modified
 	if !template.CanModify() {
-		return nil, errors.New("inactive templates cannot be modified")
+		return nil, errors.New(constants.ErrInactiveTemplateModification)
 	}
 
 	// Update template data if provided
@@ -180,7 +181,7 @@ func (s *templateService) UpdateTemplate(ctx context.Context, id int, req *Updat
 
 		if !result.Valid {
 			return nil, &ValidationError{
-				Message: "Template data validation failed",
+				Message: constants.ErrTemplateDataValidationFailed,
 				Errors:  result.Errors,
 			}
 		}
@@ -234,8 +235,8 @@ func (s *templateService) ListTemplates(ctx context.Context, domainName string, 
 	if page < 1 {
 		page = 1
 	}
-	if size < 1 || size > 100 {
-		size = 20 // Default page size
+	if size < 1 || size > constants.MaxPageSize {
+		size = constants.DefaultPageSize
 	}
 
 	templates, total, err := s.templateRepo.List(ctx, domainName, page, size)
@@ -250,8 +251,8 @@ func (s *templateService) ListActiveTemplates(ctx context.Context, domainName st
 	if page < 1 {
 		page = 1
 	}
-	if size < 1 || size > 100 {
-		size = 20
+	if size < 1 || size > constants.MaxPageSize {
+		size = constants.DefaultPageSize
 	}
 
 	templates, total, err := s.templateRepo.ListActive(ctx, domainName, page, size)
@@ -270,8 +271,8 @@ func (s *templateService) ListTemplatesByType(ctx context.Context, domainName, t
 	if page < 1 {
 		page = 1
 	}
-	if size < 1 || size > 100 {
-		size = 20
+	if size < 1 || size > constants.MaxPageSize {
+		size = constants.DefaultPageSize
 	}
 
 	templates, total, err := s.templateRepo.ListByType(ctx, domainName, templateType, page, size)
@@ -290,8 +291,8 @@ func (s *templateService) SearchTemplates(ctx context.Context, domainName, query
 	if page < 1 {
 		page = 1
 	}
-	if size < 1 || size > 100 {
-		size = 20
+	if size < 1 || size > constants.MaxPageSize {
+		size = constants.DefaultPageSize
 	}
 
 	templates, total, err := s.templateRepo.Search(ctx, domainName, query, page, size)
@@ -433,8 +434,8 @@ func (s *templateService) GetTemplateStats(ctx context.Context, domainName strin
 }
 
 func (s *templateService) GetRecentlyModified(ctx context.Context, domainName string, limit int) ([]*entity.Template, error) {
-	if limit <= 0 || limit > 100 {
-		limit = 10 // Default limit
+	if limit <= 0 || limit > constants.MaxPageSize {
+		limit = constants.DefaultSearchLimit
 	}
 
 	templates, err := s.templateRepo.GetRecentlyModified(ctx, domainName, limit)
@@ -475,11 +476,11 @@ func (s *templateService) ExtractTemplateVersion(templateData string) (string, e
 
 func (s *templateService) ValidateTemplateName(name string) error {
 	if name == "" {
-		return errors.New("template name cannot be empty")
+		return errors.New(constants.ErrTemplateNameEmpty)
 	}
 
-	if len(name) > 255 {
-		return errors.New("template name cannot exceed 255 characters")
+	if len(name) > constants.MaxTemplateNameLength {
+		return errors.New(constants.ErrTemplateNameTooLong)
 	}
 
 	// Check for valid characters (alphanumeric, hyphens, underscores)
@@ -488,14 +489,14 @@ func (s *templateService) ValidateTemplateName(name string) error {
 			(r >= 'A' && r <= 'Z') ||
 			(r >= '0' && r <= '9') ||
 			r == '-' || r == '_') {
-			return errors.New("template name can only contain letters, numbers, hyphens, and underscores")
+			return errors.New(constants.ErrTemplateNameInvalidChars)
 		}
 	}
 
 	// Name cannot start or end with hyphen or underscore
 	if strings.HasPrefix(name, "-") || strings.HasPrefix(name, "_") ||
 		strings.HasSuffix(name, "-") || strings.HasSuffix(name, "_") {
-		return errors.New("template name cannot start or end with hyphen or underscore")
+		return errors.New(constants.ErrTemplateNameInvalidStartEnd)
 	}
 
 	return nil
@@ -523,9 +524,9 @@ type AttributeValidationResult struct {
 
 // Template-based attribute value validation errors
 var (
-	ErrTemplateValueNotAllowed     = "template_value_not_allowed"
-	ErrTemplateRequiredButMissing  = "template_required_but_missing"
-	ErrTemplateValueFormatMismatch = "template_value_format_mismatch"
+	ErrTemplateValueNotAllowed     = constants.ErrTemplateValueNotAllowed
+	ErrTemplateRequiredButMissing  = constants.ErrTemplateRequiredButMissing
+	ErrTemplateValueFormatMismatch = constants.ErrTemplateValueFormatMismatch
 )
 
 // ValidateAttributeValue validates an attribute value against templates for the given domain and attribute
@@ -571,7 +572,7 @@ func (s *templateService) ValidateAttributeValue(ctx context.Context, domainName
 	if applicableTemplate == nil {
 		return &AttributeValidationResult{
 			IsValid:          true,
-			ValidationMethod: "no_template_constraints",
+			ValidationMethod: constants.ValidationMethodNoConstraints,
 		}, nil
 	}
 
@@ -625,7 +626,7 @@ func (s *templateService) parseConstraints(constraints interface{}) (method stri
 	switch v := constraints.(type) {
 	case []interface{}:
 		// Array of allowed values
-		method = "allowed_values"
+		method = constants.ValidationMethodAllowedValues
 		for _, item := range v {
 			if str, ok := item.(string); ok {
 				values = append(values, str)
@@ -634,10 +635,10 @@ func (s *templateService) parseConstraints(constraints interface{}) (method stri
 	case map[string]interface{}:
 		// Object with validation rules
 		if pattern, ok := v["pattern"].(string); ok {
-			method = "pattern"
+			method = constants.ValidationMethodPattern
 			values = []string{pattern}
 		} else if enum, ok := v["enum"].([]interface{}); ok {
-			method = "enum"
+			method = constants.ValidationMethodEnum
 			for _, item := range enum {
 				if str, ok := item.(string); ok {
 					values = append(values, str)
@@ -645,18 +646,18 @@ func (s *templateService) parseConstraints(constraints interface{}) (method stri
 			}
 		} else if minVal, hasMin := v["min"]; hasMin {
 			if maxVal, hasMax := v["max"]; hasMax {
-				method = "range"
+				method = constants.ValidationMethodRange
 				values = []string{fmt.Sprintf("%v", minVal), fmt.Sprintf("%v", maxVal)}
 			}
 		}
 	case string:
 		// Single allowed value or pattern
-		method = "single_value"
+		method = constants.ValidationMethodSingleValue
 		values = []string{v}
 	}
 
 	if method == "" {
-		method = "unknown"
+		method = constants.ValidationMethodUnknown
 	}
 
 	return method, values
@@ -665,7 +666,7 @@ func (s *templateService) parseConstraints(constraints interface{}) (method stri
 // validateValueAgainstConstraints validates a value against parsed constraints
 func (s *templateService) validateValueAgainstConstraints(value, method string, allowedValues []string) *AttributeValidationResult {
 	switch method {
-	case "allowed_values", "enum":
+	case constants.ValidationMethodAllowedValues, constants.ValidationMethodEnum:
 		// Check if value is in allowed list
 		for _, allowed := range allowedValues {
 			if value == allowed {
@@ -680,7 +681,7 @@ func (s *templateService) validateValueAgainstConstraints(value, method string, 
 			ErrorMessage: fmt.Sprintf("Value '%s' is not in allowed values: %v", value, allowedValues),
 		}
 
-	case "single_value":
+	case constants.ValidationMethodSingleValue:
 		// Check exact match
 		if len(allowedValues) > 0 && value == allowedValues[0] {
 			return &AttributeValidationResult{
@@ -693,7 +694,7 @@ func (s *templateService) validateValueAgainstConstraints(value, method string, 
 			ErrorMessage: fmt.Sprintf("Value '%s' does not match required value '%s'", value, allowedValues[0]),
 		}
 
-	case "pattern":
+	case constants.ValidationMethodPattern:
 		// Pattern matching would require regex validation
 		// For now, simplified implementation
 		return &AttributeValidationResult{
@@ -701,7 +702,7 @@ func (s *templateService) validateValueAgainstConstraints(value, method string, 
 			ErrorMessage: "Pattern validation not fully implemented",
 		}
 
-	case "range":
+	case constants.ValidationMethodRange:
 		// Range validation would require numeric parsing
 		// For now, simplified implementation  
 		return &AttributeValidationResult{

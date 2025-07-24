@@ -6,6 +6,7 @@ import (
 	"url-db/internal/application/dto/request"
 	"url-db/internal/application/dto/response"
 	"url-db/internal/application/usecase/domain"
+	"url-db/internal/constants"
 )
 
 // DomainUseCases groups domain-related use cases for MCP
@@ -97,10 +98,10 @@ func (uc *MCPCreateDomainUseCase) Execute(ctx context.Context, name, description
 // Helper functions for MCP formatting
 func formatDomainForMCP(domain *response.DomainResponse) string {
 	return fmt.Sprintf("Domain: %s\nDescription: %s\nCreated: %s",
-		domain.Name, domain.Description, domain.CreatedAt.Format("2006-01-02 15:04:05"))
+		domain.Name, domain.Description, domain.CreatedAt.Format(constants.DateTimeFormat))
 }
 
 func formatCreateDomainResultForMCP(result *response.DomainResponse) string {
 	return fmt.Sprintf("Successfully created domain: %s\nDescription: %s\nCreated: %s",
-		result.Name, result.Description, result.CreatedAt.Format("2006-01-02 15:04:05"))
+		result.Name, result.Description, result.CreatedAt.Format(constants.DateTimeFormat))
 }

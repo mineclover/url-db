@@ -1,6 +1,10 @@
 package attribute
 
-import "strings"
+import (
+	"fmt"
+	"strings"
+	"url-db/internal/constants"
+)
 
 // MarkdownValidator implements validation for markdown attribute type
 type MarkdownValidator struct{}
@@ -13,10 +17,10 @@ func NewMarkdownValidator() *MarkdownValidator {
 // Validate validates a markdown attribute value
 func (v *MarkdownValidator) Validate(value string, orderIndex *int) ValidationResult {
 	// Check length constraint (max 10000 characters for markdown)
-	if err := validateLength(value, 10000); err != nil {
+	if err := validateLength(value, constants.MaxMarkdownLength); err != nil {
 		return ValidationResult{
 			IsValid:      false,
-			ErrorCode:    "validation_error",
+			ErrorCode:    constants.ValidationErrorCode,
 			ErrorMessage: err.Error(),
 		}
 	}
@@ -25,8 +29,8 @@ func (v *MarkdownValidator) Validate(value string, orderIndex *int) ValidationRe
 	if orderIndex != nil {
 		return ValidationResult{
 			IsValid:      false,
-			ErrorCode:    "validation_error",
-			ErrorMessage: "order_index not allowed for markdown type",
+			ErrorCode:    constants.ValidationErrorCode,
+			ErrorMessage: fmt.Sprintf(constants.ErrOrderIndexNotAllowed, "markdown"),
 		}
 	}
 
@@ -34,8 +38,8 @@ func (v *MarkdownValidator) Validate(value string, orderIndex *int) ValidationRe
 	if !v.validateMarkdownSyntax(value) {
 		return ValidationResult{
 			IsValid:      false,
-			ErrorCode:    "validation_error",
-			ErrorMessage: "invalid markdown syntax: unbalanced brackets or parentheses",
+			ErrorCode:    constants.ValidationErrorCode,
+			ErrorMessage: constants.ErrInvalidMarkdownSyntax,
 		}
 	}
 
