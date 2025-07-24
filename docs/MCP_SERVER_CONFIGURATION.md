@@ -6,6 +6,7 @@ Complete guide for configuring URL-DB MCP server with Claude Desktop, including 
 
 ### Prerequisites
 - **Claude Desktop**: Download from [claude.ai](https://claude.ai/download)
+- **Claude Code CLI**: For command-line MCP management
 - **URL-DB Server**: Built and ready (`make build`)
 - **Go Runtime**: Required for running the server
 
@@ -14,6 +15,37 @@ Complete guide for configuring URL-DB MCP server with Claude Desktop, including 
 cd /path/to/url-db
 make build
 ```
+
+### Method 1: Claude Code CLI (Recommended)
+
+**For local project scope:**
+```bash
+# Using -- separator to properly pass arguments to the binary
+claude mcp add url-db "/absolute/path/to/url-db/bin/url-db" -- -mcp-mode=stdio -db-path=/path/to/your/database.db
+```
+
+**For user scope (across all projects):**
+```bash
+claude mcp add url-db "/absolute/path/to/url-db/bin/url-db" -s user -- -mcp-mode=stdio -db-path=/path/to/your/database.db
+```
+
+**Verify the connection:**
+```bash
+claude mcp list
+# Should show: url-db: ✓ Connected
+
+claude mcp get url-db
+# Shows detailed configuration
+```
+
+**Example with full paths:**
+```bash
+claude mcp add url-db "/Users/yourname/mcp/url-db/bin/url-db" -- -mcp-mode=stdio -db-path=/Users/yourname/Documents/url-database.db
+```
+
+**⚠️ Important**: Always use the `--` separator before your binary's arguments to prevent "unknown option" errors.
+
+### Method 2: Manual Configuration Files
 
 ## 📋 Configuration Variants
 

@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"log"
 	"os"
 
 	"url-db/internal/constants"
@@ -419,6 +418,43 @@ func (s *MCPServer) handleToolsList(req *JSONRPCRequest) {
 				"required": []string{"dependency_id"},
 			},
 		},
+		{
+			"name":        "filter_nodes_by_attributes",
+			"description": "Filter nodes by attribute values",
+			"inputSchema": map[string]interface{}{
+				"type": "object",
+				"properties": map[string]interface{}{
+					"domain_name": map[string]interface{}{"type": "string", "description": "Domain name to filter nodes from"},
+					"filters": map[string]interface{}{
+						"type": "array",
+						"description": "Array of attribute filters",
+						"items": map[string]interface{}{
+							"type": "object",
+							"properties": map[string]interface{}{
+								"name":     map[string]interface{}{"type": "string", "description": "Attribute name"},
+								"value":    map[string]interface{}{"type": "string", "description": "Attribute value"},
+								"operator": map[string]interface{}{"type": "string", "description": "Comparison operator", "enum": []string{"equals", "contains", "starts_with", "ends_with"}, "default": "equals"},
+							},
+							"required": []string{"name", "value"},
+						},
+					},
+					"page": map[string]interface{}{"type": "integer", "default": 1},
+					"size": map[string]interface{}{"type": "integer", "default": 20},
+				},
+				"required": []string{"domain_name", "filters"},
+			},
+		},
+		{
+			"name":        "get_node_with_attributes",
+			"description": "Get URL details with all attributes",
+			"inputSchema": map[string]interface{}{
+				"type": "object",
+				"properties": map[string]interface{}{
+					"composite_id": map[string]interface{}{"type": "string", "description": "Composite ID (format: tool:domain:id)"},
+				},
+				"required": []string{"composite_id"},
+			},
+		},
 	}
 
 	result := map[string]interface{}{
@@ -485,6 +521,10 @@ func (s *MCPServer) handleToolCall(ctx context.Context, req *JSONRPCRequest) {
 		result, err = s.toolHandler.handleListNodeDependents(ctx, params.Arguments)
 	case "delete_dependency":
 		result, err = s.toolHandler.handleDeleteDependency(ctx, params.Arguments)
+	case "filter_nodes_by_attributes":
+		result, err = s.toolHandler.handleFilterNodesByAttributes(ctx, params.Arguments)
+	case "get_node_with_attributes":
+		result, err = s.toolHandler.handleGetNodeWithAttributes(ctx, params.Arguments)
 	default:
 		s.sendError(req.ID, MethodNotFound, fmt.Sprintf("Tool not found: %s", params.Name), nil)
 		return
@@ -562,6 +602,7 @@ func (s *MCPServer) sendError(id interface{}, code int, message string, data int
 func (s *MCPServer) sendResponse(response *JSONRPCResponse) {
 	encoder := json.NewEncoder(s.writer)
 	if err := encoder.Encode(response); err != nil {
-		log.Printf("Failed to send response: %v", err)
+		// Log to stderr to avoid corrupting JSON-RPC protocol
+		fmt.Fprintf(os.Stderr, "Failed to send response: %v\n", err)
 	}
 }

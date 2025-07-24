@@ -9,6 +9,7 @@ import (
 	"url-db/internal/application/dto/request"
 	nodeUseCase "url-db/internal/application/usecase/node"
 	"url-db/internal/domain/entity"
+	"url-db/internal/domain/repository"
 	"url-db/internal/interface/setup"
 )
 
@@ -1050,6 +1051,166 @@ func (h *MCPToolHandler) handleDeleteDependency(ctx context.Context, args map[st
 				"type": "text",
 				"text": fmt.Sprintf("Would delete dependency with ID: %d\n\nNote: Dependency deletion will be implemented with proper repository",
 					dependencyID),
+			},
+		},
+		"isError": false,
+	}, nil
+}
+
+// handleFilterNodesByAttributes implements the filter_nodes_by_attributes tool
+func (h *MCPToolHandler) handleFilterNodesByAttributes(ctx context.Context, args map[string]interface{}) (interface{}, error) {
+	// Parse domain_name argument
+	domainName, ok := args["domain_name"].(string)
+	if !ok || domainName == "" {
+		return nil, fmt.Errorf("missing or invalid 'domain_name' parameter")
+	}
+
+	// Parse filters argument
+	filtersRaw, ok := args["filters"]
+	if !ok {
+		return nil, fmt.Errorf("missing 'filters' parameter")
+	}
+
+	filtersArray, ok := filtersRaw.([]interface{})
+	if !ok {
+		return nil, fmt.Errorf("invalid 'filters' parameter, expected array")
+	}
+
+	// Convert filters to repository format
+	var filters []repository.AttributeFilter
+	for i, filterRaw := range filtersArray {
+		filterMap, ok := filterRaw.(map[string]interface{})
+		if !ok {
+			return nil, fmt.Errorf("invalid filter at index %d, expected object", i)
+		}
+
+		name, ok := filterMap["name"].(string)
+		if !ok || name == "" {
+			return nil, fmt.Errorf("missing or invalid 'name' in filter at index %d", i)
+		}
+
+		value, ok := filterMap["value"].(string)
+		if !ok || value == "" {
+			return nil, fmt.Errorf("missing or invalid 'value' in filter at index %d", i)
+		}
+
+		operator := "equals" // default operator
+		if op, ok := filterMap["operator"].(string); ok && op != "" {
+			operator = op
+		}
+
+		filters = append(filters, repository.AttributeFilter{
+			Name:     name,
+			Value:    value,
+			Operator: operator,
+		})
+	}
+
+	// Optional pagination parameters
+	page := 1
+	if p, ok := args["page"].(float64); ok {
+		page = int(p)
+	}
+
+	size := 20
+	if s, ok := args["size"].(float64); ok {
+		size = int(s)
+	}
+
+	// Execute filter use case
+	result, err := h.dependencies.FilterNodesUC.Execute(ctx, domainName, filters, page, size)
+	if err != nil {
+		return nil, fmt.Errorf("failed to filter nodes: %w", err)
+	}
+
+	// Convert to MCP response format
+	content := []map[string]interface{}{}
+
+	if len(result.Nodes) == 0 {
+		content = append(content, map[string]interface{}{
+			"type": "text",
+			"text": fmt.Sprintf("No nodes found matching the specified filters in domain '%s'", domainName),
+		})
+	} else {
+		for _, node := range result.Nodes {
+			content = append(content, map[string]interface{}{
+				"type": "text",
+				"text": fmt.Sprintf("Node ID: %d\nURL: %s\nTitle: %s\nDescription: %s\nCreated: %s",
+					node.ID, node.URL, node.Title, node.Description, node.CreatedAt.Format("2006-01-02 15:04:05")),
+			})
+		}
+
+		// Add pagination info
+		if result.TotalPages > 1 {
+			content = append(content, map[string]interface{}{
+				"type": "text",
+				"text": fmt.Sprintf("\nPage %d of %d (Total: %d nodes)", result.Page, result.TotalPages, result.TotalCount),
+			})
+		}
+	}
+
+	return map[string]interface{}{
+		"content": content,
+		"isError": false,
+	}, nil
+}
+
+// handleGetNodeWithAttributes implements the get_node_with_attributes tool
+func (h *MCPToolHandler) handleGetNodeWithAttributes(ctx context.Context, args map[string]interface{}) (interface{}, error) {
+	// Parse composite_id argument
+	compositeID, ok := args["composite_id"].(string)
+	if !ok || compositeID == "" {
+		return nil, fmt.Errorf("missing or invalid 'composite_id' parameter")
+	}
+
+	// Parse composite ID to extract node ID
+	parts := strings.Split(compositeID, ":")
+	if len(parts) != 3 {
+		return nil, fmt.Errorf("invalid composite_id format, expected 'tool-name:domain:id'")
+	}
+
+	nodeIDStr := parts[2]
+	nodeID, err := strconv.Atoi(nodeIDStr)
+	if err != nil {
+		return nil, fmt.Errorf("invalid node ID in composite_id: %v", err)
+	}
+
+	// Execute use case
+	result, err := h.dependencies.GetNodeWithAttributesUC.Execute(ctx, nodeID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get node with attributes: %w", err)
+	}
+
+	// Build response text
+	var responseText strings.Builder
+	
+	// Node information
+	responseText.WriteString(fmt.Sprintf("Node: %s\n", result.Node.Title))
+	responseText.WriteString(fmt.Sprintf("URL: %s\n", result.Node.URL))
+	responseText.WriteString(fmt.Sprintf("Description: %s\n", result.Node.Description))
+	responseText.WriteString(fmt.Sprintf("Domain: %s\n", result.Node.DomainName))
+	responseText.WriteString(fmt.Sprintf("Created: %s\n", result.Node.CreatedAt.Format("2006-01-02 15:04:05")))
+	responseText.WriteString(fmt.Sprintf("Updated: %s\n", result.Node.UpdatedAt.Format("2006-01-02 15:04:05")))
+
+	// Attributes information
+	if len(result.Attributes) > 0 {
+		responseText.WriteString("\nAttributes:\n")
+		for _, attr := range result.Attributes {
+			attrText := fmt.Sprintf("• %s (%s): %s", attr.AttributeName, attr.AttributeType, attr.Value)
+			if attr.OrderIndex != nil {
+				attrText += fmt.Sprintf(" [order: %d]", *attr.OrderIndex)
+			}
+			responseText.WriteString(attrText + "\n")
+		}
+	} else {
+		responseText.WriteString("\nNo attributes found for this node.\n")
+	}
+
+	return map[string]interface{}{
+		"content": []map[string]interface{}{
+			{
+				"type": "text",
+				"text": responseText.String(),
 			},
 		},
 		"isError": false,

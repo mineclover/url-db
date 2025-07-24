@@ -114,6 +114,24 @@ type DeleteDependencyArgs struct {
 	DependencyID int `json:"dependency_id" jsonschema:"required,title=Dependency ID,description=ID of the dependency relationship to delete"`
 }
 
+// Filter and enhanced node queries (new tools)
+type AttributeFilter struct {
+	Name     string `json:"name" jsonschema:"required,title=Name,description=Attribute name"`
+	Value    string `json:"value" jsonschema:"required,title=Value,description=Attribute value"`
+	Operator string `json:"operator,omitempty" jsonschema:"title=Operator,description=Comparison operator,enum=equals,enum=contains,enum=starts_with,enum=ends_with,default=equals"`
+}
+
+type FilterNodesByAttributesArgs struct {
+	DomainName string            `json:"domain_name" jsonschema:"required,title=Domain Name,description=Domain name to filter nodes from"`
+	Filters    []AttributeFilter `json:"filters" jsonschema:"required,title=Filters,description=Array of attribute filters"`
+	Page       int               `json:"page,omitempty" jsonschema:"title=Page,description=Page number,default=1"`
+	Size       int               `json:"size,omitempty" jsonschema:"title=Size,description=Page size,default=20"`
+}
+
+type GetNodeWithAttributesArgs struct {
+	CompositeID string `json:"composite_id" jsonschema:"required,title=Composite ID,description=Composite ID (format: tool:domain:id)"`
+}
+
 // Server info
 type GetServerInfoArgs struct {
 	// No arguments needed

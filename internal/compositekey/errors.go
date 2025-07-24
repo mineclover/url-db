@@ -8,7 +8,6 @@ const (
 	ErrInvalidToolName   = "COMPOSITE_KEY_INVALID_TOOL_NAME"
 	ErrInvalidDomainName = "COMPOSITE_KEY_INVALID_DOMAIN_NAME"
 	ErrInvalidID         = "COMPOSITE_KEY_INVALID_ID"
-	ErrTooLong           = "COMPOSITE_KEY_TOO_LONG"
 )
 
 // CompositeKeyError 는 합성키 관련 에러를 나타냅니다.
@@ -50,9 +49,3 @@ func NewInvalidIDError(message string) error {
 	}
 }
 
-func NewTooLongError(message string) error {
-	return CompositeKeyError{
-		Code:    ErrTooLong,
-		Message: message,
-	}
-}

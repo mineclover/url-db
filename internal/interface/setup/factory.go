@@ -97,6 +97,8 @@ func (f *ApplicationFactory) CreateCleanArchitectureDependencies() *CleanDepende
 	createNodeUC, listNodesUC := f.CreateNodeUseCases(nodeRepo, domainRepo)
 	createAttributeUC, listAttributesUC := f.CreateAttributeUseCases(attributeRepo, domainRepo)
 	setNodeAttributesUC := node.NewSetNodeAttributesUseCase(nodeRepo, attributeRepo, nodeAttributeRepo)
+	filterNodesUC := node.NewFilterNodesByAttributesUseCase(nodeRepo)
+	getNodeWithAttributesUC := node.NewGetNodeWithAttributesUseCase(nodeRepo, nodeAttributeRepo, attributeRepo)
 
 	return &CleanDependencies{
 		// Repositories
@@ -115,7 +117,9 @@ func (f *ApplicationFactory) CreateCleanArchitectureDependencies() *CleanDepende
 		ListNodesUC:         listNodesUC,
 		CreateAttributeUC:   createAttributeUC,
 		ListAttributesUC:    listAttributesUC,
-		SetNodeAttributesUC: setNodeAttributesUC,
+		SetNodeAttributesUC:     setNodeAttributesUC,
+		FilterNodesUC:           filterNodesUC,
+		GetNodeWithAttributesUC: getNodeWithAttributesUC,
 	}
 }
 
@@ -135,9 +139,11 @@ type CleanDependencies struct {
 	ListDomainsUC       *domain.ListDomainsUseCase
 	CreateNodeUC        *node.CreateNodeUseCase
 	ListNodesUC         *node.ListNodesUseCase
-	CreateAttributeUC   *attribute.CreateAttributeUseCase
-	ListAttributesUC    *attribute.ListAttributesUseCase
-	SetNodeAttributesUC *node.SetNodeAttributesUseCase
+	CreateAttributeUC     *attribute.CreateAttributeUseCase
+	ListAttributesUC      *attribute.ListAttributesUseCase
+	SetNodeAttributesUC       *node.SetNodeAttributesUseCase
+	FilterNodesUC             *node.FilterNodesByAttributesUseCase
+	GetNodeWithAttributesUC   *node.GetNodeWithAttributesUseCase
 }
 
 // Individual UseCase factory methods for MCP server

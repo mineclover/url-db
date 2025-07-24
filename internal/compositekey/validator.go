@@ -4,7 +4,6 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
-	"url-db/internal/constants"
 )
 
 // 검증에 사용되는 정규표현식
@@ -33,9 +32,6 @@ func ValidateToolName(toolName string) error {
 		return NewInvalidToolNameError("도구명이 비어있습니다")
 	}
 
-	if len(toolName) > constants.MaxToolNameLength {
-		return NewTooLongError("도구명이 너무 깁니다")
-	}
 
 	if !validCharsRegex.MatchString(toolName) {
 		return NewInvalidToolNameError("도구명에 유효하지 않은 문자가 포함되어 있습니다")
@@ -55,9 +51,6 @@ func ValidateDomainName(domainName string) error {
 		return NewInvalidDomainNameError("도메인명이 비어있습니다")
 	}
 
-	if len(domainName) > constants.MaxDomainNameLength {
-		return NewTooLongError("도메인명이 너무 깁니다")
-	}
 
 	if !validCharsRegex.MatchString(domainName) {
 		return NewInvalidDomainNameError("도메인명에 유효하지 않은 문자가 포함되어 있습니다")
@@ -77,9 +70,6 @@ func ValidateID(idStr string) error {
 		return NewInvalidIDError("ID가 비어있습니다")
 	}
 
-	if len(idStr) > constants.MaxIDLength {
-		return NewTooLongError("ID가 너무 깁니다")
-	}
 
 	id, err := strconv.Atoi(idStr)
 	if err != nil {

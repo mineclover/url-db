@@ -33,4 +33,14 @@ type NodeRepository interface {
 
 	// GetDomainByNodeID retrieves the domain for a given node ID
 	GetDomainByNodeID(ctx context.Context, nodeID int) (*entity.Domain, error)
+
+	// FilterByAttributes retrieves nodes by domain with attribute filters
+	FilterByAttributes(ctx context.Context, domainName string, filters []AttributeFilter, page, size int) ([]*entity.Node, int, error)
+}
+
+// AttributeFilter represents a filter condition for node attributes
+type AttributeFilter struct {
+	Name     string // Attribute name
+	Value    string // Attribute value
+	Operator string // Comparison operator: "equals", "contains", "starts_with", "ends_with"
 }

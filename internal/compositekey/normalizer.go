@@ -5,14 +5,6 @@ import (
 	"strings"
 )
 
-import "url-db/internal/constants"
-
-// constants 패키지에서 가져온 상수 사용
-const (
-	MaxToolNameLength   = constants.MaxToolNameLength
-	MaxDomainNameLength = constants.MaxDomainNameLength
-	MaxIDLength         = constants.MaxIDLength
-)
 
 // 특수문자를 하이픈으로 변환하는 정규표현식
 var (
@@ -30,9 +22,6 @@ func NormalizeToolName(toolName string) (string, error) {
 		return "", NewInvalidToolNameError("도구명이 비어있습니다")
 	}
 
-	if len(normalized) > MaxToolNameLength {
-		return "", NewTooLongError("도구명이 너무 깁니다")
-	}
 
 	return normalized, nil
 }
@@ -45,9 +34,6 @@ func NormalizeDomainName(domainName string) (string, error) {
 		return "", NewInvalidDomainNameError("도메인명이 비어있습니다")
 	}
 
-	if len(normalized) > MaxDomainNameLength {
-		return "", NewTooLongError("도메인명이 너무 깁니다")
-	}
 
 	return normalized, nil
 }

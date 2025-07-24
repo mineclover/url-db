@@ -285,3 +285,124 @@ func (r *nodeRepository) GetDomainByNodeID(ctx context.Context, nodeID int) (*en
 	
 	return mapper.ToDomainEntity(&dbRow), nil
 }
+
+// FilterByAttributes retrieves nodes by domain with attribute filters
+func (r *nodeRepository) FilterByAttributes(ctx context.Context, domainName string, filters []repository.AttributeFilter, page, size int) ([]*entity.Node, int, error) {
+	if len(filters) == 0 {
+		// No filters, return regular list
+		return r.List(ctx, domainName, page, size)
+	}
+
+	// Build the SQL query with JOIN for each filter
+	var joins []string
+	var conditions []string
+	var args []interface{}
+	argIndex := 1
+
+	// Add domain condition
+	conditions = append(conditions, "d.name = ?")
+	args = append(args, domainName)
+	argIndex++
+
+	// Add a JOIN and condition for each filter
+	for i, filter := range filters {
+		joinAlias := "na" + string(rune('0'+i))
+		attrAlias := "a" + string(rune('0'+i))
+		
+		joins = append(joins, 
+			"INNER JOIN node_attributes "+joinAlias+" ON n.id = "+joinAlias+".node_id")
+		joins = append(joins, 
+			"INNER JOIN attributes "+attrAlias+" ON "+joinAlias+".attribute_id = "+attrAlias+".id")
+		
+		// Add attribute name condition
+		conditions = append(conditions, attrAlias+".name = ?")
+		args = append(args, filter.Name)
+		argIndex++
+		
+		// Add value condition based on operator
+		switch strings.ToLower(filter.Operator) {
+		case "equals", "":
+			conditions = append(conditions, joinAlias+".value = ?")
+			args = append(args, filter.Value)
+		case "contains":
+			conditions = append(conditions, joinAlias+".value LIKE ?")
+			args = append(args, "%"+filter.Value+"%")
+		case "starts_with":
+			conditions = append(conditions, joinAlias+".value LIKE ?")
+			args = append(args, filter.Value+"%")
+		case "ends_with":
+			conditions = append(conditions, joinAlias+".value LIKE ?")
+			args = append(args, "%"+filter.Value)
+		default:
+			// Default to equals for invalid operators
+			conditions = append(conditions, joinAlias+".value = ?")
+			args = append(args, filter.Value)
+		}
+		argIndex++
+	}
+
+	// Build the complete query
+	baseQuery := `
+		SELECT DISTINCT n.id, n.content, n.domain_id, n.title, n.description, n.created_at, n.updated_at
+		FROM nodes n
+		INNER JOIN domains d ON n.domain_id = d.id
+		` + strings.Join(joins, " ") + `
+		WHERE ` + strings.Join(conditions, " AND ") + `
+		ORDER BY n.created_at DESC
+	`
+
+	// Count query for total
+	countQuery := `
+		SELECT COUNT(DISTINCT n.id)
+		FROM nodes n
+		INNER JOIN domains d ON n.domain_id = d.id
+		` + strings.Join(joins, " ") + `
+		WHERE ` + strings.Join(conditions, " AND ")
+
+	// Get total count
+	var total int
+	err := r.db.QueryRowContext(ctx, countQuery, args...).Scan(&total)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	// Add pagination
+	offset := (page - 1) * size
+	limitQuery := baseQuery + " LIMIT ? OFFSET ?"
+	args = append(args, size, offset)
+
+	// Execute the main query
+	rows, err := r.db.QueryContext(ctx, limitQuery, args...)
+	if err != nil {
+		return nil, 0, err
+	}
+	defer rows.Close()
+
+	var nodes []*entity.Node
+	for rows.Next() {
+		var dbRow mapper.DatabaseNode
+		err := rows.Scan(
+			&dbRow.ID,
+			&dbRow.Content,
+			&dbRow.DomainID,
+			&dbRow.Title,
+			&dbRow.Description,
+			&dbRow.CreatedAt,
+			&dbRow.UpdatedAt,
+		)
+		if err != nil {
+			return nil, 0, err
+		}
+
+		node := mapper.ToNodeEntity(&dbRow)
+		if node != nil {
+			nodes = append(nodes, node)
+		}
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, 0, err
+	}
+
+	return nodes, total, nil
+}

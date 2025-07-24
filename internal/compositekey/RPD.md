@@ -118,7 +118,6 @@ Service -> Utilities
 - `COMPOSITE_KEY_INVALID_TOOL_NAME`: 도구명 오류
 - `COMPOSITE_KEY_INVALID_DOMAIN_NAME`: 도메인명 오류
 - `COMPOSITE_KEY_INVALID_ID`: ID 오류
-- `COMPOSITE_KEY_TOO_LONG`: 길이 초과
 
 ### 검증 규칙
 - 정확히 3개의 구성 요소

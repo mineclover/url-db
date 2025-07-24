@@ -16,3 +16,10 @@ type AttributeListResponse struct {
 	Attributes []AttributeResponse `json:"attributes"`
 	Total      int                 `json:"total"`
 }
+
+type NodeAttributeResponse struct {
+	AttributeName string  `json:"attribute_name"`
+	AttributeType string  `json:"attribute_type"`
+	Value         string  `json:"value"`
+	OrderIndex    *int    `json:"order_index,omitempty"`
+}
