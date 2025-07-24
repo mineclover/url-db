@@ -1,239 +1,248 @@
-# URL Database - Clean Architecture with MCP Integration
+# URL-DB: AI 어시스턴트용 URL 관리 시스템
 
-A comprehensive URL management system built with Clean Architecture principles and optimized for Model Context Protocol (MCP) integration.
+URL-DB는 Claude Desktop 등의 AI 어시스턴트가 URL을 효율적으로 저장하고 관리할 수 있게 해주는 MCP(Model Context Protocol) 서버입니다.
 
-## 🚀 Quick Start
+## 🎯 무엇을 할 수 있나요?
 
-### Build and Run
+- **URL 저장 및 분류**: 웹사이트 주소를 도메인별로 체계적으로 관리
+- **스마트 태깅**: URL에 태그, 카테고리, 메모 등 다양한 속성 추가
+- **빠른 검색**: 저장된 URL을 키워드, 태그, 도메인으로 빠르게 찾기
+- **AI 통합**: Claude Desktop에서 자연어로 URL 관리 가능
+- **데이터 소유권**: 모든 데이터는 본인의 컴퓨터에 SQLite 파일로 저장
+
+## 🚀 빠른 시작
+
+### 1. Docker로 간단 설치 (권장)
 
 ```bash
-# Install dependencies and build
-make deps
+# Docker 이미지 다운로드 및 실행
+docker run -it --rm -v ~/url-db-data:/data asfdassdssa/url-db:latest
+```
+
+### 2. Claude Desktop 설정
+
+Claude Desktop 설정 파일에 다음 내용을 추가하세요:
+
+**macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
+**Windows**: `%AppData%\Claude\claude_desktop_config.json`
+
+```json
+{
+  "mcpServers": {
+    "url-db": {
+      "command": "docker",
+      "args": [
+        "run", "-i", "--rm",
+        "-v", "~/url-db-data:/data",
+        "asfdassdssa/url-db:latest"
+      ]
+    }
+  }
+}
+```
+
+### 3. Claude Desktop 재시작
+
+설정을 저장한 후 Claude Desktop을 재시작하면 URL 관리 기능을 사용할 수 있습니다!
+
+## 💡 사용 예시
+
+Claude Desktop에서 다음과 같이 대화하면 됩니다:
+
+```
+👤 "이 URL을 개발 자료로 저장해줘: https://github.com/microsoft/vscode"
+
+🤖 GitHub 개발 자료로 저장했습니다!
+   - 도메인: github
+   - 태그: development, editor, microsoft
+   - 저장 위치: ~/url-db-data/url-db.sqlite
+
+👤 "개발 관련 URL들 찾아줘"
+
+🤖 개발 관련 URL 5개를 찾았습니다:
+   1. https://github.com/microsoft/vscode (Visual Studio Code)
+   2. https://nodejs.org (Node.js 공식사이트)
+   ...
+```
+
+## 🗂️ 데이터베이스 위치 및 설정
+
+### 기본 설정
+
+위의 기본 설정을 사용하면 SQLite 데이터베이스가 다음 위치에 저장됩니다:
+
+- **macOS/Linux**: `~/url-db-data/url-db.sqlite`
+- **Windows**: `%UserProfile%\url-db-data\url-db.sqlite`
+
+### 사용자 정의 위치
+
+다른 위치에 저장하고 싶다면 설정에서 경로를 변경하세요:
+
+```json
+{
+  "mcpServers": {
+    "url-db": {
+      "command": "docker",
+      "args": [
+        "run", "-i", "--rm",
+        "-v", "/your/custom/path:/data",
+        "asfdassdssa/url-db:latest"
+      ]
+    }
+  }
+}
+```
+
+### 직접 데이터베이스 접근
+
+SQLite 파일에 직접 접근할 수도 있습니다:
+
+```bash
+# 데이터베이스 내용 확인
+sqlite3 ~/url-db-data/url-db.sqlite "SELECT * FROM domains;"
+
+# 모든 URL 조회  
+sqlite3 ~/url-db-data/url-db.sqlite "SELECT url, title FROM nodes LIMIT 10;"
+```
+
+## 🛠️ 고급 설정 옵션
+
+### 1. 프로젝트별 데이터베이스
+
+여러 프로젝트를 위해 별도의 데이터베이스를 사용할 수 있습니다:
+
+```json
+{
+  "mcpServers": {
+    "url-db-work": {
+      "command": "docker",
+      "args": [
+        "run", "-i", "--rm",
+        "-v", "~/work-urls:/data",
+        "asfdassdssa/url-db:latest"
+      ]
+    },
+    "url-db-personal": {
+      "command": "docker",
+      "args": [
+        "run", "-i", "--rm", 
+        "-v", "~/personal-urls:/data",
+        "asfdassdssa/url-db:latest"
+      ]
+    }
+  }
+}
+```
+
+### 2. 로컬 빌드 (Docker 없이)
+
+Docker를 사용하지 않고 직접 빌드하려면:
+
+```bash
+# 소스코드 다운로드
+git clone https://github.com/mineclover/url-db.git
+cd url-db
+
+# 빌드 및 실행
 make build
-
-# Run the server
-make run
-
-# Or run directly
-./bin/url-db
+./bin/url-db -mcp-mode=stdio
 ```
 
-### Claude Desktop Integration
+Claude Desktop 설정:
+```json
+{
+  "mcpServers": {
+    "url-db": {
+      "command": "/path/to/url-db/bin/url-db",
+      "args": ["-mcp-mode=stdio"]
+    }
+  }
+}
+```
 
-For Claude Desktop MCP integration:
-1. Build the project: `make build`
-2. **Quick Setup**: See [MCP Server Configuration Guide](docs/MCP_SERVER_CONFIGURATION.md) ⭐
-3. **Detailed Setup**: See [MCP Claude Setup Guide](docs/MCP_CLAUDE_SETUP.md)
-4. **General MCP Info**: See [MCP Setup Guide](docs/mcp-setup-guide.md)
+## 🔧 주요 기능
 
-### Development
+### 도메인 시스템
+- URL을 도메인별로 자동 분류 (github.com, stackoverflow.com 등)
+- 도메인별 커스텀 속성 정의 가능
 
+### 속성 시스템
+- **태그**: 키워드 기반 분류
+- **카테고리**: 계층적 분류
+- **평점**: 5점 척도 평가
+- **메모**: 자유 텍스트 설명
+- **날짜**: 생성/수정 시간 자동 기록
+
+### 검색 기능
+- 제목, URL, 설명으로 검색
+- 태그별 필터링
+- 도메인별 그룹화
+- 날짜 범위 검색
+
+## 🐳 Docker 배포 옵션
+
+### 1. Docker Hub에서 바로 사용
 ```bash
-# Run with hot reload (requires air)
-make dev
-
-# Format code
-make fmt
-
-# Run linter
-make lint
+docker run -it --rm -v url-db-data:/data asfdassdssa/url-db:latest
 ```
 
-## �� Testing
-
+### 2. 여러 서비스 모드로 실행
 ```bash
-# Comprehensive test suite (includes linting, coverage, benchmarks)
-./scripts/test.sh
+# HTTP API 서버 (포트 8080)
+docker run -d -p 8080:8080 -v url-db-data:/data asfdassdssa/url-db:latest -port=8080
 
-# Specific test types
-./scripts/test.sh --tests-only      # Unit tests only
-./scripts/test.sh --coverage-only   # Coverage analysis
-./scripts/test.sh --benchmarks-only # Performance benchmarks
-./scripts/test.sh --mcp-only        # MCP integration tests
-./scripts/test.sh --lint-only       # Linting only
-./scripts/test.sh --package internal/mcp  # Test specific package
-
-# Show all test options
-./scripts/test.sh --help
+# 모든 서비스 동시 실행
+git clone https://github.com/mineclover/url-db.git
+cd url-db
+make docker-compose-up
 ```
 
-## 📋 Available Commands
-
-### Build Commands (Makefile)
-- `make deps` - Install dependencies
-- `make build` - Build for current platform
-- `make build-all` - Build for all platforms (darwin/amd64, darwin/arm64, linux/amd64, linux/arm64, windows/amd64)
-- `make run` - Build and run
-- `make clean` - Clean build artifacts
-
-### Development Commands (Makefile)
-- `make fmt` - Format code
-- `make lint` - Run linter
-- `make dev` - Run with hot reload
-- `make swagger-gen` - Generate Swagger documentation
-- `make dev-swagger` - Generate docs and run dev mode
-
-### Test Commands (scripts/test.sh)
-- `./scripts/test.sh` - Run comprehensive test suite
-- `./scripts/test.sh --tests-only` - Unit tests only
-- `./scripts/test.sh --coverage-only` - Coverage analysis
-- `./scripts/test.sh --benchmarks-only` - Performance benchmarks
-- `./scripts/test.sh --mcp-only` - MCP integration tests
-- `./scripts/test.sh --lint-only` - Linting only
-- `./scripts/test.sh --package DIR` - Test specific package
-
-## 🏗️ Architecture
-
-### Clean Architecture Implementation
-
-URL-DB follows Clean Architecture principles with four distinct layers:
-
-```
-cmd/server/               # Entry point and main application
-internal/
-├── domain/               # Business entities and repository interfaces
-│   ├── entity/          # Domain entities (Domain, Node, Attribute)
-│   └── repository/      # Repository interfaces
-├── application/         # Application layer (use cases and DTOs)
-│   ├── dto/            # Data Transfer Objects
-│   └── usecase/        # Business logic use cases
-├── infrastructure/     # External concerns (database, persistence)
-│   └── persistence/    # Data persistence implementations
-└── interface/          # Interface adapters and setup
-    └── setup/          # Dependency injection and factory pattern
+### 3. 개발자용 빌드
+```bash
+git clone https://github.com/mineclover/url-db.git
+cd url-db
+make docker-build
+make docker-run
 ```
 
-**Key Architectural Principles:**
-- **Dependency Inversion**: Inner layers define interfaces, outer layers implement them
-- **Single Responsibility**: Each layer has one reason to change
-- **Clean Separation**: Business logic is independent of frameworks and databases
+## 🔍 트러블슈팅
 
-### Core Components
-- **Domain Entities**: Immutable business objects with encapsulated logic
-- **Use Cases**: Single-responsibility business operations
-- **Repositories**: Data access abstractions
-- **Factory Pattern**: Dependency injection and object creation
-- **MCP Integration**: Native support for AI tool integration
+### "command not found" 오류
+- Docker가 설치되어 있는지 확인
+- Docker 데몬이 실행 중인지 확인: `docker ps`
 
-### Composite Key Format
-Nodes are identified using composite keys: `tool-name:domain:id`
+### 데이터가 저장되지 않음
+- 볼륨 마운트 경로 확인
+- 디렉토리 권한 확인: `ls -la ~/url-db-data/`
 
-Examples:
-- `url-db:example:1` - Node ID 1 in the "example" domain
-- `url-db:github:42` - Node ID 42 in the "github" domain
-- `work:projects:15` - Node ID 15 with custom tool name "work"
+### Claude Desktop에서 인식 안됨
+- 설정 파일 경로 확인
+- JSON 문법 오류 확인 (따옴표, 쉼표 등)
+- Claude Desktop 재시작 필요
 
-## 🔧 Configuration
+### 자세한 로그 확인
+```bash
+# Docker 컨테이너 로그 확인
+docker run -it --rm -v url-db-data:/data asfdassdssa/url-db:latest -mcp-mode=stdio
+```
 
-### Default Settings
-- **Port**: 8080 (configurable via constants)
-- **Database**: `file:./url-db.sqlite` (configurable via constants)
-- **Tool Name**: `url-db` (configurable via constants)
-- **MCP Server Name**: `url-db-mcp-server`
-- **Protocol Version**: `2024-11-05`
+## 📚 추가 문서
 
-### Constants Management
-All configuration values are centralized in `/internal/constants/constants.go`:
-- Server metadata and versions
-- Network settings and ports  
-- Database paths and drivers
-- Validation limits and patterns
-- Error messages and HTTP status codes
+- [Docker 배포 가이드](docker-deployment.md) - 상세한 Docker 설정 방법
+- [Claude Desktop 설정 가이드](docker-hub-deploy.md) - 다양한 설정 예시
+- [SQLite 호스트 저장 가이드](sqlite-host-storage-guide.md) - 데이터베이스 관리 방법
+- [개발자 가이드](CLAUDE.md) - 코드 기여 및 개발 환경 설정
 
-### Environment Variables
-- `VERSION` - Build version (default: 1.0.0)
-- `TEST_TIMEOUT` - Test timeout in seconds (default: 300)
-- `COVERAGE_THRESHOLD` - Minimum coverage percentage (default: 80)
-- `AUTO_CREATE_ATTRIBUTES` - Auto-create attributes if they don't exist (default: true)
+## 🤝 지원 및 기여
 
-## 📊 Test Output
+- **버그 리포트**: [GitHub Issues](https://github.com/mineclover/url-db/issues)
+- **기능 요청**: [GitHub Discussions](https://github.com/mineclover/url-db/discussions)
+- **기여하기**: [Contributing Guide](CONTRIBUTING.md)
 
-Comprehensive tests generate reports in `test-output/`:
-- `test-results.txt` - Unit test results
-- `coverage.html` - HTML coverage report
-- `coverage-summary.txt` - Coverage percentage
-- `benchmark-results.txt` - Performance benchmarks
-- `race-detection.txt` - Race condition analysis
-- `lint-report.txt` - Linting results
-- `test-summary.txt` - Complete test summary
+## 📄 라이선스
 
-## 🚀 MCP Integration
+Apache 2.0 License - 자세한 내용은 [LICENSE](LICENSE) 파일을 참조하세요.
 
-The URL-DB server provides native MCP support with 18 tools across multiple modes:
-- **Domain Management**: Create and list domains
-- **URL Operations**: Save, search, and manage URLs  
-- **Attribute System**: Tag and categorize URLs with type validation
-- **Schema Management**: Define and enforce domain-specific attributes
-- **Advanced Queries**: Filter by attributes, batch operations
-- **Resource System**: MCP resource protocol support
+---
 
-### MCP Server Modes
-- **stdio**: Standard input/output for AI assistants (Claude Desktop, Cursor)
-- **http**: HTTP JSON-RPC for web applications and REST clients
-- **sse**: Server-Sent Events for real-time applications (experimental)
-
-### MCP Logging & Protocol Compliance
-The server implements intelligent logging that respects JSON-RPC protocol requirements:
-- **stdio 모드**: 로그 출력 억제로 순수한 JSON-RPC 통신 보장
-- **http/sse 모드**: 정상적인 로그 출력으로 디버깅 지원
-- **자동 감지**: 명령행 인수와 환경 변수를 통한 MCP 모드 자동 감지
-- **프로토콜 호환성**: 클라이언트 파싱 오류 방지
-
-**해결된 문제**: MCP stdio 모드에서 일반 텍스트 로그가 JSON-RPC 스트림과 섞여서 발생하던 파싱 오류
-**상세 문서**: [MCP 로깅 문제 해결 가이드](docs/MCP_LOGGING_FIX.md)
-
-### Tool Specification System  
-- **Single Source**: All tools defined in `/specs/mcp-tools.yaml`
-- **Dynamic Loading**: Go code reads YAML directly via `spec_loader.go`
-- **Optional Constants**: Generate compile-time constants when needed
-- **Streamlined**: No redundant intermediate files or generation processes
-
-### Common MCP Workflows
-
-#### Save and Categorize URL
-1. Check domain exists: `GET /mcp/domains`
-2. Create domain if needed: `POST /mcp/domains`
-3. Save URL: `POST /mcp/nodes`
-4. Add attributes: `PUT /mcp/nodes/{composite_id}/attributes`
-
-#### Research URLs
-1. List domains: `GET /mcp/domains`
-2. Search URLs: `GET /mcp/nodes?domain_name=example.com&search=keyword`
-3. Get details: `GET /mcp/nodes/{composite_id}`
-4. View attributes: `GET /mcp/nodes/{composite_id}/attributes`
-
-## 📚 Documentation
-
-### Core Documentation
-- [CLAUDE.md](CLAUDE.md) - Claude Code AI assistant integration guide
-- [CLEAN_CODE_GUIDELINES.md](CLEAN_CODE_GUIDELINES.md) - Clean code principles and best practices
-- [API Documentation](docs/mcp-openapi.yaml) - Complete OpenAPI specification  
-
-### Setup Guides
-- [MCP Server Configuration Guide](docs/MCP_SERVER_CONFIGURATION.md) ⭐ - Complete configuration with logging variants
-- [MCP Claude Setup Guide](docs/MCP_CLAUDE_SETUP.md) - Comprehensive MCP integration guide  
-- [MCP Testing Guide](docs/MCP_TESTING_GUIDE.md) - Testing procedures and workflows
-- [MCP Logging Fix Guide](docs/MCP_LOGGING_FIX.md) - JSON-RPC protocol compliance and logging solutions
-
-### Technical References
-- [Tool Specification](specs/mcp-tools.yaml) - MCP tools definition
-- [Composite Key Conventions](docs/spec/composite-key-conventions.md) - Key format specifications
-- [Error Codes](docs/spec/error-codes.md) - Error code reference
-
-### Architecture Quality
-- **Code Quality Score**: A- (85/100)
-- **Architecture Compliance**: A (95/100) - Clean Architecture principles
-- **Test Coverage**: 20.6% (target: 80%)
-- **Go Standards**: 100% compliance
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Run tests: `./scripts/test.sh`
-5. Submit a pull request
-
-## 📄 License
-
-Apache 2.0 License - see [LICENSE](LICENSE) file for details.
+**💡 팁**: Claude Desktop에서 "URL 관리 도구가 있어?" 라고 물어보면 사용 가능한 모든 기능을 확인할 수 있습니다!
