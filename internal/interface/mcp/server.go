@@ -20,7 +20,6 @@ type MCPServer struct {
 	transportFactory *TransportFactory
 	mode             string
 	port             string
-	logWriter        io.Writer // For sending log notifications to client
 	logEnabled       bool      // Whether to send log notifications
 }
 

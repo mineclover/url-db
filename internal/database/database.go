@@ -370,7 +370,7 @@ func ensureDatabaseExists(url string) error {
 		if err := os.MkdirAll(dir, 0755); err != nil {
 			return fmt.Errorf("failed to create database directory %s: %w", dir, err)
 		}
-		fmt.Fprintf(os.Stderr, "[INFO] Created database directory: %s\n", dir)
+		logInfo("[INFO] Created database directory: %s\n", dir)
 	}
 
 	// Create empty database file
@@ -378,9 +378,11 @@ func ensureDatabaseExists(url string) error {
 	if err != nil {
 		return fmt.Errorf("failed to create database file %s: %w", dbPath, err)
 	}
-	file.Close()
+	if err := file.Close(); err != nil {
+		return fmt.Errorf("failed to close database file: %w", err)
+	}
 	
-	fmt.Fprintf(os.Stderr, "[INFO] Created database file: %s\n", dbPath)
+	logInfo("[INFO] Created database file: %s\n", dbPath)
 	return nil
 }
 

@@ -77,7 +77,11 @@ func main() {
 			log.Fatal("Failed to initialize database:", err)
 		}
 	}
-	defer db.Close()
+	defer func() {
+		if err := db.Close(); err != nil {
+			fmt.Fprintf(os.Stderr, "Failed to close database: %v\n", err)
+		}
+	}()
 
 	// Initialize Clean Architecture factory
 	factory := setup.NewApplicationFactory(db.DB(), db.SQLXDB(), cfg.ToolName)

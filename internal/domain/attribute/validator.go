@@ -2,7 +2,6 @@ package attribute
 
 import (
 	"fmt"
-	"regexp"
 	"strconv"
 	"strings"
 )
@@ -130,11 +129,3 @@ func validateNumber(value string) error {
 	return nil
 }
 
-// validateURL checks if value is a valid URL
-func validateURL(value string) error {
-	urlPattern := regexp.MustCompile(`^https?://[^\s/$.?#].[^\s]*$`)
-	if !urlPattern.MatchString(value) {
-		return fmt.Errorf("invalid URL format: %s", value)
-	}
-	return nil
-}
