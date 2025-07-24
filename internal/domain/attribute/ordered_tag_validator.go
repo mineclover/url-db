@@ -18,7 +18,7 @@ func (v *OrderedTagValidator) Validate(value string, orderIndex *int) Validation
 			ErrorMessage: err.Error(),
 		}
 	}
-	
+
 	// Check forbidden characters
 	forbiddenChars := []string{",", ";", "|", "\n", "\t"}
 	if err := validateForbiddenChars(value, forbiddenChars); err != nil {
@@ -28,7 +28,7 @@ func (v *OrderedTagValidator) Validate(value string, orderIndex *int) Validation
 			ErrorMessage: err.Error(),
 		}
 	}
-	
+
 	// order_index is required for ordered_tag type
 	if orderIndex == nil {
 		return ValidationResult{
@@ -37,7 +37,7 @@ func (v *OrderedTagValidator) Validate(value string, orderIndex *int) Validation
 			ErrorMessage: "order_index is required for ordered_tag type",
 		}
 	}
-	
+
 	// order_index must be non-negative
 	if *orderIndex < 0 {
 		return ValidationResult{
@@ -46,10 +46,10 @@ func (v *OrderedTagValidator) Validate(value string, orderIndex *int) Validation
 			ErrorMessage: "order_index must be non-negative",
 		}
 	}
-	
+
 	// Normalize to lowercase
 	normalizedValue := normalizeCase(value)
-	
+
 	return ValidationResult{
 		IsValid:         true,
 		NormalizedValue: normalizedValue,

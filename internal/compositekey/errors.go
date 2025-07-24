@@ -48,4 +48,3 @@ func NewInvalidIDError(message string) error {
 		Message: message,
 	}
 }
-

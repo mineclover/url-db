@@ -2,9 +2,9 @@ package mcp
 
 import (
 	"fmt"
+	"gopkg.in/yaml.v3"
 	"os"
 	"path/filepath"
-	"gopkg.in/yaml.v3"
 )
 
 // ToolSpec represents a single MCP tool specification
@@ -18,10 +18,10 @@ type ToolSpec struct {
 
 // MCPSpec represents the complete MCP tools specification
 type MCPSpec struct {
-	Version    string                `yaml:"version"`
+	Version    string                 `yaml:"version"`
 	ServerInfo map[string]interface{} `yaml:"server_info"`
-	Tools      map[string]ToolSpec   `yaml:"tools"`
-	Categories map[string]string     `yaml:"categories"`
+	Tools      map[string]ToolSpec    `yaml:"tools"`
+	Categories map[string]string      `yaml:"categories"`
 }
 
 // LoadMCPSpec loads the MCP tools specification from YAML file
@@ -31,19 +31,19 @@ func LoadMCPSpec() (*MCPSpec, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to find project root: %w", err)
 	}
-	
+
 	specPath := filepath.Join(projectRoot, "specs", "mcp-tools.yaml")
-	
+
 	data, err := os.ReadFile(specPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read spec file %s: %w", specPath, err)
 	}
-	
+
 	var spec MCPSpec
 	if err := yaml.Unmarshal(data, &spec); err != nil {
 		return nil, fmt.Errorf("failed to parse spec YAML: %w", err)
 	}
-	
+
 	return &spec, nil
 }
 
@@ -82,12 +82,12 @@ func findProjectRoot() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	
+
 	for {
 		if _, err := os.Stat(filepath.Join(dir, "go.mod")); err == nil {
 			return dir, nil
 		}
-		
+
 		parent := filepath.Dir(dir)
 		if parent == dir {
 			return "", fmt.Errorf("go.mod not found")

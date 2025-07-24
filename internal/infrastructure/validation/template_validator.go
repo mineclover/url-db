@@ -194,7 +194,7 @@ func isValidSemanticVersion(version string) bool {
 		if part == "" {
 			return false
 		}
-		
+
 		// For the last part, allow prerelease suffix
 		if i == len(parts)-1 && strings.Contains(part, "-") {
 			mainPart := strings.Split(part, "-")[0]

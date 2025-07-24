@@ -32,7 +32,6 @@ func ValidateToolName(toolName string) error {
 		return NewInvalidToolNameError("도구명이 비어있습니다")
 	}
 
-
 	if !validCharsRegex.MatchString(toolName) {
 		return NewInvalidToolNameError("도구명에 유효하지 않은 문자가 포함되어 있습니다")
 	}
@@ -51,7 +50,6 @@ func ValidateDomainName(domainName string) error {
 		return NewInvalidDomainNameError("도메인명이 비어있습니다")
 	}
 
-
 	if !validCharsRegex.MatchString(domainName) {
 		return NewInvalidDomainNameError("도메인명에 유효하지 않은 문자가 포함되어 있습니다")
 	}
@@ -69,7 +67,6 @@ func ValidateID(idStr string) error {
 	if idStr == "" {
 		return NewInvalidIDError("ID가 비어있습니다")
 	}
-
 
 	id, err := strconv.Atoi(idStr)
 	if err != nil {

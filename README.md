@@ -172,6 +172,16 @@ The URL-DB server provides native MCP support with 18 tools across multiple mode
 - **http**: HTTP JSON-RPC for web applications and REST clients
 - **sse**: Server-Sent Events for real-time applications (experimental)
 
+### MCP Logging & Protocol Compliance
+The server implements intelligent logging that respects JSON-RPC protocol requirements:
+- **stdio 모드**: 로그 출력 억제로 순수한 JSON-RPC 통신 보장
+- **http/sse 모드**: 정상적인 로그 출력으로 디버깅 지원
+- **자동 감지**: 명령행 인수와 환경 변수를 통한 MCP 모드 자동 감지
+- **프로토콜 호환성**: 클라이언트 파싱 오류 방지
+
+**해결된 문제**: MCP stdio 모드에서 일반 텍스트 로그가 JSON-RPC 스트림과 섞여서 발생하던 파싱 오류
+**상세 문서**: [MCP 로깅 문제 해결 가이드](docs/MCP_LOGGING_FIX.md)
+
 ### Tool Specification System  
 - **Single Source**: All tools defined in `/specs/mcp-tools.yaml`
 - **Dynamic Loading**: Go code reads YAML directly via `spec_loader.go`
@@ -203,6 +213,7 @@ The URL-DB server provides native MCP support with 18 tools across multiple mode
 - [MCP Server Configuration Guide](docs/MCP_SERVER_CONFIGURATION.md) ⭐ - Complete configuration with logging variants
 - [MCP Claude Setup Guide](docs/MCP_CLAUDE_SETUP.md) - Comprehensive MCP integration guide  
 - [MCP Testing Guide](docs/MCP_TESTING_GUIDE.md) - Testing procedures and workflows
+- [MCP Logging Fix Guide](docs/MCP_LOGGING_FIX.md) - JSON-RPC protocol compliance and logging solutions
 
 ### Technical References
 - [Tool Specification](specs/mcp-tools.yaml) - MCP tools definition

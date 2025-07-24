@@ -20,7 +20,7 @@ func (v *MarkdownValidator) Validate(value string, orderIndex *int) ValidationRe
 			ErrorMessage: err.Error(),
 		}
 	}
-	
+
 	// order_index should not be used for markdown type
 	if orderIndex != nil {
 		return ValidationResult{
@@ -29,7 +29,7 @@ func (v *MarkdownValidator) Validate(value string, orderIndex *int) ValidationRe
 			ErrorMessage: "order_index not allowed for markdown type",
 		}
 	}
-	
+
 	// Basic markdown validation - check for balanced brackets/parentheses
 	if !v.validateMarkdownSyntax(value) {
 		return ValidationResult{
@@ -38,10 +38,10 @@ func (v *MarkdownValidator) Validate(value string, orderIndex *int) ValidationRe
 			ErrorMessage: "invalid markdown syntax: unbalanced brackets or parentheses",
 		}
 	}
-	
+
 	// Trim whitespace but preserve formatting
 	normalizedValue := strings.TrimSpace(value)
-	
+
 	return ValidationResult{
 		IsValid:         true,
 		NormalizedValue: normalizedValue,
@@ -54,7 +54,7 @@ func (v *MarkdownValidator) validateMarkdownSyntax(value string) bool {
 	squareBrackets := 0
 	// Check for balanced parentheses ()
 	parentheses := 0
-	
+
 	for _, char := range value {
 		switch char {
 		case '[':
@@ -73,7 +73,7 @@ func (v *MarkdownValidator) validateMarkdownSyntax(value string) bool {
 			}
 		}
 	}
-	
+
 	return squareBrackets == 0 && parentheses == 0
 }
 

@@ -64,8 +64,16 @@ type TemplateRepository interface {
 
 // TemplateAttributeRepository defines the interface for template attribute operations
 type TemplateAttributeRepository interface {
-	// GetTemplateAttributes retrieves all attributes for a template
-	GetTemplateAttributes(ctx context.Context, templateID int) ([]*entity.NodeAttribute, error)
+	// Basic CRUD operations
+	CreateTemplateAttribute(ctx context.Context, templateAttribute *entity.TemplateAttribute) error
+	GetTemplateAttributeByID(ctx context.Context, id int) (*entity.TemplateAttribute, error)
+	UpdateTemplateAttribute(ctx context.Context, templateAttribute *entity.TemplateAttribute) error
+	DeleteTemplateAttributeByID(ctx context.Context, id int) error
+
+	// Template-specific queries
+	GetTemplateAttributes(ctx context.Context, templateID int) ([]*entity.TemplateAttribute, error)
+	GetTemplateAttributesWithDetails(ctx context.Context, templateID int) ([]*entity.TemplateAttributeWithDetails, error)
+	DeleteAllTemplateAttributes(ctx context.Context, templateID int) error
 
 	// SetTemplateAttribute sets a single attribute for a template
 	SetTemplateAttribute(ctx context.Context, templateID, attributeID int, value string, orderIndex *int) error
@@ -76,14 +84,19 @@ type TemplateAttributeRepository interface {
 	// DeleteTemplateAttribute deletes a specific attribute from a template
 	DeleteTemplateAttribute(ctx context.Context, templateID, attributeID int) error
 
-	// DeleteAllTemplateAttributes deletes all attributes from a template
-	DeleteAllTemplateAttributes(ctx context.Context, templateID int) error
-
 	// GetTemplatesByAttribute retrieves templates that have a specific attribute value
 	GetTemplatesByAttribute(ctx context.Context, domainName, attributeName, attributeValue string) ([]*entity.Template, error)
 
 	// GetTemplateAttributesByName retrieves specific attribute values for a template
-	GetTemplateAttributesByName(ctx context.Context, templateID int, attributeNames []string) ([]*entity.NodeAttribute, error)
+	GetTemplateAttributesByName(ctx context.Context, templateID int, attributeNames []string) ([]*entity.TemplateAttribute, error)
+
+	// Batch operations
+	CreateTemplateAttributesBatch(ctx context.Context, templateAttributes []*entity.TemplateAttribute) error
+	UpdateTemplateAttributesBatch(ctx context.Context, templateAttributes []*entity.TemplateAttribute) error
+
+	// Search and filter operations
+	FindTemplateAttributesByValue(ctx context.Context, value string) ([]*entity.TemplateAttribute, error)
+	GetTemplateAttributeUsageStats(ctx context.Context, domainName string) (map[string]int, error)
 }
 
 // TemplateAttributeValue represents an attribute value to be set on a template
@@ -105,24 +118,24 @@ type TemplateFilter struct {
 
 // TemplateSearchOptions represents search options for templates
 type TemplateSearchOptions struct {
-	Query          string              // Search query
-	DomainName     string              // Domain to search in
-	Filters        TemplateFilter      // Additional filters
-	SortBy         string              // Sort field: "name", "created_at", "updated_at"
-	SortDirection  string              // Sort direction: "asc", "desc"
-	IncludeInactive bool               // Include inactive templates
-	Page           int                 // Page number (1-based)
-	Size           int                 // Page size
+	Query           string         // Search query
+	DomainName      string         // Domain to search in
+	Filters         TemplateFilter // Additional filters
+	SortBy          string         // Sort field: "name", "created_at", "updated_at"
+	SortDirection   string         // Sort direction: "asc", "desc"
+	IncludeInactive bool           // Include inactive templates
+	Page            int            // Page number (1-based)
+	Size            int            // Page size
 }
 
 // TemplateStats represents statistics about templates in a domain
 type TemplateStats struct {
-	TotalCount     int            `json:"total_count"`
-	ActiveCount    int            `json:"active_count"`
-	InactiveCount  int            `json:"inactive_count"`
-	TypeCounts     map[string]int `json:"type_counts"`
-	RecentlyAdded  int            `json:"recently_added"`  // Count of templates added in last 30 days
-	RecentlyUpdated int           `json:"recently_updated"` // Count of templates updated in last 7 days
+	TotalCount      int            `json:"total_count"`
+	ActiveCount     int            `json:"active_count"`
+	InactiveCount   int            `json:"inactive_count"`
+	TypeCounts      map[string]int `json:"type_counts"`
+	RecentlyAdded   int            `json:"recently_added"`   // Count of templates added in last 30 days
+	RecentlyUpdated int            `json:"recently_updated"` // Count of templates updated in last 7 days
 }
 
 // TemplateRepositoryStats defines interface for template statistics

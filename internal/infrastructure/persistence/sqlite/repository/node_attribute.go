@@ -28,7 +28,7 @@ func (r *sqliteNodeAttributeRepository) Create(ctx context.Context, nodeAttribut
 		INSERT INTO node_attributes (node_id, attribute_id, value, order_index, created_at)
 		VALUES (?, ?, ?, ?, ?)
 	`
-	
+
 	result, err := r.db.ExecContext(ctx, query,
 		nodeAttribute.NodeID(),
 		nodeAttribute.AttributeID(),
@@ -39,12 +39,12 @@ func (r *sqliteNodeAttributeRepository) Create(ctx context.Context, nodeAttribut
 	if err != nil {
 		return fmt.Errorf("failed to create node attribute: %w", err)
 	}
-	
+
 	id, err := result.LastInsertId()
 	if err != nil {
 		return fmt.Errorf("failed to get last insert ID: %w", err)
 	}
-	
+
 	nodeAttribute.SetID(int(id))
 	return nil
 }
@@ -57,13 +57,13 @@ func (r *sqliteNodeAttributeRepository) GetByNodeID(ctx context.Context, nodeID 
 		WHERE node_id = ?
 		ORDER BY attribute_id, order_index
 	`
-	
+
 	rows, err := r.db.QueryContext(ctx, query, nodeID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to query node attributes: %w", err)
 	}
 	defer rows.Close()
-	
+
 	var attributes []*entity.NodeAttribute
 	for rows.Next() {
 		model := &mapper.NodeAttributeModel{}
@@ -78,15 +78,15 @@ func (r *sqliteNodeAttributeRepository) GetByNodeID(ctx context.Context, nodeID 
 		if err != nil {
 			return nil, fmt.Errorf("failed to scan node attribute: %w", err)
 		}
-		
+
 		attribute := mapper.MapNodeAttributeModelToEntity(model)
 		attributes = append(attributes, attribute)
 	}
-	
+
 	if err = rows.Err(); err != nil {
 		return nil, fmt.Errorf("failed to iterate node attributes: %w", err)
 	}
-	
+
 	return attributes, nil
 }
 
@@ -97,7 +97,7 @@ func (r *sqliteNodeAttributeRepository) GetByNodeAndAttribute(ctx context.Contex
 		FROM node_attributes
 		WHERE node_id = ? AND attribute_id = ?
 	`
-	
+
 	model := &mapper.NodeAttributeModel{}
 	err := r.db.GetContext(ctx, model, query, nodeID, attributeID)
 	if err != nil {
@@ -106,7 +106,7 @@ func (r *sqliteNodeAttributeRepository) GetByNodeAndAttribute(ctx context.Contex
 		}
 		return nil, fmt.Errorf("failed to get node attribute: %w", err)
 	}
-	
+
 	return mapper.MapNodeAttributeModelToEntity(model), nil
 }
 
@@ -117,7 +117,7 @@ func (r *sqliteNodeAttributeRepository) Update(ctx context.Context, nodeAttribut
 		SET value = ?, order_index = ?
 		WHERE node_id = ? AND attribute_id = ?
 	`
-	
+
 	result, err := r.db.ExecContext(ctx, query,
 		nodeAttribute.Value(),
 		nodeAttribute.OrderIndex(),
@@ -127,49 +127,49 @@ func (r *sqliteNodeAttributeRepository) Update(ctx context.Context, nodeAttribut
 	if err != nil {
 		return fmt.Errorf("failed to update node attribute: %w", err)
 	}
-	
+
 	rowsAffected, err := result.RowsAffected()
 	if err != nil {
 		return fmt.Errorf("failed to get rows affected: %w", err)
 	}
-	
+
 	if rowsAffected == 0 {
 		return fmt.Errorf("node attribute not found for update")
 	}
-	
+
 	return nil
 }
 
 // Delete deletes a node attribute
 func (r *sqliteNodeAttributeRepository) Delete(ctx context.Context, nodeID int, attributeID int) error {
 	query := `DELETE FROM node_attributes WHERE node_id = ? AND attribute_id = ?`
-	
+
 	result, err := r.db.ExecContext(ctx, query, nodeID, attributeID)
 	if err != nil {
 		return fmt.Errorf("failed to delete node attribute: %w", err)
 	}
-	
+
 	rowsAffected, err := result.RowsAffected()
 	if err != nil {
 		return fmt.Errorf("failed to get rows affected: %w", err)
 	}
-	
+
 	if rowsAffected == 0 {
 		return fmt.Errorf("node attribute not found for deletion")
 	}
-	
+
 	return nil
 }
 
 // DeleteAllByNode deletes all attributes for a node
 func (r *sqliteNodeAttributeRepository) DeleteAllByNode(ctx context.Context, nodeID int) error {
 	query := `DELETE FROM node_attributes WHERE node_id = ?`
-	
+
 	_, err := r.db.ExecContext(ctx, query, nodeID)
 	if err != nil {
 		return fmt.Errorf("failed to delete node attributes: %w", err)
 	}
-	
+
 	return nil
 }
 
@@ -180,19 +180,19 @@ func (r *sqliteNodeAttributeRepository) SetNodeAttributes(ctx context.Context, n
 		return fmt.Errorf("failed to begin transaction: %w", err)
 	}
 	defer tx.Rollback()
-	
+
 	// Delete existing attributes for the node
 	_, err = tx.ExecContext(ctx, "DELETE FROM node_attributes WHERE node_id = ?", nodeID)
 	if err != nil {
 		return fmt.Errorf("failed to delete existing attributes: %w", err)
 	}
-	
+
 	// Insert new attributes
 	insertQuery := `
 		INSERT INTO node_attributes (node_id, attribute_id, value, order_index, created_at)
 		VALUES (?, ?, ?, ?, ?)
 	`
-	
+
 	for _, attr := range attributes {
 		_, err = tx.ExecContext(ctx, insertQuery,
 			attr.NodeID(),
@@ -205,11 +205,11 @@ func (r *sqliteNodeAttributeRepository) SetNodeAttributes(ctx context.Context, n
 			return fmt.Errorf("failed to insert node attribute: %w", err)
 		}
 	}
-	
+
 	if err = tx.Commit(); err != nil {
 		return fmt.Errorf("failed to commit transaction: %w", err)
 	}
-	
+
 	return nil
 }
 
@@ -217,7 +217,7 @@ func (r *sqliteNodeAttributeRepository) SetNodeAttributes(ctx context.Context, n
 func (r *sqliteNodeAttributeRepository) GetNodesWithAttribute(ctx context.Context, attributeID int, value *string) ([]int, error) {
 	var query string
 	var args []interface{}
-	
+
 	if value != nil {
 		query = `
 			SELECT DISTINCT node_id
@@ -235,13 +235,13 @@ func (r *sqliteNodeAttributeRepository) GetNodesWithAttribute(ctx context.Contex
 		`
 		args = []interface{}{attributeID}
 	}
-	
+
 	rows, err := r.db.QueryContext(ctx, query, args...)
 	if err != nil {
 		return nil, fmt.Errorf("failed to query nodes with attribute: %w", err)
 	}
 	defer rows.Close()
-	
+
 	var nodeIDs []int
 	for rows.Next() {
 		var nodeID int
@@ -250,10 +250,10 @@ func (r *sqliteNodeAttributeRepository) GetNodesWithAttribute(ctx context.Contex
 		}
 		nodeIDs = append(nodeIDs, nodeID)
 	}
-	
+
 	if err = rows.Err(); err != nil {
 		return nil, fmt.Errorf("failed to iterate node IDs: %w", err)
 	}
-	
+
 	return nodeIDs, nil
 }

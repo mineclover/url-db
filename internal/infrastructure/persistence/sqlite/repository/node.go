@@ -266,7 +266,7 @@ func (r *nodeRepository) GetDomainByNodeID(ctx context.Context, nodeID int) (*en
 		JOIN nodes n ON d.id = n.domain_id
 		WHERE n.id = ?
 	`
-	
+
 	var dbRow mapper.DatabaseDomain
 	err := r.db.QueryRowContext(ctx, query, nodeID).Scan(
 		&dbRow.ID,
@@ -275,14 +275,14 @@ func (r *nodeRepository) GetDomainByNodeID(ctx context.Context, nodeID int) (*en
 		&dbRow.CreatedAt,
 		&dbRow.UpdatedAt,
 	)
-	
+
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, nil // Not found
 		}
 		return nil, err
 	}
-	
+
 	return mapper.ToDomainEntity(&dbRow), nil
 }
 
@@ -308,17 +308,17 @@ func (r *nodeRepository) FilterByAttributes(ctx context.Context, domainName stri
 	for i, filter := range filters {
 		joinAlias := "na" + string(rune('0'+i))
 		attrAlias := "a" + string(rune('0'+i))
-		
-		joins = append(joins, 
+
+		joins = append(joins,
 			"INNER JOIN node_attributes "+joinAlias+" ON n.id = "+joinAlias+".node_id")
-		joins = append(joins, 
+		joins = append(joins,
 			"INNER JOIN attributes "+attrAlias+" ON "+joinAlias+".attribute_id = "+attrAlias+".id")
-		
+
 		// Add attribute name condition
 		conditions = append(conditions, attrAlias+".name = ?")
 		args = append(args, filter.Name)
 		argIndex++
-		
+
 		// Add value condition based on operator
 		switch strings.ToLower(filter.Operator) {
 		case "equals", "":

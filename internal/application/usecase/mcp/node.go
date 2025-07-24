@@ -105,4 +105,4 @@ func formatNodeForMCP(node *response.NodeResponse) string {
 func formatCreateNodeResultForMCP(result *response.NodeResponse) string {
 	return fmt.Sprintf("Successfully created node in domain '%s'\nURL: %s\nTitle: %s\nDescription: %s\nCreated: %s",
 		result.DomainName, result.URL, result.Title, result.Description, result.CreatedAt.Format("2006-01-02 15:04:05"))
-} 
+}

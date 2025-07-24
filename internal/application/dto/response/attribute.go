@@ -18,8 +18,8 @@ type AttributeListResponse struct {
 }
 
 type NodeAttributeResponse struct {
-	AttributeName string  `json:"attribute_name"`
-	AttributeType string  `json:"attribute_type"`
-	Value         string  `json:"value"`
-	OrderIndex    *int    `json:"order_index,omitempty"`
+	AttributeName string `json:"attribute_name"`
+	AttributeType string `json:"attribute_type"`
+	Value         string `json:"value"`
+	OrderIndex    *int   `json:"order_index,omitempty"`
 }

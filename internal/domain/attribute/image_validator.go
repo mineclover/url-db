@@ -25,14 +25,14 @@ func (v *ImageValidator) Validate(value string, orderIndex *int) ValidationResul
 			ErrorMessage: "order_index not allowed for image type",
 		}
 	}
-	
+
 	// Check if it's a data URL or HTTP(S) URL
 	if strings.HasPrefix(value, "data:image/") {
 		return v.validateDataURL(value)
 	} else if strings.HasPrefix(value, "http://") || strings.HasPrefix(value, "https://") {
 		return v.validateHTTPURL(value)
 	}
-	
+
 	return ValidationResult{
 		IsValid:      false,
 		ErrorCode:    "validation_error",
@@ -50,7 +50,7 @@ func (v *ImageValidator) validateDataURL(value string) ValidationResult {
 			ErrorMessage: "data URL must use base64 encoding",
 		}
 	}
-	
+
 	parts := strings.SplitN(value, ";base64,", 2)
 	if len(parts) != 2 {
 		return ValidationResult{
@@ -59,16 +59,16 @@ func (v *ImageValidator) validateDataURL(value string) ValidationResult {
 			ErrorMessage: "invalid data URL format",
 		}
 	}
-	
+
 	// Validate MIME type
 	mimeType := parts[0]
 	supportedTypes := []string{
 		"data:image/jpeg",
-		"data:image/png", 
+		"data:image/png",
 		"data:image/gif",
 		"data:image/webp",
 	}
-	
+
 	isSupported := false
 	for _, supportedType := range supportedTypes {
 		if mimeType == supportedType {
@@ -76,16 +76,16 @@ func (v *ImageValidator) validateDataURL(value string) ValidationResult {
 			break
 		}
 	}
-	
+
 	if !isSupported {
 		return ValidationResult{
-			IsValid:      false,
-			ErrorCode:    "validation_error",
-			ErrorMessage: fmt.Sprintf("unsupported image type: %s. Supported types: jpeg, png, gif, webp", 
+			IsValid:   false,
+			ErrorCode: "validation_error",
+			ErrorMessage: fmt.Sprintf("unsupported image type: %s. Supported types: jpeg, png, gif, webp",
 				strings.TrimPrefix(mimeType, "data:image/")),
 		}
 	}
-	
+
 	// Validate base64 data
 	base64Data := parts[1]
 	decodedData, err := base64.StdEncoding.DecodeString(base64Data)
@@ -96,18 +96,18 @@ func (v *ImageValidator) validateDataURL(value string) ValidationResult {
 			ErrorMessage: "invalid base64 encoding",
 		}
 	}
-	
+
 	// Check size limit (10MB)
 	const maxSize = 10 * 1024 * 1024 // 10MB
 	if len(decodedData) > maxSize {
 		return ValidationResult{
-			IsValid:      false,
-			ErrorCode:    "validation_error",
-			ErrorMessage: fmt.Sprintf("image size exceeds maximum limit of 10MB (actual: %.2fMB)", 
+			IsValid:   false,
+			ErrorCode: "validation_error",
+			ErrorMessage: fmt.Sprintf("image size exceeds maximum limit of 10MB (actual: %.2fMB)",
 				float64(len(decodedData))/1024/1024),
 		}
 	}
-	
+
 	return ValidationResult{
 		IsValid:         true,
 		NormalizedValue: value, // Keep data URL as-is
@@ -125,7 +125,7 @@ func (v *ImageValidator) validateHTTPURL(value string) ValidationResult {
 			ErrorMessage: "invalid URL format",
 		}
 	}
-	
+
 	// Ensure it's HTTP or HTTPS
 	if parsedURL.Scheme != "http" && parsedURL.Scheme != "https" {
 		return ValidationResult{
@@ -134,7 +134,7 @@ func (v *ImageValidator) validateHTTPURL(value string) ValidationResult {
 			ErrorMessage: "URL must use http or https scheme",
 		}
 	}
-	
+
 	// Ensure host is present
 	if parsedURL.Host == "" {
 		return ValidationResult{
@@ -143,7 +143,7 @@ func (v *ImageValidator) validateHTTPURL(value string) ValidationResult {
 			ErrorMessage: "URL must have a valid host",
 		}
 	}
-	
+
 	return ValidationResult{
 		IsValid:         true,
 		NormalizedValue: value, // Keep URL as-is

@@ -18,7 +18,7 @@ func (v *NumberValidator) Validate(value string, orderIndex *int) ValidationResu
 			ErrorMessage: err.Error(),
 		}
 	}
-	
+
 	// order_index should not be used for number type
 	if orderIndex != nil {
 		return ValidationResult{
@@ -27,7 +27,7 @@ func (v *NumberValidator) Validate(value string, orderIndex *int) ValidationResu
 			ErrorMessage: "order_index not allowed for number type",
 		}
 	}
-	
+
 	// No normalization needed for numbers, return as-is
 	return ValidationResult{
 		IsValid:         true,

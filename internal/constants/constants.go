@@ -42,7 +42,7 @@ const (
 	CompositeKeySeparator = ":"
 
 	// MCP protocol
-	MCPProtocolVersion = "2024-11-05"
+	MCPProtocolVersion = "2025-06-18"
 	JSONRPCVersion     = "2.0"
 
 	// File extensions and types

@@ -109,7 +109,7 @@ func (t *HTTPTransport) handleHTTPEndpoint(w http.ResponseWriter, r *http.Reques
 	// Create response writer and handle the request
 	responseWriter := NewHTTPResponseWriter(w)
 	response := t.requestHandler(r.Context(), &req)
-	
+
 	if response != nil {
 		if err := responseWriter.WriteResponse(response); err != nil {
 			http.Error(w, "Failed to write response", http.StatusInternalServerError)

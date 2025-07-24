@@ -376,6 +376,114 @@ func (h *MCPProtocolHandler) handleToolsList(req *JSONRPCRequest) *JSONRPCRespon
 				"required": []string{"composite_id"},
 			},
 		},
+		{
+			"name":        "list_templates",
+			"description": "List templates in domain",
+			"inputSchema": map[string]interface{}{
+				"type": "object",
+				"properties": map[string]interface{}{
+					"domain_name":   map[string]interface{}{"type": "string", "description": "Domain name to list templates from"},
+					"page":          map[string]interface{}{"type": "integer", "default": 1},
+					"size":          map[string]interface{}{"type": "integer", "default": 20},
+					"template_type": map[string]interface{}{"type": "string", "description": "Filter by template type"},
+					"active_only":   map[string]interface{}{"type": "boolean", "default": false, "description": "Only return active templates"},
+					"search":        map[string]interface{}{"type": "string", "description": "Search query"},
+				},
+				"required": []string{"domain_name"},
+			},
+		},
+		{
+			"name":        "create_template",
+			"description": "Create new template in domain",
+			"inputSchema": map[string]interface{}{
+				"type": "object",
+				"properties": map[string]interface{}{
+					"domain_name":   map[string]interface{}{"type": "string", "description": "Domain name"},
+					"name":          map[string]interface{}{"type": "string", "description": "Template name"},
+					"template_data": map[string]interface{}{"type": "string", "description": "JSON template data"},
+					"title":         map[string]interface{}{"type": "string", "description": "Template title"},
+					"description":   map[string]interface{}{"type": "string", "description": "Template description"},
+				},
+				"required": []string{"domain_name", "name", "template_data"},
+			},
+		},
+		{
+			"name":        "get_template",
+			"description": "Get template details",
+			"inputSchema": map[string]interface{}{
+				"type": "object",
+				"properties": map[string]interface{}{
+					"composite_id": map[string]interface{}{"type": "string", "description": "Composite ID (format: tool:domain:template:id)"},
+				},
+				"required": []string{"composite_id"},
+			},
+		},
+		{
+			"name":        "update_template",
+			"description": "Update template",
+			"inputSchema": map[string]interface{}{
+				"type": "object",
+				"properties": map[string]interface{}{
+					"composite_id":  map[string]interface{}{"type": "string", "description": "Composite ID (format: tool:domain:template:id)"},
+					"template_data": map[string]interface{}{"type": "string", "description": "Updated JSON template data"},
+					"title":         map[string]interface{}{"type": "string", "description": "Updated title"},
+					"description":   map[string]interface{}{"type": "string", "description": "Updated description"},
+					"is_active":     map[string]interface{}{"type": "boolean", "description": "Template active status"},
+				},
+				"required": []string{"composite_id"},
+			},
+		},
+		{
+			"name":        "delete_template",
+			"description": "Delete template",
+			"inputSchema": map[string]interface{}{
+				"type": "object",
+				"properties": map[string]interface{}{
+					"composite_id": map[string]interface{}{"type": "string", "description": "Composite ID (format: tool:domain:template:id)"},
+				},
+				"required": []string{"composite_id"},
+			},
+		},
+		{
+			"name":        "clone_template",
+			"description": "Clone existing template",
+			"inputSchema": map[string]interface{}{
+				"type": "object",
+				"properties": map[string]interface{}{
+					"source_composite_id": map[string]interface{}{"type": "string", "description": "Source template composite ID (format: tool:domain:template:id)"},
+					"new_name":            map[string]interface{}{"type": "string", "description": "New template name"},
+					"new_title":           map[string]interface{}{"type": "string", "description": "New template title"},
+					"new_description":     map[string]interface{}{"type": "string", "description": "New template description"},
+				},
+				"required": []string{"source_composite_id", "new_name"},
+			},
+		},
+		{
+			"name":        "generate_template_scaffold",
+			"description": "Generate template scaffold for given type",
+			"inputSchema": map[string]interface{}{
+				"type": "object",
+				"properties": map[string]interface{}{
+					"template_type": map[string]interface{}{
+						"type":        "string",
+						"description": "Type of template to generate",
+						"enum":        []string{"layout", "form", "document", "custom"},
+					},
+				},
+				"required": []string{"template_type"},
+			},
+		},
+		{
+			"name":        "validate_template",
+			"description": "Validate template data structure",
+			"inputSchema": map[string]interface{}{
+				"type": "object",
+				"properties": map[string]interface{}{
+					"template_data": map[string]interface{}{"type": "string", "description": "JSON template data to validate"},
+				},
+				"required": []string{"template_data"},
+			},
+		},
 	}
 
 	result := map[string]interface{}{
@@ -444,6 +552,22 @@ func (h *MCPProtocolHandler) handleToolCall(ctx context.Context, req *JSONRPCReq
 		result, err = h.toolHandler.handleFilterNodesByAttributes(ctx, params.Arguments)
 	case "get_node_with_attributes":
 		result, err = h.toolHandler.handleGetNodeWithAttributes(ctx, params.Arguments)
+	case "list_templates":
+		result, err = h.toolHandler.handleListTemplates(ctx, params.Arguments)
+	case "create_template":
+		result, err = h.toolHandler.handleCreateTemplate(ctx, params.Arguments)
+	case "get_template":
+		result, err = h.toolHandler.handleGetTemplate(ctx, params.Arguments)
+	case "update_template":
+		result, err = h.toolHandler.handleUpdateTemplate(ctx, params.Arguments)
+	case "delete_template":
+		result, err = h.toolHandler.handleDeleteTemplate(ctx, params.Arguments)
+	case "clone_template":
+		result, err = h.toolHandler.handleCloneTemplate(ctx, params.Arguments)
+	case "generate_template_scaffold":
+		result, err = h.toolHandler.handleGenerateTemplateScaffold(ctx, params.Arguments)
+	case "validate_template":
+		result, err = h.toolHandler.handleValidateTemplate(ctx, params.Arguments)
 	default:
 		return h.createErrorResponse(req.ID, MethodNotFound, fmt.Sprintf("Tool not found: %s", params.Name), nil)
 	}

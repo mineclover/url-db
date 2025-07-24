@@ -24,8 +24,8 @@ func NewGetNodeWithAttributesUseCase(nodeRepo repository.NodeRepository, nodeAtt
 
 // NodeWithAttributesResponse represents a node with its attributes
 type NodeWithAttributesResponse struct {
-	Node       response.NodeResponse                 `json:"node"`
-	Attributes []response.NodeAttributeResponse      `json:"attributes"`
+	Node       response.NodeResponse            `json:"node"`
+	Attributes []response.NodeAttributeResponse `json:"attributes"`
 }
 
 // Execute performs the get node with attributes use case

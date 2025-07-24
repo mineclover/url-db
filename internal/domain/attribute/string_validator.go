@@ -20,7 +20,7 @@ func (v *StringValidator) Validate(value string, orderIndex *int) ValidationResu
 			ErrorMessage: err.Error(),
 		}
 	}
-	
+
 	// order_index should not be used for string type
 	if orderIndex != nil {
 		return ValidationResult{
@@ -29,10 +29,10 @@ func (v *StringValidator) Validate(value string, orderIndex *int) ValidationResu
 			ErrorMessage: "order_index not allowed for string type",
 		}
 	}
-	
+
 	// Trim whitespace but preserve case
 	normalizedValue := strings.TrimSpace(value)
-	
+
 	return ValidationResult{
 		IsValid:         true,
 		NormalizedValue: normalizedValue,

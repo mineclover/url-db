@@ -21,9 +21,9 @@ const (
 
 // ValidationResult represents the result of attribute validation
 type ValidationResult struct {
-	IsValid      bool
-	ErrorCode    string
-	ErrorMessage string
+	IsValid         bool
+	ErrorCode       string
+	ErrorMessage    string
 	NormalizedValue string
 }
 
@@ -44,7 +44,7 @@ func NewValidatorRegistry() *ValidatorRegistry {
 	registry := &ValidatorRegistry{
 		validators: make(map[AttributeType]AttributeValidator),
 	}
-	
+
 	// Register built-in validators
 	registry.Register(NewTagValidator())
 	registry.Register(NewOrderedTagValidator())
@@ -52,7 +52,7 @@ func NewValidatorRegistry() *ValidatorRegistry {
 	registry.Register(NewStringValidator())
 	registry.Register(NewMarkdownValidator())
 	registry.Register(NewImageValidator())
-	
+
 	return registry
 }
 
@@ -80,7 +80,7 @@ func (r *ValidatorRegistry) ValidateAttribute(attrType AttributeType, value stri
 			ErrorMessage: err.Error(),
 		}
 	}
-	
+
 	return validator.Validate(value, orderIndex)
 }
 

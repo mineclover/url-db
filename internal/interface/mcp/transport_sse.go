@@ -107,7 +107,7 @@ func (t *SSETransport) handleSSEEndpoint(w http.ResponseWriter, r *http.Request)
 	// Create SSE response writer and handle the request
 	responseWriter := NewSSEResponseWriter(w)
 	response := t.requestHandler(r.Context(), &req)
-	
+
 	if response != nil {
 		if err := responseWriter.WriteResponse(response); err != nil {
 			fmt.Printf("Failed to send SSE response: %v\n", err)

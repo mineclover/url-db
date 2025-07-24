@@ -5,7 +5,6 @@ import (
 	"strings"
 )
 
-
 // 특수문자를 하이픈으로 변환하는 정규표현식
 var (
 	// 영문자, 숫자, 하이픈, 언더스코어가 아닌 문자를 매칭
@@ -22,7 +21,6 @@ func NormalizeToolName(toolName string) (string, error) {
 		return "", NewInvalidToolNameError("도구명이 비어있습니다")
 	}
 
-
 	return normalized, nil
 }
 
@@ -33,7 +31,6 @@ func NormalizeDomainName(domainName string) (string, error) {
 	if len(normalized) == 0 {
 		return "", NewInvalidDomainNameError("도메인명이 비어있습니다")
 	}
-
 
 	return normalized, nil
 }

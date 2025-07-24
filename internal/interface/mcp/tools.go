@@ -5,11 +5,13 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"time"
 
 	"url-db/internal/application/dto/request"
 	nodeUseCase "url-db/internal/application/usecase/node"
 	"url-db/internal/domain/entity"
 	"url-db/internal/domain/repository"
+	"url-db/internal/domain/service"
 	"url-db/internal/interface/setup"
 )
 
@@ -638,7 +640,7 @@ func (h *MCPToolHandler) handleCreateDomainAttribute(ctx context.Context, args m
 		return nil, fmt.Errorf("failed to get domain: %w", err)
 	}
 
-	// Create attribute request DTO  
+	// Create attribute request DTO
 	createReq := &request.CreateAttributeRequest{
 		DomainID:    domain.ID(),
 		Name:        name,
@@ -1183,7 +1185,7 @@ func (h *MCPToolHandler) handleGetNodeWithAttributes(ctx context.Context, args m
 
 	// Build response text
 	var responseText strings.Builder
-	
+
 	// Node information
 	responseText.WriteString(fmt.Sprintf("Node: %s\n", result.Node.Title))
 	responseText.WriteString(fmt.Sprintf("URL: %s\n", result.Node.URL))
@@ -1215,4 +1217,477 @@ func (h *MCPToolHandler) handleGetNodeWithAttributes(ctx context.Context, args m
 		},
 		"isError": false,
 	}, nil
+}
+
+// Template Management Tools
+
+// handleListTemplates implements the list_templates tool
+func (h *MCPToolHandler) handleListTemplates(ctx context.Context, args map[string]interface{}) (interface{}, error) {
+	domainName, ok := args["domain_name"].(string)
+	if !ok || domainName == "" {
+		return nil, fmt.Errorf("domain_name is required")
+	}
+
+	// Optional parameters
+	page := 1
+	if p, ok := args["page"].(float64); ok {
+		page = int(p)
+	}
+
+	size := 20
+	if s, ok := args["size"].(float64); ok {
+		size = int(s)
+	}
+
+	onlyActive := false
+	if a, ok := args["only_active"].(bool); ok {
+		onlyActive = a
+	}
+
+	templateType := ""
+	if t, ok := args["template_type"].(string); ok {
+		templateType = t
+	}
+
+	var templates []*entity.Template
+	var total int
+	var err error
+
+	if onlyActive {
+		templates, total, err = h.dependencies.TemplateService.ListActiveTemplates(ctx, domainName, page, size)
+	} else if templateType != "" {
+		templates, total, err = h.dependencies.TemplateService.ListTemplatesByType(ctx, domainName, templateType, page, size)
+	} else {
+		templates, total, err = h.dependencies.TemplateService.ListTemplates(ctx, domainName, page, size)
+	}
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to list templates: %w", err)
+	}
+
+	// Convert to MCP response format
+	content := []map[string]interface{}{}
+	for _, template := range templates {
+		templateType, _ := template.GetTemplateType()
+		templateVersion, _ := template.GetTemplateVersion()
+
+		content = append(content, map[string]interface{}{
+			"composite_id": fmt.Sprintf("url-db:%s:template:%d", domainName, template.ID()),
+			"name":         template.Name(),
+			"type":         templateType,
+			"version":      templateVersion,
+			"title":        template.Title(),
+			"description":  template.Description(),
+			"is_active":    template.IsActive(),
+			"created_at":   template.CreatedAt().Format("2006-01-02T15:04:05Z"),
+			"updated_at":   template.UpdatedAt().Format("2006-01-02T15:04:05Z"),
+		})
+	}
+
+	return map[string]interface{}{
+		"content": []map[string]interface{}{
+			{
+				"type": "text",
+				"text": fmt.Sprintf("Found %d templates (page %d, total: %d):\n\n%s",
+					len(templates), page, total, formatTemplateList(content)),
+			},
+		},
+		"isError": false,
+	}, nil
+}
+
+// handleCreateTemplate implements the create_template tool
+func (h *MCPToolHandler) handleCreateTemplate(ctx context.Context, args map[string]interface{}) (interface{}, error) {
+	name, ok := args["name"].(string)
+	if !ok || name == "" {
+		return nil, fmt.Errorf("name is required")
+	}
+
+	domainName, ok := args["domain_name"].(string)
+	if !ok || domainName == "" {
+		return nil, fmt.Errorf("domain_name is required")
+	}
+
+	templateData, ok := args["template_data"].(string)
+	if !ok || templateData == "" {
+		return nil, fmt.Errorf("template_data is required")
+	}
+
+	title := ""
+	if t, ok := args["title"].(string); ok {
+		title = t
+	}
+
+	description := ""
+	if d, ok := args["description"].(string); ok {
+		description = d
+	}
+
+	req := &service.CreateTemplateRequest{
+		Name:         name,
+		DomainName:   domainName,
+		TemplateData: templateData,
+		Title:        title,
+		Description:  description,
+	}
+
+	template, err := h.dependencies.TemplateService.CreateTemplate(ctx, req)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create template: %w", err)
+	}
+
+	templateType, _ := template.GetTemplateType()
+	templateVersion, _ := template.GetTemplateVersion()
+
+	return map[string]interface{}{
+		"content": []map[string]interface{}{
+			{
+				"type": "text",
+				"text": fmt.Sprintf("Template created successfully!\n\nComposite ID: url-db:%s:template:%d\nName: %s\nType: %s\nVersion: %s\nTitle: %s\nDescription: %s\nStatus: %s\nCreated: %s",
+					domainName,
+					template.ID(),
+					template.Name(),
+					templateType,
+					templateVersion,
+					template.Title(),
+					template.Description(),
+					getTemplateStatus(template.IsActive()),
+					template.CreatedAt().Format("2006-01-02 15:04:05")),
+			},
+		},
+		"isError": false,
+	}, nil
+}
+
+// handleGetTemplate implements the get_template tool
+func (h *MCPToolHandler) handleGetTemplate(ctx context.Context, args map[string]interface{}) (interface{}, error) {
+	compositeID, ok := args["composite_id"].(string)
+	if !ok || compositeID == "" {
+		return nil, fmt.Errorf("composite_id is required")
+	}
+
+	// Parse composite ID: url-db:domain:template:id
+	parts := strings.Split(compositeID, ":")
+	if len(parts) != 4 || parts[2] != "template" {
+		return nil, fmt.Errorf("invalid template composite_id format, expected: tool:domain:template:id")
+	}
+
+	id, err := strconv.Atoi(parts[3])
+	if err != nil {
+		return nil, fmt.Errorf("invalid template ID in composite_id: %w", err)
+	}
+
+	template, err := h.dependencies.TemplateService.GetTemplate(ctx, id)
+	if err != nil {
+		if err == repository.ErrNotFound {
+			return nil, fmt.Errorf("template not found")
+		}
+		return nil, fmt.Errorf("failed to get template: %w", err)
+	}
+
+	templateType, _ := template.GetTemplateType()
+	templateVersion, _ := template.GetTemplateVersion()
+
+	return map[string]interface{}{
+		"content": []map[string]interface{}{
+			{
+				"type": "text",
+				"text": fmt.Sprintf("Template Details:\n\nComposite ID: %s\nName: %s\nType: %s\nVersion: %s\nTitle: %s\nDescription: %s\nStatus: %s\nCreated: %s\nUpdated: %s\n\nTemplate Data:\n%s",
+					compositeID,
+					template.Name(),
+					templateType,
+					templateVersion,
+					template.Title(),
+					template.Description(),
+					getTemplateStatus(template.IsActive()),
+					template.CreatedAt().Format("2006-01-02 15:04:05"),
+					template.UpdatedAt().Format("2006-01-02 15:04:05"),
+					template.TemplateData()),
+			},
+		},
+		"isError": false,
+	}, nil
+}
+
+// handleUpdateTemplate implements the update_template tool
+func (h *MCPToolHandler) handleUpdateTemplate(ctx context.Context, args map[string]interface{}) (interface{}, error) {
+	compositeID, ok := args["composite_id"].(string)
+	if !ok || compositeID == "" {
+		return nil, fmt.Errorf("composite_id is required")
+	}
+
+	// Parse composite ID
+	parts := strings.Split(compositeID, ":")
+	if len(parts) != 4 || parts[2] != "template" {
+		return nil, fmt.Errorf("invalid template composite_id format")
+	}
+
+	id, err := strconv.Atoi(parts[3])
+	if err != nil {
+		return nil, fmt.Errorf("invalid template ID in composite_id: %w", err)
+	}
+
+	req := &service.UpdateTemplateRequest{}
+
+	if templateData, ok := args["template_data"].(string); ok && templateData != "" {
+		req.TemplateData = &templateData
+	}
+
+	if title, ok := args["title"].(string); ok {
+		req.Title = &title
+	}
+
+	if description, ok := args["description"].(string); ok {
+		req.Description = &description
+	}
+
+	if isActive, ok := args["is_active"].(bool); ok {
+		req.IsActive = &isActive
+	}
+
+	template, err := h.dependencies.TemplateService.UpdateTemplate(ctx, id, req)
+	if err != nil {
+		if err == repository.ErrNotFound {
+			return nil, fmt.Errorf("template not found")
+		}
+		return nil, fmt.Errorf("failed to update template: %w", err)
+	}
+
+	templateType, _ := template.GetTemplateType()
+	templateVersion, _ := template.GetTemplateVersion()
+
+	return map[string]interface{}{
+		"content": []map[string]interface{}{
+			{
+				"type": "text",
+				"text": fmt.Sprintf("Template updated successfully!\n\nComposite ID: %s\nName: %s\nType: %s\nVersion: %s\nTitle: %s\nDescription: %s\nStatus: %s\nUpdated: %s",
+					compositeID,
+					template.Name(),
+					templateType,
+					templateVersion,
+					template.Title(),
+					template.Description(),
+					getTemplateStatus(template.IsActive()),
+					template.UpdatedAt().Format("2006-01-02 15:04:05")),
+			},
+		},
+		"isError": false,
+	}, nil
+}
+
+// handleDeleteTemplate implements the delete_template tool
+func (h *MCPToolHandler) handleDeleteTemplate(ctx context.Context, args map[string]interface{}) (interface{}, error) {
+	compositeID, ok := args["composite_id"].(string)
+	if !ok || compositeID == "" {
+		return nil, fmt.Errorf("composite_id is required")
+	}
+
+	// Parse composite ID
+	parts := strings.Split(compositeID, ":")
+	if len(parts) != 4 || parts[2] != "template" {
+		return nil, fmt.Errorf("invalid template composite_id format")
+	}
+
+	id, err := strconv.Atoi(parts[3])
+	if err != nil {
+		return nil, fmt.Errorf("invalid template ID in composite_id: %w", err)
+	}
+
+	// Get template name before deletion for response
+	template, err := h.dependencies.TemplateService.GetTemplate(ctx, id)
+	if err != nil {
+		if err == repository.ErrNotFound {
+			return nil, fmt.Errorf("template not found")
+		}
+		return nil, fmt.Errorf("failed to get template: %w", err)
+	}
+
+	err = h.dependencies.TemplateService.DeleteTemplate(ctx, id)
+	if err != nil {
+		return nil, fmt.Errorf("failed to delete template: %w", err)
+	}
+
+	return map[string]interface{}{
+		"content": []map[string]interface{}{
+			{
+				"type": "text",
+				"text": fmt.Sprintf("Template deleted successfully!\n\nComposite ID: %s\nName: %s\nDeleted at: %s",
+					compositeID,
+					template.Name(),
+					time.Now().Format("2006-01-02 15:04:05")),
+			},
+		},
+		"isError": false,
+	}, nil
+}
+
+// handleCloneTemplate implements the clone_template tool
+func (h *MCPToolHandler) handleCloneTemplate(ctx context.Context, args map[string]interface{}) (interface{}, error) {
+	sourceCompositeID, ok := args["source_composite_id"].(string)
+	if !ok || sourceCompositeID == "" {
+		return nil, fmt.Errorf("source_composite_id is required")
+	}
+
+	newName, ok := args["new_name"].(string)
+	if !ok || newName == "" {
+		return nil, fmt.Errorf("new_name is required")
+	}
+
+	// Parse source composite ID
+	parts := strings.Split(sourceCompositeID, ":")
+	if len(parts) != 4 || parts[2] != "template" {
+		return nil, fmt.Errorf("invalid source template composite_id format")
+	}
+
+	sourceID, err := strconv.Atoi(parts[3])
+	if err != nil {
+		return nil, fmt.Errorf("invalid template ID in source_composite_id: %w", err)
+	}
+
+	newTitle := ""
+	if t, ok := args["new_title"].(string); ok {
+		newTitle = t
+	}
+
+	newDescription := ""
+	if d, ok := args["new_description"].(string); ok {
+		newDescription = d
+	}
+
+	clonedTemplate, err := h.dependencies.TemplateService.CloneTemplate(ctx, sourceID, newName, newTitle, newDescription)
+	if err != nil {
+		return nil, fmt.Errorf("failed to clone template: %w", err)
+	}
+
+	domainName := parts[1] // Extract domain name from source composite ID
+	templateType, _ := clonedTemplate.GetTemplateType()
+	templateVersion, _ := clonedTemplate.GetTemplateVersion()
+
+	return map[string]interface{}{
+		"content": []map[string]interface{}{
+			{
+				"type": "text",
+				"text": fmt.Sprintf("Template cloned successfully!\n\nSource: %s\nNew Composite ID: url-db:%s:template:%d\nNew Name: %s\nType: %s\nVersion: %s\nTitle: %s\nDescription: %s\nCreated: %s",
+					sourceCompositeID,
+					domainName,
+					clonedTemplate.ID(),
+					clonedTemplate.Name(),
+					templateType,
+					templateVersion,
+					clonedTemplate.Title(),
+					clonedTemplate.Description(),
+					clonedTemplate.CreatedAt().Format("2006-01-02 15:04:05")),
+			},
+		},
+		"isError": false,
+	}, nil
+}
+
+// handleGenerateTemplateScaffold implements the generate_template_scaffold tool
+func (h *MCPToolHandler) handleGenerateTemplateScaffold(ctx context.Context, args map[string]interface{}) (interface{}, error) {
+	templateType, ok := args["template_type"].(string)
+	if !ok || templateType == "" {
+		return nil, fmt.Errorf("template_type is required")
+	}
+
+	scaffold, err := h.dependencies.TemplateService.GenerateTemplateScaffold(templateType)
+	if err != nil {
+		return nil, fmt.Errorf("failed to generate template scaffold: %w", err)
+	}
+
+	return map[string]interface{}{
+		"content": []map[string]interface{}{
+			{
+				"type": "text",
+				"text": fmt.Sprintf("Template scaffold for type '%s':\n\n%s\n\nYou can use this as a starting point for creating a new template. Copy the JSON data and use it with the create_template tool.",
+					templateType,
+					scaffold),
+			},
+		},
+		"isError": false,
+	}, nil
+}
+
+// handleValidateTemplate implements the validate_template tool
+func (h *MCPToolHandler) handleValidateTemplate(ctx context.Context, args map[string]interface{}) (interface{}, error) {
+	templateData, ok := args["template_data"].(string)
+	if !ok || templateData == "" {
+		return nil, fmt.Errorf("template_data is required")
+	}
+
+	result, err := h.dependencies.TemplateService.ValidateTemplateData(templateData)
+	if err != nil {
+		return nil, fmt.Errorf("failed to validate template: %w", err)
+	}
+
+	if result.Valid {
+		// Extract type and version for additional info
+		templateType, _ := h.dependencies.TemplateService.ExtractTemplateType(templateData)
+		templateVersion, _ := h.dependencies.TemplateService.ExtractTemplateVersion(templateData)
+
+		return map[string]interface{}{
+			"content": []map[string]interface{}{
+				{
+					"type": "text",
+					"text": fmt.Sprintf("✅ Template validation successful!\n\nType: %s\nVersion: %s\n\nThe template data is valid and can be used to create a new template.",
+						templateType,
+						templateVersion),
+				},
+			},
+			"isError": false,
+		}, nil
+	} else {
+		var errorText strings.Builder
+		errorText.WriteString("❌ Template validation failed!\n\nErrors:\n")
+		for i, validationError := range result.Errors {
+			errorText.WriteString(fmt.Sprintf("%d. Path: %s - %s", i+1, validationError.Path, validationError.Message))
+			if validationError.Value != nil {
+				errorText.WriteString(fmt.Sprintf(" (value: %v)", validationError.Value))
+			}
+			errorText.WriteString("\n")
+		}
+
+		return map[string]interface{}{
+			"content": []map[string]interface{}{
+				{
+					"type": "text",
+					"text": errorText.String(),
+				},
+			},
+			"isError": true,
+		}, nil
+	}
+}
+
+// Helper functions for template tools
+
+func formatTemplateList(templates []map[string]interface{}) string {
+	if len(templates) == 0 {
+		return "No templates found."
+	}
+
+	var result strings.Builder
+	for i, template := range templates {
+		if i > 0 {
+			result.WriteString("\n")
+		}
+		result.WriteString(fmt.Sprintf("%d. %s (%s)\n", i+1, template["name"], template["composite_id"]))
+		result.WriteString(fmt.Sprintf("   Type: %s | Version: %s | Status: %s\n",
+			template["type"], template["version"], getTemplateStatus(template["is_active"].(bool))))
+		if title, ok := template["title"].(string); ok && title != "" {
+			result.WriteString(fmt.Sprintf("   Title: %s\n", title))
+		}
+		if description, ok := template["description"].(string); ok && description != "" {
+			result.WriteString(fmt.Sprintf("   Description: %s\n", description))
+		}
+		result.WriteString(fmt.Sprintf("   Updated: %s", template["updated_at"]))
+	}
+	return result.String()
+}
+
+func getTemplateStatus(isActive bool) string {
+	if isActive {
+		return "Active"
+	}
+	return "Inactive"
 }

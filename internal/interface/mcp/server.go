@@ -14,18 +14,18 @@ import (
 // MCPServer represents the refactored MCP JSON-RPC 2.0 server with transport abstraction
 // This replaces the original MCPServer with a more modular, extensible architecture
 type MCPServer struct {
-	factory         *setup.ApplicationFactory
-	protocolHandler *MCPProtocolHandler
-	transport       Transport
+	factory          *setup.ApplicationFactory
+	protocolHandler  *MCPProtocolHandler
+	transport        Transport
 	transportFactory *TransportFactory
-	mode            string
-	port            string
+	mode             string
+	port             string
 }
 
 // NewMCPServer creates a new MCP server instance with transport abstraction
 func NewMCPServer(factory *setup.ApplicationFactory, mode string) (*MCPServer, error) {
 	transportFactory := NewTransportFactory()
-	
+
 	// Validate the mode
 	if err := transportFactory.ValidateMode(mode); err != nil {
 		return nil, err
@@ -85,7 +85,10 @@ func (s *MCPServer) Start(ctx context.Context) error {
 		return fmt.Errorf("transport not initialized")
 	}
 
-	fmt.Printf("Starting MCP server in %s mode\n", s.mode)
+	// Don't log in stdio mode as it interferes with JSON-RPC communication
+	if s.mode != "stdio" {
+		fmt.Printf("Starting MCP server in %s mode\n", s.mode)
+	}
 	return s.transport.Start(ctx)
 }
 
@@ -94,8 +97,11 @@ func (s *MCPServer) Stop() error {
 	if s.transport == nil {
 		return nil
 	}
-	
-	fmt.Printf("Stopping MCP server (%s mode)\n", s.mode)
+
+	// Don't log in stdio mode as it interferes with JSON-RPC communication
+	if s.mode != "stdio" {
+		fmt.Printf("Stopping MCP server (%s mode)\n", s.mode)
+	}
 	return s.transport.Stop()
 }
 
@@ -126,7 +132,7 @@ func (s *MCPServer) SwitchMode(newMode string) error {
 	// Update mode and recreate transport
 	s.mode = newMode
 	s.protocolHandler = NewMCPProtocolHandler(s.factory, newMode)
-	
+
 	if err := s.initializeTransport(); err != nil {
 		return fmt.Errorf("failed to initialize new transport: %w", err)
 	}

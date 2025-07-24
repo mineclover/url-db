@@ -125,11 +125,11 @@ func (h *CleanMCPToolHandler) HandleCreateNode(ctx context.Context, args map[str
 // GetToolHandler returns the appropriate tool handler based on tool name
 func (h *CleanMCPToolHandler) GetToolHandler(toolName string) func(context.Context, map[string]interface{}) (interface{}, error) {
 	handlers := map[string]func(context.Context, map[string]interface{}) (interface{}, error){
-		"list_domains":   h.HandleListDomains,
-		"create_domain":  h.HandleCreateDomain,
-		"list_nodes":     h.HandleListNodes,
-		"create_node":    h.HandleCreateNode,
+		"list_domains":  h.HandleListDomains,
+		"create_domain": h.HandleCreateDomain,
+		"list_nodes":    h.HandleListNodes,
+		"create_node":   h.HandleCreateNode,
 	}
 
 	return handlers[toolName]
-} 
+}
