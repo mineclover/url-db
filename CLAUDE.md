@@ -36,6 +36,15 @@ make dev                     # Hot reload (requires: go install github.com/cosmt
 ./bin/url-db -mcp-mode=stdio # MCP stdio mode for AI assistants
 ./bin/url-db -mcp-mode=sse   # Server-Sent Events mode
 
+# Docker commands (added in latest version)
+make docker-build            # Build Docker image
+make docker-run              # Run container in MCP stdio mode
+make docker-compose-up       # Start all services with Docker Compose
+make docker-compose-down     # Stop all services
+make docker-logs             # Show Docker logs
+make docker-push DOCKER_REGISTRY=your-registry # Push to registry
+make docker-clean            # Clean Docker resources
+
 # Build commands
 make deps                    # Install dependencies
 make build-all              # Build for all platforms
@@ -360,6 +369,74 @@ When implementing new features:
 4. **Error Handling**: Consistent Go idiom patterns
 5. **Immutability**: Domain entities with getter methods
 6. **Clean Architecture**: Strict layer separation and dependency inversion
+
+## Docker Deployment
+
+The URL-DB MCP server is available as a Docker image for easy deployment:
+
+### Quick Start with Docker
+
+```bash
+# Build Docker image locally
+make docker-build
+
+# Run in MCP stdio mode (for AI assistants)
+make docker-run
+
+# Run all services with Docker Compose
+make docker-compose-up
+```
+
+### Docker Hub Image
+
+The project is available on Docker Hub as `asfdassdssa/url-db:latest`:
+
+```bash
+# Pull and run from Docker Hub
+docker run -it --rm asfdassdssa/url-db:latest
+
+# With persistent data storage
+docker run -it --rm -v url-db-data:/data asfdassdssa/url-db:latest
+
+# With host directory mounting
+docker run -it --rm -v $(pwd)/database:/data asfdassdssa/url-db:latest
+```
+
+### Claude Desktop Integration
+
+Add to your Claude Desktop configuration:
+
+```json
+{
+  "mcpServers": {
+    "url-db": {
+      "command": "docker",
+      "args": [
+        "run", "-i", "--rm",
+        "-v", "url-db-data:/data", 
+        "asfdassdssa/url-db:latest"
+      ]
+    }
+  }
+}
+```
+
+### Docker Features
+
+- **Multi-stage build**: Optimized 58.8MB Alpine Linux image
+- **Non-root user**: Enhanced security with user `urldb`
+- **Volume support**: Persistent data storage with `/data` volume
+- **Multiple modes**: Supports stdio, HTTP, SSE, and MCP-HTTP modes
+- **Host database**: SQLite can be stored on host filesystem for direct access
+
+### Docker Configuration Files
+
+- `Dockerfile`: Multi-stage build configuration
+- `docker-compose.yml`: Multi-service deployment
+- `docker-compose-host-db.yml`: Host database storage example
+- `.dockerignore`: Optimized build context
+- `docker-deployment.md`: Comprehensive deployment guide
+- `sqlite-host-storage-guide.md`: Host database storage guide
 
 ## Configuration and Environment
 

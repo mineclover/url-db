@@ -20,7 +20,7 @@ YELLOW=\033[1;33m
 BLUE=\033[0;34m
 NC=\033[0m
 
-.PHONY: all build clean deps run build-all lint fmt dev swagger-gen dev-swagger help test test-coverage coverage-analysis
+.PHONY: all build clean deps run build-all lint fmt dev swagger-gen dev-swagger help test test-coverage coverage-analysis docker-build docker-run docker-stop docker-logs docker-push
 
 # 기본 타겟
 all: clean deps build
@@ -158,6 +158,15 @@ help:
 	@echo "  ./scripts/test_runner.sh -h  - Show test runner options"
 	@echo "  ./scripts/coverage_analysis.sh - Detailed coverage analysis script"
 	@echo ""
+	@echo "$(BLUE)Docker commands:$(NC)"
+	@echo "  make docker-build      - Build Docker image"
+	@echo "  make docker-run        - Run container in MCP stdio mode"
+	@echo "  make docker-compose-up - Start all services with Docker Compose"
+	@echo "  make docker-compose-down - Stop all services"
+	@echo "  make docker-logs       - Show Docker logs"
+	@echo "  make docker-push       - Push image to registry"
+	@echo "  make docker-clean      - Clean Docker resources"
+	@echo ""
 	@echo "$(BLUE)To run the server:$(NC)"
 	@echo "  ./$(BUILD_DIR)/$(BINARY_NAME)"
 	@echo ""
@@ -166,3 +175,70 @@ help:
 	@echo "  Database: file:./url-db.sqlite (constants.DefaultDBPath)"
 	@echo "  Tool Name: $(BINARY_NAME) (constants.DefaultServerName)"
 	@echo "  MCP Server: url-db-mcp-server (constants.MCPServerName)"
+
+# Docker 관련 설정
+DOCKER_IMAGE=url-db
+DOCKER_TAG?=latest
+DOCKER_REGISTRY?=
+
+# Docker 빌드
+docker-build:
+	@echo "$(BLUE)Building Docker image $(DOCKER_IMAGE):$(DOCKER_TAG)...$(NC)"
+	docker build -t $(DOCKER_IMAGE):$(DOCKER_TAG) .
+	@if [ $$? -eq 0 ]; then \
+		echo "$(GREEN)✓ Docker image built successfully!$(NC)"; \
+		echo "$(GREEN)✓ Image: $(DOCKER_IMAGE):$(DOCKER_TAG)$(NC)"; \
+	else \
+		echo "$(RED)✗ Docker build failed!$(NC)"; \
+		exit 1; \
+	fi
+
+# Docker 실행 (MCP stdio mode)
+docker-run:
+	@echo "$(BLUE)Running Docker container in MCP stdio mode...$(NC)"
+	@echo "$(YELLOW)Use Ctrl+C to stop the container$(NC)"
+	docker run -it --rm \
+		--name url-db-mcp \
+		-v url-db-data:/data \
+		$(DOCKER_IMAGE):$(DOCKER_TAG)
+
+# Docker Compose 실행 (모든 서비스)
+docker-compose-up:
+	@echo "$(BLUE)Starting all services with Docker Compose...$(NC)"
+	docker-compose up -d
+	@echo "$(GREEN)✓ Services started!$(NC)"
+	@echo "$(GREEN)✓ HTTP API: http://localhost:8080$(NC)"
+	@echo "$(GREEN)✓ MCP SSE: http://localhost:8081$(NC)"
+	@echo "$(GREEN)✓ MCP HTTP: http://localhost:8082$(NC)"
+	@echo "$(YELLOW)Run 'make docker-logs' to see logs$(NC)"
+
+# Docker Compose 중지
+docker-compose-down:
+	@echo "$(BLUE)Stopping all services...$(NC)"
+	docker-compose down
+	@echo "$(GREEN)✓ Services stopped$(NC)"
+
+# Docker 로그 보기
+docker-logs:
+	@echo "$(BLUE)Showing Docker logs...$(NC)"
+	docker-compose logs -f
+
+# Docker 이미지 푸시
+docker-push:
+	@if [ -z "$(DOCKER_REGISTRY)" ]; then \
+		echo "$(RED)✗ DOCKER_REGISTRY not set!$(NC)"; \
+		echo "$(YELLOW)Usage: make docker-push DOCKER_REGISTRY=your-registry.com$(NC)"; \
+		exit 1; \
+	fi
+	@echo "$(BLUE)Tagging image for registry...$(NC)"
+	docker tag $(DOCKER_IMAGE):$(DOCKER_TAG) $(DOCKER_REGISTRY)/$(DOCKER_IMAGE):$(DOCKER_TAG)
+	@echo "$(BLUE)Pushing to registry...$(NC)"
+	docker push $(DOCKER_REGISTRY)/$(DOCKER_IMAGE):$(DOCKER_TAG)
+	@echo "$(GREEN)✓ Image pushed to $(DOCKER_REGISTRY)/$(DOCKER_IMAGE):$(DOCKER_TAG)$(NC)"
+
+# Docker 정리
+docker-clean:
+	@echo "$(BLUE)Cleaning Docker resources...$(NC)"
+	docker-compose down -v
+	docker rmi $(DOCKER_IMAGE):$(DOCKER_TAG) || true
+	@echo "$(GREEN)✓ Docker resources cleaned$(NC)"

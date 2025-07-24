@@ -6,7 +6,6 @@ require (
 	github.com/gin-gonic/gin v1.10.1
 	github.com/jmoiron/sqlx v1.4.0
 	github.com/mattn/go-sqlite3 v1.14.28
-	github.com/santhosh-tekuri/jsonschema/v6 v6.0.2
 	github.com/swaggo/swag v1.16.5
 	gopkg.in/yaml.v3 v3.0.1
 )

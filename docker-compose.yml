@@ -1,0 +1,74 @@
+version: '3.8'
+
+services:
+  # MCP stdio mode for AI assistants (Claude Desktop, Cursor)
+  url-db-mcp-stdio:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: url-db:latest
+    container_name: url-db-mcp-stdio
+    volumes:
+      - url-db-data:/data
+    environment:
+      - DATABASE_URL=file:/data/url-db.sqlite
+      - TOOL_NAME=url-db
+    command: ["-mcp-mode=stdio", "-db-path=/data/url-db.sqlite"]
+    stdin_open: true
+    tty: true
+    restart: unless-stopped
+
+  # HTTP mode for REST API access
+  url-db-http:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: url-db:latest
+    container_name: url-db-http
+    ports:
+      - "8080:8080"
+    volumes:
+      - url-db-data:/data
+    environment:
+      - DATABASE_URL=file:/data/url-db.sqlite
+      - TOOL_NAME=url-db
+    command: ["-port=8080", "-db-path=/data/url-db.sqlite"]
+    restart: unless-stopped
+
+  # MCP SSE mode for Server-Sent Events
+  url-db-mcp-sse:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: url-db:latest
+    container_name: url-db-mcp-sse
+    ports:
+      - "8081:8081"
+    volumes:
+      - url-db-data:/data
+    environment:
+      - DATABASE_URL=file:/data/url-db.sqlite
+      - TOOL_NAME=url-db
+    command: ["-mcp-mode=sse", "-port=8081", "-db-path=/data/url-db.sqlite"]
+    restart: unless-stopped
+
+  # MCP HTTP mode for HTTP-based MCP
+  url-db-mcp-http:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: url-db:latest
+    container_name: url-db-mcp-http
+    ports:
+      - "8082:8082"
+    volumes:
+      - url-db-data:/data
+    environment:
+      - DATABASE_URL=file:/data/url-db.sqlite
+      - TOOL_NAME=url-db
+    command: ["-mcp-mode=http", "-port=8082", "-db-path=/data/url-db.sqlite"]
+    restart: unless-stopped
+
+volumes:
+  url-db-data:
+    driver: local

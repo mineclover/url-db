@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  # MCP stdio mode with host database
+  url-db-mcp-stdio:
+    image: asfdassdssa/url-db:latest
+    container_name: url-db-mcp-stdio
+    volumes:
+      # 호스트의 ./database 폴더를 컨테이너의 /data에 마운트
+      - ./database:/data
+    environment:
+      - DATABASE_URL=file:/data/url-db.sqlite
+      - TOOL_NAME=url-db
+    command: ["-mcp-mode=stdio", "-db-path=/data/url-db.sqlite"]
+    stdin_open: true
+    tty: true
+    restart: unless-stopped
+
+  # HTTP mode with host database
+  url-db-http:
+    image: asfdassdssa/url-db:latest
+    container_name: url-db-http
+    ports:
+      - "8080:8080"
+    volumes:
+      # 호스트의 ./database 폴더를 컨테이너의 /data에 마운트
+      - ./database:/data
+    environment:
+      - DATABASE_URL=file:/data/url-db.sqlite
+      - TOOL_NAME=url-db
+    command: ["-port=8080", "-db-path=/data/url-db.sqlite"]
+    restart: unless-stopped
+
+  # 절대 경로 사용 예시
+  url-db-absolute-path:
+    image: asfdassdssa/url-db:latest
+    container_name: url-db-absolute
+    volumes:
+      # 절대 경로로 특정 위치 지정
+      - /Users/junwoobang/Documents/url-db:/data
+    command: ["-mcp-mode=stdio", "-db-path=/data/url-db.sqlite"]
+    stdin_open: true
+    tty: true
+    restart: unless-stopped
