@@ -74,7 +74,7 @@ echo '{"method":"initialize","params":{"protocolVersion":"2025-06-18","capabilit
 **출력**:
 ```
 Starting MCP server in stdio mode
-[INFO] Schema loaded relative to executable: /Users/junwoobang/mcp/url-db/schema.sql
+[INFO] Schema loaded relative to executable: /Users/username/mcp/url-db/schema.sql
 {"jsonrpc":"2.0","id":1,"result":{...}}
 ```
 

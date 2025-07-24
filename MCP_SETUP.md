@@ -12,11 +12,11 @@
 {
   "mcpServers": {
     "url-db": {
-      "command": "/Users/junwoobang/mcp/url-db/bin/url-db",
+      "command": "/Users/username/mcp/url-db/bin/url-db",
       "args": ["-mcp-mode=stdio"],
-      "cwd": "/Users/junwoobang/mcp/url-db",
+      "cwd": "/Users/username/mcp/url-db",
       "env": {
-        "DATABASE_URL": "/Users/junwoobang/mcp/url-db/url-db.sqlite"
+        "DATABASE_URL": "/Users/username/mcp/url-db/url-db.sqlite"
       }
     }
   }
@@ -33,11 +33,11 @@
 {
   "mcpServers": {
     "url-db-local": {
-      "command": "/Users/junwoobang/mcp/url-db/bin/url-db",
+      "command": "/Users/username/mcp/url-db/bin/url-db",
       "args": ["-mcp-mode=stdio"],
-      "cwd": "/Users/junwoobang/mcp/url-db",
+      "cwd": "/Users/username/mcp/url-db",
       "env": {
-        "DATABASE_URL": "/Users/junwoobang/mcp/url-db/url-db.sqlite"
+        "DATABASE_URL": "/Users/username/mcp/url-db/url-db.sqlite"
       }
     }
   }
@@ -93,7 +93,7 @@ URL-DB MCP 서버는 30개의 도구를 제공합니다:
 ## 문제 해결
 
 ### 로그 확인
-Claude Desktop 로그: `/Users/junwoobang/Library/Logs/Claude/mcp-server-url-db*.log`
+Claude Desktop 로그: `/Users/username/Library/Logs/Claude/mcp-server-url-db*.log`
 
 ### 일반적인 문제들
 1. **"Server disconnected" 에러**: 

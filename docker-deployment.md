@@ -267,7 +267,7 @@ Windows 경로를 사용하는 경우:
 
 ### 🎯 **실제 사용 예시**
 
-현재 사용자(`junwoobang`)의 구체적인 설정 예시:
+현재 사용자의 구체적인 설정 예시:
 
 ```json
 {
@@ -276,7 +276,7 @@ Windows 경로를 사용하는 경우:
       "command": "docker",
       "args": [
         "run", "-i", "--rm",
-        "-v", "/Users/junwoobang/url-db-data:/data",
+        "-v", "/Users/username/url-db-data:/data",
         "asfdassdssa/url-db:latest"
       ]
     }
@@ -285,9 +285,9 @@ Windows 경로를 사용하는 경우:
 ```
 
 이 설정을 사용하면:
-- SQLite 파일: `/Users/junwoobang/url-db-data/url-db.sqlite`
-- 직접 접근: `sqlite3 /Users/junwoobang/url-db-data/url-db.sqlite`
-- Finder에서: `open /Users/junwoobang/url-db-data/`
+- SQLite 파일: `/Users/username/url-db-data/url-db.sqlite`
+- 직접 접근: `sqlite3 /Users/username/url-db-data/url-db.sqlite`
+- Finder에서: `open /Users/username/url-db-data/`
 
 ### 🔧 **폴더 생성 및 테스트**
 
@@ -295,18 +295,18 @@ Windows 경로를 사용하는 경우:
 
 ```bash
 # 1. 폴더 생성
-mkdir -p /Users/junwoobang/url-db-data
+mkdir -p /Users/username/url-db-data
 
 # 2. 권한 확인
-ls -la /Users/junwoobang/url-db-data
+ls -la /Users/username/url-db-data
 
 # 3. 테스트 실행
 docker run -it --rm \
-  -v /Users/junwoobang/url-db-data:/data \
+  -v /Users/username/url-db-data:/data \
   asfdassdssa/url-db:latest
 
 # 4. 데이터베이스 파일 확인
-ls -la /Users/junwoobang/url-db-data/
+ls -la /Users/username/url-db-data/
 ```
 
 ## Deployment to Container Registry

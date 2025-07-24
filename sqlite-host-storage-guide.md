@@ -55,7 +55,7 @@ docker run -it --rm -v /Users/username/url-db:/data asfdassdssa/url-db:latest
       "command": "docker",
       "args": [
         "run", "-i", "--rm",
-        "-v", "/Users/junwoobang/Documents/url-db:/data",
+        "-v", "/Users/username/Documents/url-db:/data",
         "asfdassdssa/url-db:latest"
       ]
     }
