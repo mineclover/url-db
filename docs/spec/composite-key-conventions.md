@@ -71,7 +71,7 @@ Composite: bookmarkmanager:my-personal-links:456
 
 ## 사용 사례
 
-### 1. MCP 서버 응답
+### 1. 노드 (Node) 합성키
 ```json
 {
   "composite_id": "url-db:tech-articles:123",
@@ -80,12 +80,27 @@ Composite: bookmarkmanager:my-personal-links:456
 }
 ```
 
-### 2. 외부 API 호출
-```
-GET /api/mcp/nodes/url-db:tech-articles:123
+### 2. 템플릿 (Template) 합성키
+```json
+{
+  "composite_id": "url-db:tech-articles:template:456",
+  "name": "article-template",
+  "template_data": "{...}"
+}
 ```
 
-### 3. 배치 처리
+템플릿 합성키는 추가 구분자를 포함합니다:
+```
+{tool_name}:{domain_name}:template:{id}
+```
+
+### 3. 외부 API 호출
+```
+GET /api/mcp/nodes/url-db:tech-articles:123
+GET /api/mcp/templates/url-db:tech-articles:template:456
+```
+
+### 4. 배치 처리
 ```json
 {
   "composite_ids": [
@@ -140,18 +155,32 @@ function createCompositeKey(toolName, domainName, id) {
 ```javascript
 function parseCompositeKey(compositeKey) {
     const parts = compositeKey.split(':');
-    if (parts.length !== 3) {
-        throw new Error('Invalid composite key format');
+    
+    // 노드 합성키 (3개 부분)
+    if (parts.length === 3) {
+        const [toolName, domainName, idStr] = parts;
+        const id = parseInt(idStr);
+        
+        if (isNaN(id)) {
+            throw new Error('Invalid ID in composite key');
+        }
+        
+        return { type: 'node', toolName, domainName, id };
     }
     
-    const [toolName, domainName, idStr] = parts;
-    const id = parseInt(idStr);
-    
-    if (isNaN(id)) {
-        throw new Error('Invalid ID in composite key');
+    // 템플릿 합성키 (4개 부분)
+    if (parts.length === 4 && parts[2] === 'template') {
+        const [toolName, domainName, _, idStr] = parts;
+        const id = parseInt(idStr);
+        
+        if (isNaN(id)) {
+            throw new Error('Invalid ID in composite key');
+        }
+        
+        return { type: 'template', toolName, domainName, id };
     }
     
-    return { toolName, domainName, id };
+    throw new Error('Invalid composite key format');
 }
 ```
 

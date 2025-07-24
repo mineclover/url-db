@@ -62,6 +62,33 @@ CREATE TABLE IF NOT EXISTS node_connections (
 	UNIQUE(source_node_id, target_node_id, relationship_type)
 );
 
+-- 템플릿 테이블 (노드와 유사하지만 템플릿용 데이터 저장)
+CREATE TABLE IF NOT EXISTS templates (
+	id INTEGER PRIMARY KEY AUTOINCREMENT,
+	name TEXT NOT NULL,
+	domain_id INTEGER NOT NULL,
+	template_data TEXT NOT NULL, -- JSON 또는 다른 형식의 템플릿 데이터
+	title TEXT,
+	description TEXT,
+	is_active BOOLEAN DEFAULT TRUE,
+	created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+	updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+	FOREIGN KEY (domain_id) REFERENCES domains(id) ON DELETE CASCADE,
+	UNIQUE(name, domain_id)
+);
+
+-- 템플릿 속성 값 테이블
+CREATE TABLE IF NOT EXISTS template_attributes (
+	id INTEGER PRIMARY KEY AUTOINCREMENT,
+	template_id INTEGER NOT NULL,
+	attribute_id INTEGER NOT NULL,
+	value TEXT NOT NULL,
+	order_index INTEGER, -- 순서가 중요한 태그용
+	created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+	FOREIGN KEY (template_id) REFERENCES templates(id) ON DELETE CASCADE,
+	FOREIGN KEY (attribute_id) REFERENCES attributes(id) ON DELETE CASCADE
+);
+
 -- 노드 구독 테이블 (외부 서비스 알림)
 CREATE TABLE IF NOT EXISTS node_subscriptions (
 	id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -185,6 +212,13 @@ CREATE INDEX IF NOT EXISTS idx_node_connections_target ON node_connections(targe
 CREATE INDEX IF NOT EXISTS idx_node_subscriptions_node ON node_subscriptions(subscribed_node_id);
 CREATE INDEX IF NOT EXISTS idx_node_subscriptions_service ON node_subscriptions(subscriber_service);
 
+-- 템플릿 인덱스
+CREATE INDEX IF NOT EXISTS idx_templates_domain ON templates(domain_id);
+CREATE INDEX IF NOT EXISTS idx_templates_name ON templates(name);
+CREATE INDEX IF NOT EXISTS idx_templates_active ON templates(is_active);
+CREATE INDEX IF NOT EXISTS idx_template_attributes_template ON template_attributes(template_id);
+CREATE INDEX IF NOT EXISTS idx_template_attributes_attribute ON template_attributes(attribute_id);
+
 -- 의존성 인덱스 (성능 최적화)
 CREATE INDEX IF NOT EXISTS idx_node_dependencies_dependent ON node_dependencies(dependent_node_id);
 CREATE INDEX IF NOT EXISTS idx_node_dependencies_dependency ON node_dependencies(dependency_node_id);
@@ -245,6 +279,13 @@ CREATE TRIGGER IF NOT EXISTS node_subscriptions_updated_at
 	FOR EACH ROW 
 	BEGIN 
 		UPDATE node_subscriptions SET updated_at = CURRENT_TIMESTAMP WHERE id = NEW.id;
+	END;
+
+CREATE TRIGGER IF NOT EXISTS templates_updated_at 
+	AFTER UPDATE ON templates 
+	FOR EACH ROW 
+	BEGIN 
+		UPDATE templates SET updated_at = CURRENT_TIMESTAMP WHERE id = NEW.id;
 	END;
 
 -- 기본 의존성 타입 데이터 초기화
