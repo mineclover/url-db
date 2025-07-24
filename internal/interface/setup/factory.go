@@ -8,9 +8,10 @@ import (
 	"url-db/internal/application/usecase/attribute"
 	"url-db/internal/application/usecase/domain"
 	"url-db/internal/application/usecase/node"
+	domainAttribute "url-db/internal/domain/attribute"
 	"url-db/internal/domain/entity"
 	"url-db/internal/domain/repository"
-	domainAttribute "url-db/internal/domain/attribute"
+	"url-db/internal/domain/service"
 	sqliteRepo "url-db/internal/infrastructure/persistence/sqlite/repository"
 )
 
@@ -20,6 +21,8 @@ type RepositoryFactory interface {
 	CreateNodeRepository() repository.NodeRepository
 	CreateAttributeRepository() repository.AttributeRepository
 	CreateNodeAttributeRepository() repository.NodeAttributeRepository
+	CreateTemplateRepository() repository.TemplateRepository
+	CreateTemplateAttributeRepository() repository.TemplateAttributeRepository
 }
 
 // UseCaseFactory creates use case instances
@@ -62,6 +65,14 @@ func (f *ApplicationFactory) CreateNodeAttributeRepository() repository.NodeAttr
 	return sqliteRepo.NewSQLiteNodeAttributeRepository(f.sqlxDB)
 }
 
+func (f *ApplicationFactory) CreateTemplateRepository() repository.TemplateRepository {
+	return sqliteRepo.NewTemplateRepository(f.db)
+}
+
+func (f *ApplicationFactory) CreateTemplateAttributeRepository() repository.TemplateAttributeRepository {
+	return sqliteRepo.NewSQLiteTemplateAttributeRepository(f.db)
+}
+
 // Use Case Factory Implementation
 func (f *ApplicationFactory) CreateDomainUseCases(domainRepo repository.DomainRepository) (*domain.CreateDomainUseCase, *domain.ListDomainsUseCase) {
 	createUC := domain.NewCreateDomainUseCase(domainRepo)
@@ -88,35 +99,48 @@ func (f *ApplicationFactory) CreateCleanArchitectureDependencies() *CleanDepende
 	nodeRepo := f.CreateNodeRepository()
 	attributeRepo := f.CreateAttributeRepository()
 	nodeAttributeRepo := f.CreateNodeAttributeRepository()
+	templateRepo := f.CreateTemplateRepository()
+	templateAttributeRepo := f.CreateTemplateAttributeRepository()
 
 	// Create validation registry
 	validatorRegistry := domainAttribute.NewValidatorRegistry()
+
+	// Create services
+	templateService, err := service.NewTemplateService(templateRepo, domainRepo, attributeRepo)
+	if err != nil {
+		panic("Failed to create template service: " + err.Error())
+	}
 
 	// Create use cases
 	createDomainUC, listDomainsUC := f.CreateDomainUseCases(domainRepo)
 	createNodeUC, listNodesUC := f.CreateNodeUseCases(nodeRepo, domainRepo)
 	createAttributeUC, listAttributesUC := f.CreateAttributeUseCases(attributeRepo, domainRepo)
-	setNodeAttributesUC := node.NewSetNodeAttributesUseCase(nodeRepo, attributeRepo, nodeAttributeRepo)
+	setNodeAttributesUC := node.NewSetNodeAttributesUseCase(nodeRepo, attributeRepo, nodeAttributeRepo, templateService)
 	filterNodesUC := node.NewFilterNodesByAttributesUseCase(nodeRepo)
 	getNodeWithAttributesUC := node.NewGetNodeWithAttributesUseCase(nodeRepo, nodeAttributeRepo, attributeRepo)
 
 	return &CleanDependencies{
 		// Repositories
-		DomainRepo:        domainRepo,
-		NodeRepo:          nodeRepo,
-		AttributeRepo:     attributeRepo,
-		NodeAttributeRepo: nodeAttributeRepo,
+		DomainRepo:            domainRepo,
+		NodeRepo:              nodeRepo,
+		AttributeRepo:         attributeRepo,
+		NodeAttributeRepo:     nodeAttributeRepo,
+		TemplateRepo:          templateRepo,
+		TemplateAttributeRepo: templateAttributeRepo,
+
+		// Services
+		TemplateService: templateService,
 
 		// Validators
 		ValidatorRegistry: validatorRegistry,
 
 		// Use Cases
-		CreateDomainUC:      createDomainUC,
-		ListDomainsUC:       listDomainsUC,
-		CreateNodeUC:        createNodeUC,
-		ListNodesUC:         listNodesUC,
-		CreateAttributeUC:   createAttributeUC,
-		ListAttributesUC:    listAttributesUC,
+		CreateDomainUC:          createDomainUC,
+		ListDomainsUC:           listDomainsUC,
+		CreateNodeUC:            createNodeUC,
+		ListNodesUC:             listNodesUC,
+		CreateAttributeUC:       createAttributeUC,
+		ListAttributesUC:        listAttributesUC,
 		SetNodeAttributesUC:     setNodeAttributesUC,
 		FilterNodesUC:           filterNodesUC,
 		GetNodeWithAttributesUC: getNodeWithAttributesUC,
@@ -126,24 +150,29 @@ func (f *ApplicationFactory) CreateCleanArchitectureDependencies() *CleanDepende
 // CleanDependencies holds Clean Architecture dependencies
 type CleanDependencies struct {
 	// Repositories
-	DomainRepo        repository.DomainRepository
-	NodeRepo          repository.NodeRepository
-	AttributeRepo     repository.AttributeRepository
-	NodeAttributeRepo repository.NodeAttributeRepository
+	DomainRepo            repository.DomainRepository
+	NodeRepo              repository.NodeRepository
+	AttributeRepo         repository.AttributeRepository
+	NodeAttributeRepo     repository.NodeAttributeRepository
+	TemplateRepo          repository.TemplateRepository
+	TemplateAttributeRepo repository.TemplateAttributeRepository
+
+	// Services
+	TemplateService service.TemplateService
 
 	// Validators
 	ValidatorRegistry *domainAttribute.ValidatorRegistry
 
 	// Use Cases
-	CreateDomainUC      *domain.CreateDomainUseCase
-	ListDomainsUC       *domain.ListDomainsUseCase
-	CreateNodeUC        *node.CreateNodeUseCase
-	ListNodesUC         *node.ListNodesUseCase
-	CreateAttributeUC     *attribute.CreateAttributeUseCase
-	ListAttributesUC      *attribute.ListAttributesUseCase
-	SetNodeAttributesUC       *node.SetNodeAttributesUseCase
-	FilterNodesUC             *node.FilterNodesByAttributesUseCase
-	GetNodeWithAttributesUC   *node.GetNodeWithAttributesUseCase
+	CreateDomainUC          *domain.CreateDomainUseCase
+	ListDomainsUC           *domain.ListDomainsUseCase
+	CreateNodeUC            *node.CreateNodeUseCase
+	ListNodesUC             *node.ListNodesUseCase
+	CreateAttributeUC       *attribute.CreateAttributeUseCase
+	ListAttributesUC        *attribute.ListAttributesUseCase
+	SetNodeAttributesUC     *node.SetNodeAttributesUseCase
+	FilterNodesUC           *node.FilterNodesByAttributesUseCase
+	GetNodeWithAttributesUC *node.GetNodeWithAttributesUseCase
 }
 
 // Individual UseCase factory methods for MCP server
@@ -178,7 +207,13 @@ func (f *ApplicationFactory) CreateSetNodeAttributesUseCase() *node.SetNodeAttri
 	nodeRepo := f.CreateNodeRepository()
 	attributeRepo := f.CreateAttributeRepository()
 	nodeAttributeRepo := f.CreateNodeAttributeRepository()
-	return node.NewSetNodeAttributesUseCase(nodeRepo, attributeRepo, nodeAttributeRepo)
+	domainRepo := f.CreateDomainRepository()
+	templateRepo := f.CreateTemplateRepository()
+	templateService, err := service.NewTemplateService(templateRepo, domainRepo, attributeRepo)
+	if err != nil {
+		panic("Failed to create template service: " + err.Error())
+	}
+	return node.NewSetNodeAttributesUseCase(nodeRepo, attributeRepo, nodeAttributeRepo, templateService)
 }
 
 // Domain attributes (schema) UseCase factory methods

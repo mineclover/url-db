@@ -7,6 +7,7 @@ import (
 	"url-db/internal/domain/attribute"
 	"url-db/internal/domain/entity"
 	"url-db/internal/domain/repository"
+	"url-db/internal/domain/service"
 )
 
 // SetNodeAttributesUseCase handles setting attributes for a node with validation
@@ -14,6 +15,7 @@ type SetNodeAttributesUseCase struct {
 	nodeRepo          repository.NodeRepository
 	attributeRepo     repository.AttributeRepository
 	nodeAttributeRepo repository.NodeAttributeRepository
+	templateService   service.TemplateService
 	validatorRegistry *attribute.ValidatorRegistry
 }
 
@@ -22,11 +24,13 @@ func NewSetNodeAttributesUseCase(
 	nodeRepo repository.NodeRepository,
 	attributeRepo repository.AttributeRepository,
 	nodeAttributeRepo repository.NodeAttributeRepository,
+	templateService service.TemplateService,
 ) *SetNodeAttributesUseCase {
 	return &SetNodeAttributesUseCase{
 		nodeRepo:          nodeRepo,
 		attributeRepo:     attributeRepo,
 		nodeAttributeRepo: nodeAttributeRepo,
+		templateService:   templateService,
 		validatorRegistry: attribute.NewValidatorRegistry(),
 	}
 }
@@ -70,7 +74,25 @@ func (uc *SetNodeAttributesUseCase) Execute(ctx context.Context, nodeID int, att
 			return fmt.Errorf("attribute '%s' not defined in domain '%s'", attrInput.Name, domain.Name())
 		}
 
-		// Create validated node attribute
+		// Validate attribute value against templates (진입점 제약)
+		templateValidation, err := uc.templateService.ValidateAttributeValue(ctx, domain.Name(), attrInput.Name, attrInput.Value)
+		if err != nil {
+			return fmt.Errorf("template validation error for attribute '%s': %w", attrInput.Name, err)
+		}
+
+		// Reject if template validation fails
+		if !templateValidation.IsValid {
+			return &TemplateValidationError{
+				AttributeName: attrInput.Name,
+				Value:         attrInput.Value,
+				ErrorCode:     templateValidation.ErrorCode,
+				ErrorMessage:  templateValidation.ErrorMessage,
+				AllowedValues: templateValidation.AllowedValues,
+				TemplateUsed:  templateValidation.TemplateUsed,
+			}
+		}
+
+		// Create validated node attribute (기존 검증 유지)
 		nodeAttr, err := entity.ValidatedNodeAttribute(
 			nodeID,
 			attr.ID(),
@@ -93,4 +115,19 @@ func (uc *SetNodeAttributesUseCase) Execute(ctx context.Context, nodeID int, att
 	}
 
 	return nil
+}
+
+// TemplateValidationError represents a template-based validation error
+type TemplateValidationError struct {
+	AttributeName string   `json:"attribute_name"`
+	Value         string   `json:"value"`
+	ErrorCode     string   `json:"error_code"`
+	ErrorMessage  string   `json:"error_message"`
+	AllowedValues []string `json:"allowed_values,omitempty"`
+	TemplateUsed  string   `json:"template_used,omitempty"`
+}
+
+func (e *TemplateValidationError) Error() string {
+	return fmt.Sprintf("Template validation failed for attribute '%s' with value '%s': %s", 
+		e.AttributeName, e.Value, e.ErrorMessage)
 }

@@ -19,41 +19,45 @@ type TemplateService interface {
 	GetTemplateByName(ctx context.Context, domainName, name string) (*entity.Template, error)
 	UpdateTemplate(ctx context.Context, id int, req *UpdateTemplateRequest) (*entity.Template, error)
 	DeleteTemplate(ctx context.Context, id int) error
-	
+
 	// Template listing and search
 	ListTemplates(ctx context.Context, domainName string, page, size int) ([]*entity.Template, int, error)
 	ListActiveTemplates(ctx context.Context, domainName string, page, size int) ([]*entity.Template, int, error)
 	ListTemplatesByType(ctx context.Context, domainName, templateType string, page, size int) ([]*entity.Template, int, error)
 	SearchTemplates(ctx context.Context, domainName, query string, page, size int) ([]*entity.Template, int, error)
-	
+
 	// Template management operations
 	ActivateTemplate(ctx context.Context, id int) error
 	DeactivateTemplate(ctx context.Context, id int) error
 	CloneTemplate(ctx context.Context, sourceID int, newName, newTitle, newDescription string) (*entity.Template, error)
-	
+
 	// Template validation and generation
 	ValidateTemplateData(templateData string) (*validation.ValidationResult, error)
 	GenerateTemplateScaffold(templateType string) (string, error)
 	GetValidTemplateTypes() []string
-	
+
 	// Template statistics
 	GetTemplateStats(ctx context.Context, domainName string) (*repository.TemplateStats, error)
 	GetRecentlyModified(ctx context.Context, domainName string, limit int) ([]*entity.Template, error)
-	
+
 	// Template utilities
 	ExtractTemplateType(templateData string) (string, error)
 	ExtractTemplateVersion(templateData string) (string, error)
 	ValidateTemplateName(name string) error
+
+	// Template-based attribute value validation
+	ValidateAttributeValue(ctx context.Context, domainName, attributeName, value string) (*AttributeValidationResult, error)
 }
 
 type templateService struct {
 	templateRepo repository.TemplateRepository
 	domainRepo   repository.DomainRepository
+	attrRepo     repository.AttributeRepository
 	validator    *validation.TemplateValidator
 }
 
 // NewTemplateService creates a new template service
-func NewTemplateService(templateRepo repository.TemplateRepository, domainRepo repository.DomainRepository) (TemplateService, error) {
+func NewTemplateService(templateRepo repository.TemplateRepository, domainRepo repository.DomainRepository, attrRepo repository.AttributeRepository) (TemplateService, error) {
 	validator, err := validation.NewTemplateValidator()
 	if err != nil {
 		return nil, fmt.Errorf("failed to create template validator: %w", err)
@@ -62,6 +66,7 @@ func NewTemplateService(templateRepo repository.TemplateRepository, domainRepo r
 	return &templateService{
 		templateRepo: templateRepo,
 		domainRepo:   domainRepo,
+		attrRepo:     attrRepo,
 		validator:    validator,
 	}, nil
 }
@@ -397,33 +402,33 @@ func (s *templateService) GetTemplateStats(ctx context.Context, domainName strin
 	if statsRepo, ok := s.templateRepo.(repository.TemplateRepositoryStats); ok {
 		return statsRepo.GetStats(ctx, domainName)
 	}
-	
+
 	// Fallback implementation
 	templates, total, err := s.templateRepo.List(ctx, domainName, 1, 1000) // Get a large number
 	if err != nil {
 		return nil, fmt.Errorf("failed to get templates for stats: %w", err)
 	}
-	
+
 	stats := &repository.TemplateStats{
-		TotalCount:   total,
-		ActiveCount:  0,
+		TotalCount:    total,
+		ActiveCount:   0,
 		InactiveCount: 0,
-		TypeCounts:   make(map[string]int),
+		TypeCounts:    make(map[string]int),
 	}
-	
+
 	for _, template := range templates {
 		if template.IsActive() {
 			stats.ActiveCount++
 		} else {
 			stats.InactiveCount++
 		}
-		
+
 		templateType, err := template.GetTemplateType()
 		if err == nil {
 			stats.TypeCounts[templateType]++
 		}
 	}
-	
+
 	return stats, nil
 }
 
@@ -498,10 +503,216 @@ func (s *templateService) ValidateTemplateName(name string) error {
 
 // ValidationError represents a template validation error
 type ValidationError struct {
-	Message string                         `json:"message"`
-	Errors  []validation.ValidationError   `json:"errors"`
+	Message string                       `json:"message"`
+	Errors  []validation.ValidationError `json:"errors"`
 }
 
 func (e *ValidationError) Error() string {
 	return e.Message
+}
+
+// AttributeValidationResult represents the result of attribute value validation against templates
+type AttributeValidationResult struct {
+	IsValid           bool     `json:"is_valid"`
+	ErrorCode         string   `json:"error_code,omitempty"`
+	ErrorMessage      string   `json:"error_message,omitempty"`
+	AllowedValues     []string `json:"allowed_values,omitempty"`
+	TemplateUsed      string   `json:"template_used,omitempty"`
+	ValidationMethod  string   `json:"validation_method,omitempty"`
+}
+
+// Template-based attribute value validation errors
+var (
+	ErrTemplateValueNotAllowed     = "template_value_not_allowed"
+	ErrTemplateRequiredButMissing  = "template_required_but_missing"
+	ErrTemplateValueFormatMismatch = "template_value_format_mismatch"
+)
+
+// ValidateAttributeValue validates an attribute value against templates for the given domain and attribute
+func (s *templateService) ValidateAttributeValue(ctx context.Context, domainName, attributeName, value string) (*AttributeValidationResult, error) {
+	// Get domain
+	domain, err := s.domainRepo.GetByName(ctx, domainName)
+	if err != nil {
+		return nil, fmt.Errorf("domain not found: %w", err)
+	}
+
+	// Get attribute to verify it exists
+	_, err = s.attrRepo.GetByName(ctx, domain.ID(), attributeName)
+	if err != nil {
+		return nil, fmt.Errorf("attribute not found: %w", err)
+	}
+
+	// Find active templates for this domain that define constraints for this attribute
+	templates, _, err := s.templateRepo.ListActive(ctx, domainName, 1, 100) // Get all active templates
+	if err != nil {
+		return nil, fmt.Errorf("failed to get templates: %w", err)
+	}
+
+	var applicableTemplate *entity.Template
+	var allowedValues []string
+	var validationMethod string
+
+	// Check each template to see if it defines constraints for this attribute
+	for _, template := range templates {
+		if !template.IsActive() {
+			continue
+		}
+
+		templateData := template.TemplateData()
+		constraints, found := s.extractAttributeConstraints(templateData, attributeName)
+		if found {
+			applicableTemplate = template
+			validationMethod, allowedValues = s.parseConstraints(constraints)
+			break
+		}
+	}
+
+	// If no template defines constraints for this attribute, validation passes
+	if applicableTemplate == nil {
+		return &AttributeValidationResult{
+			IsValid:          true,
+			ValidationMethod: "no_template_constraints",
+		}, nil
+	}
+
+	// Validate the value against template constraints
+	result := s.validateValueAgainstConstraints(value, validationMethod, allowedValues)
+	result.TemplateUsed = applicableTemplate.Name()
+	result.ValidationMethod = validationMethod
+	result.AllowedValues = allowedValues
+
+	return result, nil
+}
+
+// extractAttributeConstraints extracts constraints for a specific attribute from template data
+func (s *templateService) extractAttributeConstraints(templateData, attributeName string) (interface{}, bool) {
+	var data map[string]interface{}
+	if err := json.Unmarshal([]byte(templateData), &data); err != nil {
+		return nil, false
+	}
+
+	// Look for attribute constraints in various possible structures
+	// Structure 1: Direct attribute mapping
+	if attributes, ok := data["attributes"].(map[string]interface{}); ok {
+		if constraint, exists := attributes[attributeName]; exists {
+			return constraint, true
+		}
+	}
+
+	// Structure 2: Schema-based constraints
+	if schema, ok := data["schema"].(map[string]interface{}); ok {
+		if properties, ok := schema["properties"].(map[string]interface{}); ok {
+			if constraint, exists := properties[attributeName]; exists {
+				return constraint, true
+			}
+		}
+	}
+
+	// Structure 3: Validation rules
+	if validation, ok := data["validation"].(map[string]interface{}); ok {
+		if rules, ok := validation["rules"].(map[string]interface{}); ok {
+			if constraint, exists := rules[attributeName]; exists {
+				return constraint, true
+			}
+		}
+	}
+
+	return nil, false
+}
+
+// parseConstraints parses template constraints to determine validation method and allowed values
+func (s *templateService) parseConstraints(constraints interface{}) (method string, values []string) {
+	switch v := constraints.(type) {
+	case []interface{}:
+		// Array of allowed values
+		method = "allowed_values"
+		for _, item := range v {
+			if str, ok := item.(string); ok {
+				values = append(values, str)
+			}
+		}
+	case map[string]interface{}:
+		// Object with validation rules
+		if pattern, ok := v["pattern"].(string); ok {
+			method = "pattern"
+			values = []string{pattern}
+		} else if enum, ok := v["enum"].([]interface{}); ok {
+			method = "enum"
+			for _, item := range enum {
+				if str, ok := item.(string); ok {
+					values = append(values, str)
+				}
+			}
+		} else if minVal, hasMin := v["min"]; hasMin {
+			if maxVal, hasMax := v["max"]; hasMax {
+				method = "range"
+				values = []string{fmt.Sprintf("%v", minVal), fmt.Sprintf("%v", maxVal)}
+			}
+		}
+	case string:
+		// Single allowed value or pattern
+		method = "single_value"
+		values = []string{v}
+	}
+
+	if method == "" {
+		method = "unknown"
+	}
+
+	return method, values
+}
+
+// validateValueAgainstConstraints validates a value against parsed constraints
+func (s *templateService) validateValueAgainstConstraints(value, method string, allowedValues []string) *AttributeValidationResult {
+	switch method {
+	case "allowed_values", "enum":
+		// Check if value is in allowed list
+		for _, allowed := range allowedValues {
+			if value == allowed {
+				return &AttributeValidationResult{
+					IsValid: true,
+				}
+			}
+		}
+		return &AttributeValidationResult{
+			IsValid:      false,
+			ErrorCode:    ErrTemplateValueNotAllowed,
+			ErrorMessage: fmt.Sprintf("Value '%s' is not in allowed values: %v", value, allowedValues),
+		}
+
+	case "single_value":
+		// Check exact match
+		if len(allowedValues) > 0 && value == allowedValues[0] {
+			return &AttributeValidationResult{
+				IsValid: true,
+			}
+		}
+		return &AttributeValidationResult{
+			IsValid:      false,
+			ErrorCode:    ErrTemplateValueNotAllowed,
+			ErrorMessage: fmt.Sprintf("Value '%s' does not match required value '%s'", value, allowedValues[0]),
+		}
+
+	case "pattern":
+		// Pattern matching would require regex validation
+		// For now, simplified implementation
+		return &AttributeValidationResult{
+			IsValid:      true, // TODO: Implement regex validation
+			ErrorMessage: "Pattern validation not fully implemented",
+		}
+
+	case "range":
+		// Range validation would require numeric parsing
+		// For now, simplified implementation  
+		return &AttributeValidationResult{
+			IsValid:      true, // TODO: Implement range validation
+			ErrorMessage: "Range validation not fully implemented",
+		}
+
+	default:
+		// Unknown validation method, allow by default
+		return &AttributeValidationResult{
+			IsValid: true,
+		}
+	}
 }
