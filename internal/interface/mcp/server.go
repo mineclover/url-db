@@ -5,7 +5,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"net/http"
 	"os"
+	"strconv"
 
 	"url-db/internal/constants"
 	"url-db/internal/interface/setup"
@@ -18,6 +20,8 @@ type MCPServer struct {
 	mode        string
 	reader      io.Reader
 	writer      io.Writer
+	port        string
+	server      *http.Server
 }
 
 // NewMCPServer creates a new MCP server instance
@@ -28,7 +32,13 @@ func NewMCPServer(factory *setup.ApplicationFactory, mode string) *MCPServer {
 		mode:        mode,
 		reader:      os.Stdin,
 		writer:      os.Stdout,
+		port:        strconv.Itoa(constants.DefaultPort),
 	}
+}
+
+// SetPort sets the port for HTTP/SSE mode
+func (s *MCPServer) SetPort(port string) {
+	s.port = port
 }
 
 // JSONRPCRequest represents a JSON-RPC 2.0 request
@@ -100,14 +110,174 @@ func (s *MCPServer) startStdioMode(ctx context.Context) error {
 	}
 }
 
-// startSSEMode handles Server-Sent Events mode (placeholder)
+// startSSEMode handles Server-Sent Events mode
 func (s *MCPServer) startSSEMode(ctx context.Context) error {
-	return fmt.Errorf("SSE mode not implemented yet")
+	mux := http.NewServeMux()
+
+	// SSE endpoint for MCP communication
+	mux.HandleFunc("/mcp", s.handleSSEEndpoint)
+
+	// Health check endpoint
+	mux.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(map[string]interface{}{
+			"status": "ok",
+			"mode":   "sse",
+			"server": constants.MCPServerName,
+		})
+	})
+
+	s.server = &http.Server{
+		Addr:    ":" + s.port,
+		Handler: mux,
+	}
+
+	fmt.Printf("Starting MCP SSE server on port %s\n", s.port)
+	fmt.Printf("SSE endpoint: http://localhost:%s/mcp\n", s.port)
+	fmt.Printf("Health check: http://localhost:%s/health\n", s.port)
+
+	return s.server.ListenAndServe()
 }
 
-// startHTTPMode handles HTTP mode (placeholder)
+// handleSSEEndpoint handles SSE connections for MCP communication
+func (s *MCPServer) handleSSEEndpoint(w http.ResponseWriter, r *http.Request) {
+	// Set SSE headers
+	w.Header().Set("Content-Type", "text/event-stream")
+	w.Header().Set("Cache-Control", "no-cache")
+	w.Header().Set("Connection", "keep-alive")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Headers", "Cache-Control")
+
+	// Handle preflight requests
+	if r.Method == "OPTIONS" {
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
+	// Only allow POST requests for initial setup
+	if r.Method != "POST" {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	// Read the initial JSON-RPC request
+	var req JSONRPCRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "Invalid JSON", http.StatusBadRequest)
+		return
+	}
+
+	// Create a custom writer that sends to SSE
+	sseWriter := &SSEWriter{responseWriter: w}
+	s.writer = sseWriter
+
+	// Handle the request and send response via SSE
+	s.handleRequest(r.Context(), &req)
+}
+
+// SSEWriter implements io.Writer for SSE message sending
+type SSEWriter struct {
+	responseWriter http.ResponseWriter
+}
+
+func (w *SSEWriter) Write(p []byte) (n int, err error) {
+	// Send SSE message
+	fmt.Fprintf(w.responseWriter, "data: %s\n\n", p)
+	if f, ok := w.responseWriter.(http.Flusher); ok {
+		f.Flush()
+	}
+	return len(p), nil
+}
+
+// startHTTPMode handles HTTP mode
 func (s *MCPServer) startHTTPMode(ctx context.Context) error {
-	return fmt.Errorf("HTTP mode not implemented yet")
+	mux := http.NewServeMux()
+
+	// MCP endpoint for JSON-RPC communication
+	mux.HandleFunc("/mcp", s.handleHTTPEndpoint)
+
+	// Health check endpoint
+	mux.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(map[string]interface{}{
+			"status": "ok",
+			"mode":   "http",
+			"server": constants.MCPServerName,
+		})
+	})
+
+	s.server = &http.Server{
+		Addr:    ":" + s.port,
+		Handler: mux,
+	}
+
+	fmt.Printf("Starting MCP HTTP server on port %s\n", s.port)
+	fmt.Printf("MCP endpoint: http://localhost:%s/mcp\n", s.port)
+	fmt.Printf("Health check: http://localhost:%s/health\n", s.port)
+
+	return s.server.ListenAndServe()
+}
+
+// handleHTTPEndpoint handles HTTP requests for MCP communication
+func (s *MCPServer) handleHTTPEndpoint(w http.ResponseWriter, r *http.Request) {
+	// Only allow POST requests
+	if r.Method != "POST" {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	// Set CORS headers
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+
+	// Handle preflight requests
+	if r.Method == "OPTIONS" {
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
+	// Read and parse the JSON-RPC request
+	var req JSONRPCRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		s.sendHTTPError(w, nil, ParseError, "Parse error", err.Error())
+		return
+	}
+
+	// Create a custom writer that writes to HTTP response
+	httpWriter := &HTTPWriter{responseWriter: w}
+	s.writer = httpWriter
+
+	// Handle the request
+	s.handleRequest(r.Context(), &req)
+}
+
+// HTTPWriter implements io.Writer for HTTP response writing
+type HTTPWriter struct {
+	responseWriter http.ResponseWriter
+}
+
+func (w *HTTPWriter) Write(p []byte) (n int, err error) {
+	return w.responseWriter.Write(p)
+}
+
+// sendHTTPError sends an error response via HTTP
+func (s *MCPServer) sendHTTPError(w http.ResponseWriter, id interface{}, code int, message string, data interface{}) {
+	response := JSONRPCResponse{
+		JSONRPC: constants.JSONRPCVersion,
+		ID:      id,
+		Error: &RPCError{
+			Code:    code,
+			Message: message,
+			Data:    data,
+		},
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(response)
 }
 
 // handleRequest processes a JSON-RPC request
@@ -146,7 +316,7 @@ func (s *MCPServer) handleInitialize(req *JSONRPCRequest) {
 				"listChanged": true,
 			},
 			"resources": map[string]interface{}{
-				"subscribe": true,
+				"subscribe":   true,
 				"listChanged": true,
 			},
 		},
@@ -431,7 +601,7 @@ func (s *MCPServer) handleToolsList(req *JSONRPCRequest) {
 				"properties": map[string]interface{}{
 					"domain_name": map[string]interface{}{"type": "string", "description": "Domain name to filter nodes from"},
 					"filters": map[string]interface{}{
-						"type": "array",
+						"type":        "array",
 						"description": "Array of attribute filters",
 						"items": map[string]interface{}{
 							"type": "object",

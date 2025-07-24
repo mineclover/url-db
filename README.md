@@ -159,13 +159,18 @@ Comprehensive tests generate reports in `test-output/`:
 
 ## 🚀 MCP Integration
 
-The URL-DB server provides native MCP support with 16 tools:
+The URL-DB server provides native MCP support with 18 tools across multiple modes:
 - **Domain Management**: Create and list domains
 - **URL Operations**: Save, search, and manage URLs  
 - **Attribute System**: Tag and categorize URLs with type validation
 - **Schema Management**: Define and enforce domain-specific attributes
 - **Advanced Queries**: Filter by attributes, batch operations
 - **Resource System**: MCP resource protocol support
+
+### MCP Server Modes
+- **stdio**: Standard input/output for AI assistants (Claude Desktop, Cursor)
+- **http**: HTTP JSON-RPC for web applications and REST clients
+- **sse**: Server-Sent Events for real-time applications (experimental)
 
 ### Tool Specification System  
 - **Single Source**: All tools defined in `/specs/mcp-tools.yaml`

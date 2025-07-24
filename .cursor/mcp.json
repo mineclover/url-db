@@ -1,6 +1,6 @@
 {
   "mcpServers": {
-    "url-db": {
+    "url-db-local": {
       "command": "/Users/junwoobang/mcp/url-db/bin/url-db",
       "args": [
         "-mcp-mode=stdio",

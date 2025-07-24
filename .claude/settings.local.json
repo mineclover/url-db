@@ -76,7 +76,11 @@
       "Bash(/Users/junwoobang/mcp/url-db/test-mcp-full.sh:*)",
       "Bash(node:*)",
       "Bash(cat:*)",
-      "Bash(tree:*)"
+      "Bash(tree:*)",
+      "WebFetch(domain:modelcontextprotocol.io)",
+      "Bash(./debug-mcp.sh:*)",
+      "WebFetch(domain:pkg.go.dev)",
+      "WebFetch(domain:spec.modelcontextprotocol.io)"
     ],
     "deny": []
   }

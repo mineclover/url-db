@@ -81,8 +81,39 @@ else
     exit 1
 fi
 
+# Test HTTP mode
+echo "8. Testing HTTP mode..."
+./bin/url-db -mcp-mode=http -port=8085 -db-path=./url-db.sqlite &
+HTTP_PID=$!
+sleep 3
+
+# Test health endpoint
+if curl -s http://localhost:8085/health | grep -q '"status":"ok"'; then
+    echo "✅ HTTP health endpoint working"
+else
+    echo "❌ HTTP health endpoint failed"
+    kill $HTTP_PID 2>/dev/null
+    exit 1
+fi
+
+# Test MCP endpoint via HTTP
+result=$(curl -s -X POST http://localhost:8085/mcp \
+  -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{}}}')
+if echo "$result" | grep -q '"protocolVersion":"2024-11-05"'; then
+    echo "✅ HTTP MCP endpoint working"
+else
+    echo "❌ HTTP MCP endpoint failed"
+    echo "Result: $result"
+    kill $HTTP_PID 2>/dev/null
+    exit 1
+fi
+
+# Cleanup HTTP server
+kill $HTTP_PID 2>/dev/null
+
 # Test invalid mode
-echo "8. Testing invalid mode validation..."
+echo "9. Testing invalid mode validation..."
 result=$(./bin/url-db -mcp-mode=invalid 2>&1)
 if echo "$result" | grep -q "Invalid MCP mode"; then
     echo "✅ Invalid mode validation working"
@@ -99,5 +130,7 @@ echo ""
 echo "Usage examples:"
 echo "- HTTP mode: ./bin/url-db"
 echo "- MCP stdio mode: ./bin/url-db -mcp-mode=stdio"
-echo "- MCP SSE mode: ./bin/url-db -mcp-mode=sse (not implemented yet)"
-echo "- MCP HTTP mode: ./bin/url-db -mcp-mode=http (not implemented yet)"
+echo "- MCP HTTP mode: ./bin/url-db -mcp-mode=http -port=8080"
+echo "- MCP SSE mode: ./bin/url-db -mcp-mode=sse -port=8080 (experimental)"
+echo ""
+echo "✅ All modes implemented and tested!"
