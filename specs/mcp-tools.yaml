@@ -136,7 +136,8 @@ tools:
     description: "Get detailed information about a specific attribute including its type and validation rules."
     usage: "Use when you need to understand the format or constraints of an attribute before using it."
     parameters:
-      composite_id: { type: "string", required: true, description: "Composite ID (format: tool-name:domain:attr-{id})" }
+      domain_name: { type: "string", required: true, description: "The domain name" }
+      attribute_name: { type: "string", required: true, description: "The attribute name to get" }
       
   update_domain_attribute:
     name: "update_domain_attribute"
@@ -144,8 +145,9 @@ tools:
     description: "Update the description or other properties of a domain attribute."
     usage: "Use when you need to modify attribute metadata or descriptions."
     parameters:
-      composite_id: { type: "string", required: true, description: "Composite ID (format: tool-name:domain:attr-{id})" }
-      description: { type: "string", required: true, description: "New description" }
+      domain_name: { type: "string", required: true, description: "The domain name" }
+      attribute_name: { type: "string", required: true, description: "The attribute name to update" }
+      description: { type: "string", required: false, description: "New description for the attribute" }
       
   delete_domain_attribute:
     name: "delete_domain_attribute"
@@ -153,7 +155,8 @@ tools:
     description: "Remove an attribute type from a domain's schema."
     usage: "Use when an attribute is no longer needed for a domain."
     parameters:
-      composite_id: { type: "string", required: true, description: "Composite ID (format: tool-name:domain:attr-{id})" }
+      domain_name: { type: "string", required: true, description: "The domain name" }
+      attribute_name: { type: "string", required: true, description: "The attribute name to delete" }
 
 
   # Server Information
