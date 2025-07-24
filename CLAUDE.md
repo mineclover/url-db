@@ -17,20 +17,12 @@ URL-DB is a Go-based URL database management system built with Clean Architectur
 make build                    # Build using Makefile
 go build ./cmd/server         # Direct Go build
 
-# Run tests  
-./scripts/test_runner.sh                    # Comprehensive test runner with options
-./scripts/test_runner.sh -m coverage       # Run with detailed coverage analysis
-./scripts/test_runner.sh -p internal/mcp   # Test specific package
-./scripts/test_runner.sh -m unit -v        # Unit tests with verbose output
-
-# Coverage analysis
-./scripts/coverage_analysis.sh             # Detailed coverage analysis and recommendations
-go test -coverprofile=coverage.out ./...   # Basic coverage
-go tool cover -html=coverage.out -o coverage.html  # Generate HTML coverage report
-
-# Legacy test commands
-go test -v ./...             # Run all tests (basic)
-go test -v ./internal/mcp/... # Run specific package tests
+# Run tests (actual working commands)
+go test -v ./...                                    # Run all tests (basic)
+go test -v ./internal/mcp/...                      # Run specific package tests
+go test -coverprofile=coverage.out ./...          # Generate coverage
+go tool cover -html=coverage.out -o coverage.html # Generate HTML coverage report
+go tool cover -func=coverage.out                  # Show coverage by function
 
 # Lint and format
 make lint                    # Run golangci-lint (install: brew install golangci-lint)
@@ -42,6 +34,17 @@ make dev                     # Hot reload (requires: go install github.com/cosmt
 # Run the server
 ./bin/url-db                 # HTTP mode (default port 8080) 
 ./bin/url-db -mcp-mode=stdio # MCP stdio mode for AI assistants
+./bin/url-db -mcp-mode=sse   # Server-Sent Events mode
+
+# Build commands
+make deps                    # Install dependencies
+make build-all              # Build for all platforms
+make run                    # Build and run
+make clean                  # Clean build artifacts
+
+# Documentation
+make swagger-gen            # Generate Swagger documentation
+make dev-swagger           # Generate docs and run dev mode
 
 # MCP Tool specification
 # Single source: /specs/mcp-tools.yaml - contains all tool definitions, descriptions, and usage info
@@ -203,9 +206,10 @@ node_events               -- Event logging system
 
 ## MCP Integration
 
-The MCP server supports two modes:
+The MCP server supports three modes:
 - **stdio**: For AI assistants (Claude Desktop, Cursor)
-- **sse**: For HTTP-based integration
+- **http**: For HTTP-based integration
+- **sse**: For Server-Sent Events (experimental)
 
 MCP provides 18 tools following strict JSON-RPC 2.0 protocol:
 - Domain management: `list_domains`, `create_domain`
@@ -234,49 +238,12 @@ go test -v ./internal/mcp/...
 go test -coverprofile=coverage.out ./...
 go tool cover -func=coverage.out
 
+# Generate HTML coverage report
+go tool cover -html=coverage.out -o coverage.html
+
 # Integration tests
 go test -v ./internal/database/... -tags=integration
 ```
-
-### Test Automation Scripts
-
-#### Coverage Analysis Script (`./scripts/coverage_analysis.sh`)
-Comprehensive coverage analysis with actionable insights:
-```bash
-./scripts/coverage_analysis.sh    # Full analysis with color-coded output
-```
-
-**Features:**
-- **Overall Statistics**: Total coverage with status indicators
-- **Package-level Analysis**: High/Medium/Low coverage categorization
-- **Critical Functions**: Lists 0% coverage functions requiring immediate attention
-- **High Potential**: Functions with 75-95% coverage that can easily reach 100%
-- **Missing Tests**: Identifies packages without test files
-- **HTML Report**: Generates detailed coverage.html report
-- **Improvement Suggestions**: Prioritized recommendations for coverage improvement
-
-#### Test Runner Script (`./scripts/test_runner.sh`)
-Flexible test execution with multiple modes and options:
-```bash
-./scripts/test_runner.sh -h                    # Show all options
-./scripts/test_runner.sh                       # Run all tests
-./scripts/test_runner.sh -m coverage           # Run with coverage analysis
-./scripts/test_runner.sh -p internal/mcp -v    # Test specific package with verbose
-./scripts/test_runner.sh -m unit --timeout 15m # Unit tests with custom timeout
-```
-
-**Modes:**
-- `all`: Run all tests (default)
-- `unit`: Unit tests only (with -short flag)
-- `integration`: Integration tests only (with -tags=integration)
-- `mcp`: MCP-specific tests only
-- `coverage`: Tests with detailed coverage analysis
-
-**Options:**
-- `-v, --verbose`: Detailed test output
-- `-p, --package PKG`: Target specific package
-- `-t, --timeout TIME`: Custom timeout (default: 10m)
-- `--clean`: Clean coverage files before running
 
 ### Test Structure and Coverage (Current: 20.6%)
 
@@ -306,22 +273,6 @@ Tests follow the `package_test` pattern for clear separation:
 - **Cleanup**: Automatic cleanup after each test case
 - **Fixtures**: Standardized test data setup via helper functions
 - **Transactions**: Repository tests wrap operations in transactions
-
-### Coverage Improvement Strategy
-Use the coverage analysis script to identify improvement opportunities:
-
-1. **Immediate Impact** (0% coverage packages):
-   - `internal/services/advanced` - 0 test files, high business value
-   - `cmd/server/main.go` - MCP adapter functions (lines 355-522)
-
-2. **Quick Wins** (75-95% functions):
-   - Functions already mostly tested, small gaps to close
-   - Use analysis script to identify specific functions
-
-3. **Medium-term Goals**:
-   - Add missing test files for untested packages
-   - Improve MCP protocol test coverage (currently 14.4%)
-   - Enhance HTTP interface tests (currently 1.5%)
 
 ## Important Implementation Details
 
@@ -383,7 +334,7 @@ When implementing new features:
 
 ### MCP Tool Design Guidelines
 
-1. **Tool Naming**: Use clear, action-oriented names (e.g., `create_mcp_domain`, not `domain_new`)
+1. **Tool Naming**: Use clear, action-oriented names (e.g., `create_domain`, not `domain_new`)
 2. **Parameter Design**: 
    - Use descriptive parameter names
    - Required parameters should be minimal
@@ -410,12 +361,25 @@ When implementing new features:
 5. **Immutability**: Domain entities with getter methods
 6. **Clean Architecture**: Strict layer separation and dependency inversion
 
-### Potential Future Features
+## Configuration and Environment
 
-Features that could be added for enhanced functionality:
-- Comprehensive test suite completion (target: 80% coverage)
-- Advanced search/filter capabilities
-- Export/import functionality
-- Node connections and relationships management
-- Subscription and dependency management
-- Architecture tests to enforce dependency rules
+### Default Settings (from /internal/constants/)
+- **Port**: 8080 (configurable via constants)
+- **Database**: `file:./url-db.sqlite` (configurable via constants)
+- **Tool Name**: `url-db` (configurable via constants)
+- **MCP Server Name**: `url-db-mcp-server`
+- **Protocol Version**: `2024-11-05`
+
+### Environment Variables
+- `VERSION` - Build version (default: 1.0.0)
+- `TEST_TIMEOUT` - Test timeout in seconds (default: 300)
+- `COVERAGE_THRESHOLD` - Minimum coverage percentage (default: 80)
+- `AUTO_CREATE_ATTRIBUTES` - Auto-create attributes if they don't exist (default: true)
+
+### Build Configuration (Makefile)
+The Korean-commented Makefile provides comprehensive build automation with color-coded output:
+- Multi-platform builds (darwin/amd64, darwin/arm64, linux/amd64, linux/arm64, windows/amd64)
+- Hot reload development mode with air
+- Swagger documentation generation
+- Comprehensive linting with golangci-lint
+- Clean build artifact management
