@@ -92,8 +92,11 @@ func main() {
 			log.Printf("Starting MCP server in %s mode", *mcpMode)
 		}
 
-		// Use original working MCP server implementation
-		mcpServer := mcp.NewMCPServer(factory, *mcpMode)
+		// Use refactored MCP server implementation
+		mcpServer, err := mcp.NewMCPServer(factory, *mcpMode)
+		if err != nil {
+			log.Fatalf("Failed to create MCP server: %v", err)
+		}
 
 		// Set port for SSE/HTTP modes
 		if *mcpMode == constants.MCPModeSSE || *mcpMode == constants.MCPModeHTTP {
