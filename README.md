@@ -191,13 +191,30 @@ docker run -it --rm -v url-db-data:/data asfdassdssa/url-db:latest
 # HTTP API 서버 (포트 8080)
 docker run -d -p 8080:8080 -v url-db-data:/data asfdassdssa/url-db:latest -port=8080
 
+# SSE (Server-Sent Events) 모드 - HTTP 클라이언트용
+docker run -d -p 8080:8080 -v $(pwd)/data:/data --name url-db-sse asfdassdssa/url-db:latest -mcp-mode=sse
+
 # 모든 서비스 동시 실행
 git clone https://github.com/mineclover/url-db.git
 cd url-db
 make docker-compose-up
 ```
 
-### 3. 개발자용 빌드
+### 3. SSE 모드로 HTTP 클라이언트 연동
+```bash
+# 간단한 Docker 명령어로 실행
+docker run -d -p 8080:8080 -v $(pwd)/data:/data --name url-db-sse asfdassdssa/url-db:latest -mcp-mode=sse
+
+# Docker Compose로 실행
+docker-compose -f docker-compose-sse.yml up -d
+
+# 연결 테스트
+curl http://localhost:8080/health
+```
+
+SSE 모드는 HTTP 기반 MCP 통신을 제공하여 HTTP 클라이언트에서 URL-DB를 사용할 수 있게 합니다. 자세한 내용은 [SSE 설정 가이드](docs/SSE_MCP_SETUP_GUIDE.md)를 참고하세요.
+
+### 4. 개발자용 빌드
 ```bash
 git clone https://github.com/mineclover/url-db.git
 cd url-db
@@ -242,6 +259,51 @@ docker run -it --rm -v url-db-data:/data asfdassdssa/url-db:latest -mcp-mode=std
 ## 📄 라이선스
 
 Apache 2.0 License - 자세한 내용은 [LICENSE](LICENSE) 파일을 참조하세요.
+
+## 🛠️ MCP 도구 목록
+
+URL-DB는 다음과 같은 MCP 도구들을 제공합니다:
+
+### 도메인 관리
+- **get_server_info**: Get server information
+- **list_domains**: Get all domains
+- **create_domain**: Create new domain for organizing URLs
+
+### URL(노드) 관리
+- **list_nodes**: List URLs in domain
+- **create_node**: Add URL to domain
+- **get_node**: Get URL details
+- **update_node**: Update URL title or description
+- **delete_node**: Remove URL
+- **find_node_by_url**: Search by exact URL
+- **scan_all_content**: Retrieve all URLs and their content from a domain using page-based navigation with token optimization for AI processing
+
+### 속성 관리
+- **get_node_attributes**: Get URL tags and attributes
+- **set_node_attributes**: Add or update URL tags
+- **list_domain_attributes**: Get available tag types for domain
+- **create_domain_attribute**: Define new tag type for domain
+- **get_domain_attribute**: Get details of a specific domain attribute
+- **update_domain_attribute**: Update domain attribute description
+- **delete_domain_attribute**: Remove domain attribute definition
+- **filter_nodes_by_attributes**: Filter nodes by attribute values
+- **get_node_with_attributes**: Get URL details with all attributes
+
+### 의존성 관리
+- **create_dependency**: Create dependency relationship between nodes
+- **list_node_dependencies**: List what a node depends on
+- **list_node_dependents**: List what depends on a node
+- **delete_dependency**: Remove dependency relationship
+
+### 템플릿 관리
+- **list_templates**: List templates in domain
+- **create_template**: Create new template in domain
+- **get_template**: Get template details
+- **update_template**: Update template
+- **delete_template**: Delete template
+- **clone_template**: Clone existing template
+- **generate_template_scaffold**: Generate template scaffold for given type
+- **validate_template**: Validate template data structure
 
 ---
 
