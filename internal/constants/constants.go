@@ -105,6 +105,15 @@ const (
 	LogCategoryService  = "service"
 )
 
+// Content scanning constants
+const (
+	DefaultMaxTokensPerPage = 3000  // Default tokens per page
+	MaxTokensPerPage        = 5000  // Maximum tokens per page
+	MinTokensPerNode        = 20    // Minimum tokens per node
+	AvgTokensPerNode        = 100   // Average tokens per node
+	ScanBatchSize           = 100   // Batch size for scanning
+)
+
 // Environment variables
 const (
 	EnvDatabaseURL          = "DATABASE_URL"
