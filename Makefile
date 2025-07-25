@@ -20,7 +20,7 @@ YELLOW=\033[1;33m
 BLUE=\033[0;34m
 NC=\033[0m
 
-.PHONY: all build clean deps run build-all lint fmt dev swagger-gen dev-swagger help test test-coverage coverage-analysis docker-build docker-run docker-stop docker-logs docker-push
+.PHONY: all build clean deps run build-all lint fmt dev swagger-gen dev-swagger help test test-coverage coverage-analysis docker-build docker-run docker-sse docker-stop docker-logs docker-push docker-compose-up docker-compose-down docker-clean
 
 # 기본 타겟
 all: clean deps build
@@ -164,8 +164,9 @@ help:
 	@echo "  make docker-compose-up - Start all services with Docker Compose"
 	@echo "  make docker-compose-down - Stop all services"
 	@echo "  make docker-logs       - Show Docker logs"
-	@echo "  make docker-push       - Push image to registry"
+	@echo "  make docker-push       - Push image to Docker Hub"
 	@echo "  make docker-clean      - Clean Docker resources"
+	@echo "  make docker-sse        - Run container in SSE mode"
 	@echo ""
 	@echo "$(BLUE)To run the server:$(NC)"
 	@echo "  ./$(BUILD_DIR)/$(BINARY_NAME)"
@@ -179,7 +180,8 @@ help:
 # Docker 관련 설정
 DOCKER_IMAGE=url-db
 DOCKER_TAG?=latest
-DOCKER_REGISTRY?=
+DOCKER_REGISTRY?=asfdassdssa
+DOCKER_USERNAME?=asfdassdssa
 
 # Docker 빌드
 docker-build:
@@ -201,6 +203,23 @@ docker-run:
 		--name url-db-mcp \
 		-v url-db-data:/data \
 		$(DOCKER_IMAGE):$(DOCKER_TAG)
+
+# Docker 실행 (SSE mode)
+docker-sse:
+	@echo "$(BLUE)Running Docker container in SSE mode...$(NC)"
+	@echo "$(GREEN)✓ SSE endpoint will be available at: http://localhost:8080/mcp$(NC)"
+	@echo "$(YELLOW)Use 'docker stop url-db-sse' to stop the container$(NC)"
+	docker run -d \
+		--name url-db-sse \
+		-p 8080:8080 \
+		-v url-db-data:/data \
+		$(DOCKER_IMAGE):$(DOCKER_TAG) \
+		-mcp-mode=sse
+	@sleep 2
+	@echo "$(BLUE)Testing SSE health endpoint...$(NC)"
+	@curl -s http://localhost:8080/health | grep -q "ok" && \
+		echo "$(GREEN)✓ SSE server is running!$(NC)" || \
+		echo "$(RED)✗ SSE server health check failed$(NC)"
 
 # Docker Compose 실행 (모든 서비스)
 docker-compose-up:
@@ -225,16 +244,17 @@ docker-logs:
 
 # Docker 이미지 푸시
 docker-push:
-	@if [ -z "$(DOCKER_REGISTRY)" ]; then \
-		echo "$(RED)✗ DOCKER_REGISTRY not set!$(NC)"; \
-		echo "$(YELLOW)Usage: make docker-push DOCKER_REGISTRY=your-registry.com$(NC)"; \
-		exit 1; \
+	@echo "$(BLUE)Pushing Docker image to Docker Hub...$(NC)"
+	@echo "$(BLUE)Username: $(DOCKER_USERNAME)$(NC)"
+	@echo "$(BLUE)Image: $(DOCKER_USERNAME)/$(DOCKER_IMAGE):$(DOCKER_TAG)$(NC)"
+	@if [ "$(DOCKER_TAG)" != "latest" ]; then \
+		docker tag $(DOCKER_IMAGE):$(DOCKER_TAG) $(DOCKER_USERNAME)/$(DOCKER_IMAGE):$(DOCKER_TAG); \
 	fi
-	@echo "$(BLUE)Tagging image for registry...$(NC)"
-	docker tag $(DOCKER_IMAGE):$(DOCKER_TAG) $(DOCKER_REGISTRY)/$(DOCKER_IMAGE):$(DOCKER_TAG)
-	@echo "$(BLUE)Pushing to registry...$(NC)"
-	docker push $(DOCKER_REGISTRY)/$(DOCKER_IMAGE):$(DOCKER_TAG)
-	@echo "$(GREEN)✓ Image pushed to $(DOCKER_REGISTRY)/$(DOCKER_IMAGE):$(DOCKER_TAG)$(NC)"
+	docker tag $(DOCKER_IMAGE):$(DOCKER_TAG) $(DOCKER_USERNAME)/$(DOCKER_IMAGE):latest
+	docker push $(DOCKER_USERNAME)/$(DOCKER_IMAGE):$(DOCKER_TAG)
+	docker push $(DOCKER_USERNAME)/$(DOCKER_IMAGE):latest
+	@echo "$(GREEN)✓ Image pushed to Docker Hub!$(NC)"
+	@echo "$(GREEN)✓ Pull with: docker pull $(DOCKER_USERNAME)/$(DOCKER_IMAGE):latest$(NC)"
 
 # Docker 정리
 docker-clean:
