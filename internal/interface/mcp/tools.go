@@ -9,6 +9,7 @@ import (
 
 	"url-db/internal/application/dto/request"
 	nodeUseCase "url-db/internal/application/usecase/node"
+	"url-db/internal/constants"
 	"url-db/internal/domain/entity"
 	"url-db/internal/domain/repository"
 	"url-db/internal/domain/service"
@@ -1690,4 +1691,140 @@ func getTemplateStatus(isActive bool) string {
 		return "Active"
 	}
 	return "Inactive"
+}
+
+// handleScanAllContent scans all content in a domain with token-based pagination
+func (h *MCPToolHandler) handleScanAllContent(ctx context.Context, args map[string]interface{}) (interface{}, error) {
+	domainName, ok := args["domain_name"].(string)
+	if !ok || domainName == "" {
+		return nil, fmt.Errorf("domain_name is required")
+	}
+
+	// Parse optional parameters
+	maxTokensPerPage := constants.DefaultMaxTokensPerPage
+	if tokens, ok := args["max_tokens_per_page"].(float64); ok {
+		maxTokensPerPage = int(tokens)
+	}
+
+	page := 1
+	if p, ok := args["page"].(float64); ok {
+		page = int(p)
+	}
+
+	includeAttributes := true
+	if include, ok := args["include_attributes"].(bool); ok {
+		includeAttributes = include
+	}
+
+	compressAttributes := false
+	if compress, ok := args["compress_attributes"].(bool); ok {
+		compressAttributes = compress
+	}
+
+	// Create content scanner service
+	contentScanner := service.NewContentScanner(
+		h.dependencies.NodeRepo,
+		h.dependencies.NodeAttributeRepo,
+		h.dependencies.DomainRepo,
+	)
+
+	// Execute scan
+	req := service.ScanRequest{
+		DomainName:         domainName,
+		MaxTokensPerPage:   maxTokensPerPage,
+		Page:               page,
+		IncludeAttributes:  includeAttributes,
+		CompressAttributes: compressAttributes,
+	}
+
+	result, err := contentScanner.ScanAllContent(ctx, req)
+	if err != nil {
+		return nil, fmt.Errorf("failed to scan content: %w", err)
+	}
+
+	// Format response
+	response := map[string]interface{}{
+		"items":      result.Items,
+		"pagination": result.Pagination,
+		"metadata":   result.Metadata,
+	}
+
+	return map[string]interface{}{
+		"content": []map[string]interface{}{
+			{
+				"type": "text",
+				"text": formatScanResult(result),
+			},
+		},
+		"result": response,
+	}, nil
+}
+
+// formatScanResult formats the scan result for display
+func formatScanResult(result *service.ScanResponse) string {
+	var text strings.Builder
+	
+	text.WriteString(fmt.Sprintf("📊 **Content Scan Results**\n\n"))
+	text.WriteString(fmt.Sprintf("**Page**: %d/%d (%d tokens)\n", 
+		result.Pagination.CurrentPage, result.Pagination.TotalPages, result.Pagination.CurrentTokens))
+	text.WriteString(fmt.Sprintf("**Items**: %d/%d nodes\n", 
+		result.Metadata.ProcessedNodes, result.Metadata.TotalNodes))
+	
+	// Navigation info
+	navInfo := []string{}
+	if result.Pagination.HasPrevious {
+		navInfo = append(navInfo, fmt.Sprintf("← Page %d", result.Pagination.CurrentPage-1))
+	}
+	if result.Pagination.HasMore {
+		navInfo = append(navInfo, fmt.Sprintf("Page %d →", result.Pagination.CurrentPage+1))
+	}
+	if len(navInfo) > 0 {
+		text.WriteString(fmt.Sprintf("**Navigation**: %s\n", strings.Join(navInfo, " | ")))
+	}
+	
+	// Compression info
+	if result.Metadata.CompressedOutput && result.Metadata.AttributeSummary != nil {
+		summary := result.Metadata.AttributeSummary
+		text.WriteString(fmt.Sprintf("**Compression**: %d duplicates removed", summary.TotalDuplicatesRemoved))
+		if len(summary.UniqueValues) > 0 {
+			text.WriteString(fmt.Sprintf(" (%d unique attribute types)", len(summary.UniqueValues)))
+		}
+		text.WriteString("\n")
+	}
+	
+	text.WriteString(fmt.Sprintf("\n**Current Page Items (%d)**:\n", len(result.Items)))
+	
+	for i, item := range result.Items {
+		if i >= 10 { // Limit display for readability
+			text.WriteString(fmt.Sprintf("... and %d more items (use page %d to see more)\n", len(result.Items)-10, result.Pagination.CurrentPage+1))
+			break
+		}
+		
+		text.WriteString(fmt.Sprintf("\n%d. **%s**", i+1, item.Content))
+		if item.Title != nil && *item.Title != "" {
+			text.WriteString(fmt.Sprintf(" - *%s*", *item.Title))
+		}
+		
+		if len(item.Attributes) > 0 {
+			if result.Metadata.CompressedOutput {
+				text.WriteString(fmt.Sprintf(" [%d unique attrs]", len(item.Attributes)))
+			} else {
+				text.WriteString(fmt.Sprintf(" [%d attributes]", len(item.Attributes)))
+			}
+		}
+	}
+	
+	// Show attribute summary if compressed
+	if result.Metadata.CompressedOutput && result.Metadata.AttributeSummary != nil {
+		summary := result.Metadata.AttributeSummary
+		if len(summary.MostCommonValues) > 0 {
+			text.WriteString(fmt.Sprintf("\n\n**Most Common Values**:\n"))
+			for attrName, value := range summary.MostCommonValues {
+				count := summary.ValueCounts[attrName+":"+value]
+				text.WriteString(fmt.Sprintf("- %s: '%s' (%d times)\n", attrName, value, count))
+			}
+		}
+	}
+	
+	return text.String()
 }

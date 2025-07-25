@@ -111,7 +111,7 @@ func (h *MCPProtocolHandler) handleToolsList(req *JSONRPCRequest) *JSONRPCRespon
 		},
 		{
 			"name":        "list_nodes",
-			"description": "List URLs in domain",
+			"description": "List URLs in domain (requires: domain must exist via create_domain)",
 			"inputSchema": map[string]interface{}{
 				"type": "object",
 				"properties": map[string]interface{}{
@@ -125,7 +125,7 @@ func (h *MCPProtocolHandler) handleToolsList(req *JSONRPCRequest) *JSONRPCRespon
 		},
 		{
 			"name":        "create_node",
-			"description": "Add URL to domain",
+			"description": "Add URL to domain (requires: domain must exist via create_domain)",
 			"inputSchema": map[string]interface{}{
 				"type": "object",
 				"properties": map[string]interface{}{
@@ -139,7 +139,7 @@ func (h *MCPProtocolHandler) handleToolsList(req *JSONRPCRequest) *JSONRPCRespon
 		},
 		{
 			"name":        "get_node",
-			"description": "Get URL details",
+			"description": "Get URL details (requires: node must exist via create_node; returns composite_id from create_node)",
 			"inputSchema": map[string]interface{}{
 				"type": "object",
 				"properties": map[string]interface{}{
@@ -150,7 +150,7 @@ func (h *MCPProtocolHandler) handleToolsList(req *JSONRPCRequest) *JSONRPCRespon
 		},
 		{
 			"name":        "update_node",
-			"description": "Update URL title or description",
+			"description": "Update URL title or description (requires: node must exist via create_node; use composite_id from create_node)",
 			"inputSchema": map[string]interface{}{
 				"type": "object",
 				"properties": map[string]interface{}{
@@ -163,7 +163,7 @@ func (h *MCPProtocolHandler) handleToolsList(req *JSONRPCRequest) *JSONRPCRespon
 		},
 		{
 			"name":        "delete_node",
-			"description": "Remove URL",
+			"description": "Remove URL (requires: node must exist via create_node; use composite_id from create_node)",
 			"inputSchema": map[string]interface{}{
 				"type": "object",
 				"properties": map[string]interface{}{
@@ -174,7 +174,7 @@ func (h *MCPProtocolHandler) handleToolsList(req *JSONRPCRequest) *JSONRPCRespon
 		},
 		{
 			"name":        "find_node_by_url",
-			"description": "Search by exact URL",
+			"description": "Search by exact URL (requires: domain must exist via create_domain; returns composite_id if found)",
 			"inputSchema": map[string]interface{}{
 				"type": "object",
 				"properties": map[string]interface{}{
@@ -185,8 +185,23 @@ func (h *MCPProtocolHandler) handleToolsList(req *JSONRPCRequest) *JSONRPCRespon
 			},
 		},
 		{
+			"name":        "scan_all_content",
+			"description": "Retrieve all URLs and their content from a domain using page-based navigation with token optimization for AI processing (requires: domain must exist via create_domain; includes attributes if domain has create_domain_attribute)",
+			"inputSchema": map[string]interface{}{
+				"type": "object",
+				"properties": map[string]interface{}{
+					"domain_name":         map[string]interface{}{"type": "string", "description": "Domain name to scan"},
+					"max_tokens_per_page": map[string]interface{}{"type": "integer", "description": "Maximum tokens per page (recommended: 6000-10000)", "default": 8000},
+					"page":                map[string]interface{}{"type": "integer", "description": "Page number (1-based)", "default": 1},
+					"include_attributes":  map[string]interface{}{"type": "boolean", "description": "Include node attributes in response", "default": true},
+					"compress_attributes": map[string]interface{}{"type": "boolean", "description": "Remove duplicate attribute values for AI context compression", "default": false},
+				},
+				"required": []string{"domain_name"},
+			},
+		},
+		{
 			"name":        "get_node_attributes",
-			"description": "Get URL tags and attributes",
+			"description": "Get URL tags and attributes (requires: node must exist via create_node; attributes defined via create_domain_attribute)",
 			"inputSchema": map[string]interface{}{
 				"type": "object",
 				"properties": map[string]interface{}{
@@ -197,7 +212,7 @@ func (h *MCPProtocolHandler) handleToolsList(req *JSONRPCRequest) *JSONRPCRespon
 		},
 		{
 			"name":        "set_node_attributes",
-			"description": "Add or update URL tags",
+			"description": "Add or update URL tags (requires: node must exist via create_node; attributes should be defined via create_domain_attribute unless auto_create_attributes=true)",
 			"inputSchema": map[string]interface{}{
 				"type": "object",
 				"properties": map[string]interface{}{
@@ -222,7 +237,7 @@ func (h *MCPProtocolHandler) handleToolsList(req *JSONRPCRequest) *JSONRPCRespon
 		},
 		{
 			"name":        "list_domain_attributes",
-			"description": "Get available tag types for domain",
+			"description": "Get available tag types for domain (requires: domain must exist via create_domain)",
 			"inputSchema": map[string]interface{}{
 				"type": "object",
 				"properties": map[string]interface{}{
@@ -233,7 +248,7 @@ func (h *MCPProtocolHandler) handleToolsList(req *JSONRPCRequest) *JSONRPCRespon
 		},
 		{
 			"name":        "create_domain_attribute",
-			"description": "Define new tag type for domain",
+			"description": "Define new tag type for domain (requires: domain must exist via create_domain; enables attributes for set_node_attributes)",
 			"inputSchema": map[string]interface{}{
 				"type": "object",
 				"properties": map[string]interface{}{
@@ -251,7 +266,7 @@ func (h *MCPProtocolHandler) handleToolsList(req *JSONRPCRequest) *JSONRPCRespon
 		},
 		{
 			"name":        "get_domain_attribute",
-			"description": "Get details of a specific domain attribute",
+			"description": "Get details of a specific domain attribute (requires: attribute must exist via create_domain_attribute)",
 			"inputSchema": map[string]interface{}{
 				"type": "object",
 				"properties": map[string]interface{}{
@@ -263,7 +278,7 @@ func (h *MCPProtocolHandler) handleToolsList(req *JSONRPCRequest) *JSONRPCRespon
 		},
 		{
 			"name":        "update_domain_attribute",
-			"description": "Update domain attribute description",
+			"description": "Update domain attribute description (requires: attribute must exist via create_domain_attribute)",
 			"inputSchema": map[string]interface{}{
 				"type": "object",
 				"properties": map[string]interface{}{
@@ -276,7 +291,7 @@ func (h *MCPProtocolHandler) handleToolsList(req *JSONRPCRequest) *JSONRPCRespon
 		},
 		{
 			"name":        "delete_domain_attribute",
-			"description": "Remove domain attribute definition",
+			"description": "Remove domain attribute definition (requires: attribute must exist via create_domain_attribute; removes all values from nodes)",
 			"inputSchema": map[string]interface{}{
 				"type": "object",
 				"properties": map[string]interface{}{
@@ -288,7 +303,7 @@ func (h *MCPProtocolHandler) handleToolsList(req *JSONRPCRequest) *JSONRPCRespon
 		},
 		{
 			"name":        "create_dependency",
-			"description": "Create dependency relationship between nodes",
+			"description": "Create dependency relationship between nodes (requires: both nodes must exist via create_node; use composite_ids from create_node)",
 			"inputSchema": map[string]interface{}{
 				"type": "object",
 				"properties": map[string]interface{}{
@@ -308,7 +323,7 @@ func (h *MCPProtocolHandler) handleToolsList(req *JSONRPCRequest) *JSONRPCRespon
 		},
 		{
 			"name":        "list_node_dependencies",
-			"description": "List what a node depends on",
+			"description": "List what a node depends on (requires: node must exist via create_node; dependencies created via create_dependency)",
 			"inputSchema": map[string]interface{}{
 				"type": "object",
 				"properties": map[string]interface{}{
@@ -319,7 +334,7 @@ func (h *MCPProtocolHandler) handleToolsList(req *JSONRPCRequest) *JSONRPCRespon
 		},
 		{
 			"name":        "list_node_dependents",
-			"description": "List what depends on a node",
+			"description": "List what depends on a node (requires: node must exist via create_node; dependencies created via create_dependency)",
 			"inputSchema": map[string]interface{}{
 				"type": "object",
 				"properties": map[string]interface{}{
@@ -330,7 +345,7 @@ func (h *MCPProtocolHandler) handleToolsList(req *JSONRPCRequest) *JSONRPCRespon
 		},
 		{
 			"name":        "delete_dependency",
-			"description": "Remove dependency relationship",
+			"description": "Remove dependency relationship (requires: dependency must exist via create_dependency; use dependency_id from list_node_dependencies)",
 			"inputSchema": map[string]interface{}{
 				"type": "object",
 				"properties": map[string]interface{}{
@@ -341,7 +356,7 @@ func (h *MCPProtocolHandler) handleToolsList(req *JSONRPCRequest) *JSONRPCRespon
 		},
 		{
 			"name":        "filter_nodes_by_attributes",
-			"description": "Filter nodes by attribute values",
+			"description": "Filter nodes by attribute values (requires: domain must exist via create_domain; attributes defined via create_domain_attribute)",
 			"inputSchema": map[string]interface{}{
 				"type": "object",
 				"properties": map[string]interface{}{
@@ -367,7 +382,7 @@ func (h *MCPProtocolHandler) handleToolsList(req *JSONRPCRequest) *JSONRPCRespon
 		},
 		{
 			"name":        "get_node_with_attributes",
-			"description": "Get URL details with all attributes",
+			"description": "Get URL details with all attributes (requires: node must exist via create_node; combines get_node + get_node_attributes)",
 			"inputSchema": map[string]interface{}{
 				"type": "object",
 				"properties": map[string]interface{}{
@@ -378,7 +393,7 @@ func (h *MCPProtocolHandler) handleToolsList(req *JSONRPCRequest) *JSONRPCRespon
 		},
 		{
 			"name":        "list_templates",
-			"description": "List templates in domain",
+			"description": "List templates in domain (requires: domain must exist via create_domain)",
 			"inputSchema": map[string]interface{}{
 				"type": "object",
 				"properties": map[string]interface{}{
@@ -394,7 +409,7 @@ func (h *MCPProtocolHandler) handleToolsList(req *JSONRPCRequest) *JSONRPCRespon
 		},
 		{
 			"name":        "create_template",
-			"description": "Create new template in domain",
+			"description": "Create new template in domain (requires: domain must exist via create_domain; use validate_template to check template_data)",
 			"inputSchema": map[string]interface{}{
 				"type": "object",
 				"properties": map[string]interface{}{
@@ -409,7 +424,7 @@ func (h *MCPProtocolHandler) handleToolsList(req *JSONRPCRequest) *JSONRPCRespon
 		},
 		{
 			"name":        "get_template",
-			"description": "Get template details",
+			"description": "Get template details (requires: template must exist via create_template; use composite_id from create_template)",
 			"inputSchema": map[string]interface{}{
 				"type": "object",
 				"properties": map[string]interface{}{
@@ -420,7 +435,7 @@ func (h *MCPProtocolHandler) handleToolsList(req *JSONRPCRequest) *JSONRPCRespon
 		},
 		{
 			"name":        "update_template",
-			"description": "Update template",
+			"description": "Update template (requires: template must exist via create_template; use validate_template to check new template_data)",
 			"inputSchema": map[string]interface{}{
 				"type": "object",
 				"properties": map[string]interface{}{
@@ -435,7 +450,7 @@ func (h *MCPProtocolHandler) handleToolsList(req *JSONRPCRequest) *JSONRPCRespon
 		},
 		{
 			"name":        "delete_template",
-			"description": "Delete template",
+			"description": "Delete template (requires: template must exist via create_template)",
 			"inputSchema": map[string]interface{}{
 				"type": "object",
 				"properties": map[string]interface{}{
@@ -446,7 +461,7 @@ func (h *MCPProtocolHandler) handleToolsList(req *JSONRPCRequest) *JSONRPCRespon
 		},
 		{
 			"name":        "clone_template",
-			"description": "Clone existing template",
+			"description": "Clone existing template (requires: source template must exist via create_template; creates new template with same domain)",
 			"inputSchema": map[string]interface{}{
 				"type": "object",
 				"properties": map[string]interface{}{
@@ -460,7 +475,7 @@ func (h *MCPProtocolHandler) handleToolsList(req *JSONRPCRequest) *JSONRPCRespon
 		},
 		{
 			"name":        "generate_template_scaffold",
-			"description": "Generate template scaffold for given type",
+			"description": "Generate template scaffold for given type (helper: provides starting point for create_template)",
 			"inputSchema": map[string]interface{}{
 				"type": "object",
 				"properties": map[string]interface{}{
@@ -475,7 +490,7 @@ func (h *MCPProtocolHandler) handleToolsList(req *JSONRPCRequest) *JSONRPCRespon
 		},
 		{
 			"name":        "validate_template",
-			"description": "Validate template data structure",
+			"description": "Validate template data structure (helper: use before create_template or update_template)",
 			"inputSchema": map[string]interface{}{
 				"type": "object",
 				"properties": map[string]interface{}{
@@ -526,6 +541,8 @@ func (h *MCPProtocolHandler) handleToolCall(ctx context.Context, req *JSONRPCReq
 		result, err = h.toolHandler.handleDeleteNode(ctx, params.Arguments)
 	case "find_node_by_url":
 		result, err = h.toolHandler.handleFindNodeByURL(ctx, params.Arguments)
+	case "scan_all_content":
+		result, err = h.toolHandler.handleScanAllContent(ctx, params.Arguments)
 	case "get_node_attributes":
 		result, err = h.toolHandler.handleGetNodeAttributes(ctx, params.Arguments)
 	case "set_node_attributes":

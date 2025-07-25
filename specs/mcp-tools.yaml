@@ -82,6 +82,17 @@ tools:
       domain_name: { type: "string", required: true, description: "Domain name" }
       url: { type: "string", required: true, description: "URL to find" }
 
+  scan_all_content:
+    name: "scan_all_content"
+    category: "node"
+    description: "Retrieve all URLs and their content from a domain using token-based pagination for AI processing. This allows complete domain analysis while respecting context window limits."
+    usage: "Use when you need to analyze all URLs in a domain for patterns, duplicates, categorization, or comprehensive review. Perfect for AI-driven content analysis."
+    parameters:
+      domain_name: { type: "string", required: true, description: "Domain name to scan" }
+      max_tokens_per_page: { type: "integer", required: false, default: 8000, description: "Maximum tokens per page (recommended: 6000-10000)" }
+      cursor: { type: "string", required: false, description: "Pagination cursor for next page" }
+      include_attributes: { type: "boolean", required: false, default: true, description: "Include node attributes in response" }
+
   # Node Attributes
   get_node_attributes:
     name: "get_node_attributes"

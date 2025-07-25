@@ -406,3 +406,61 @@ func (r *nodeRepository) FilterByAttributes(ctx context.Context, domainName stri
 
 	return nodes, total, nil
 }
+
+// CountByDomain counts nodes in a domain
+func (r *nodeRepository) CountByDomain(ctx context.Context, domainID int) (int, error) {
+	query := `SELECT COUNT(*) FROM nodes WHERE domain_id = ?`
+	
+	var count int
+	err := r.db.QueryRowContext(ctx, query, domainID).Scan(&count)
+	if err != nil {
+		return 0, err
+	}
+	
+	return count, nil
+}
+
+// GetByDomainFromCursor retrieves nodes starting from a cursor position
+func (r *nodeRepository) GetByDomainFromCursor(ctx context.Context, domainID int, lastNodeID int, limit int) ([]*entity.Node, error) {
+	query := `
+		SELECT id, content, domain_id, title, description, created_at, updated_at
+		FROM nodes
+		WHERE domain_id = ? AND id > ?
+		ORDER BY id ASC
+		LIMIT ?
+	`
+
+	rows, err := r.db.QueryContext(ctx, query, domainID, lastNodeID, limit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var nodes []*entity.Node
+	for rows.Next() {
+		var dbRow mapper.DatabaseNode
+		err := rows.Scan(
+			&dbRow.ID,
+			&dbRow.Content,
+			&dbRow.DomainID,
+			&dbRow.Title,
+			&dbRow.Description,
+			&dbRow.CreatedAt,
+			&dbRow.UpdatedAt,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		node := mapper.ToNodeEntity(&dbRow)
+		if node != nil {
+			nodes = append(nodes, node)
+		}
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return nodes, nil
+}

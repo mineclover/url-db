@@ -52,10 +52,12 @@ func (r *sqliteNodeAttributeRepository) Create(ctx context.Context, nodeAttribut
 // GetByNodeID retrieves all attributes for a specific node
 func (r *sqliteNodeAttributeRepository) GetByNodeID(ctx context.Context, nodeID int) ([]*entity.NodeAttribute, error) {
 	query := `
-		SELECT id, node_id, attribute_id, value, order_index, created_at
-		FROM node_attributes
-		WHERE node_id = ?
-		ORDER BY attribute_id, order_index
+		SELECT na.id, na.node_id, na.attribute_id, na.value, na.order_index, na.created_at,
+		       a.name, a.type
+		FROM node_attributes na
+		JOIN attributes a ON na.attribute_id = a.id
+		WHERE na.node_id = ?
+		ORDER BY a.name, COALESCE(na.order_index, 0)
 	`
 
 	rows, err := r.db.QueryContext(ctx, query, nodeID)
@@ -67,6 +69,7 @@ func (r *sqliteNodeAttributeRepository) GetByNodeID(ctx context.Context, nodeID 
 	var attributes []*entity.NodeAttribute
 	for rows.Next() {
 		model := &mapper.NodeAttributeModel{}
+		var attrName, attrType string
 		err := rows.Scan(
 			&model.ID,
 			&model.NodeID,
@@ -74,12 +77,16 @@ func (r *sqliteNodeAttributeRepository) GetByNodeID(ctx context.Context, nodeID 
 			&model.Value,
 			&model.OrderIndex,
 			&model.CreatedAt,
+			&attrName,
+			&attrType,
 		)
 		if err != nil {
 			return nil, fmt.Errorf("failed to scan node attribute: %w", err)
 		}
 
 		attribute := mapper.MapNodeAttributeModelToEntity(model)
+		attribute.SetName(attrName)
+		attribute.SetAttributeType(&attrType)
 		attributes = append(attributes, attribute)
 	}
 

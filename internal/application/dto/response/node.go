@@ -21,3 +21,14 @@ type NodeListResponse struct {
 	Size       int            `json:"size"`
 	TotalPages int            `json:"total_pages"`
 }
+
+// NodeWithAttributes represents a node with its attributes for scanning operations
+type NodeWithAttributes struct {
+	ID          int             `json:"id"`
+	Content     string          `json:"content"`
+	Title       *string         `json:"title,omitempty"`
+	Description *string         `json:"description,omitempty"`
+	CreatedAt   time.Time       `json:"created_at"`
+	UpdatedAt   time.Time       `json:"updated_at"`
+	Attributes  []AttributeValue `json:"attributes,omitempty"`
+}
