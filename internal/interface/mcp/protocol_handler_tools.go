@@ -4,9 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"strings"
 )
-
 
 // handleToolCall executes a tool call
 func (h *MCPProtocolHandler) handleToolCall(ctx context.Context, req *JSONRPCRequest) *JSONRPCResponse {
@@ -19,12 +17,8 @@ func (h *MCPProtocolHandler) handleToolCall(ctx context.Context, req *JSONRPCReq
 		return h.createErrorResponse(req.ID, InvalidParams, "Invalid tool call parameters", err.Error())
 	}
 
-	// Strip namespace prefix if present
+	// Use tool name directly without namespace
 	toolName := params.Name
-	namespace := "com.github.mineclover.url-db/"
-	if strings.HasPrefix(toolName, namespace) {
-		toolName = strings.TrimPrefix(toolName, namespace)
-	}
 
 	var result interface{}
 	var err error

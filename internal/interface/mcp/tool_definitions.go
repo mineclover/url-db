@@ -10,12 +10,10 @@ type ToolDefinition struct {
 
 // GetToolDefinitions returns all available MCP tool definitions
 func GetToolDefinitions() []ToolDefinition {
-	namespace := "com.github.mineclover.url-db"
-	
 	return []ToolDefinition{
 		// Server Management
 		{
-			Name:        namespace + "/get_server_info",
+			Name:        "get_server_info",
 			Title:       "Server Information",
 			Description: "Get server information",
 			InputSchema: map[string]interface{}{
@@ -26,7 +24,7 @@ func GetToolDefinitions() []ToolDefinition {
 
 		// Domain Management
 		{
-			Name:        namespace + "/list_domains",
+			Name:        "list_domains",
 			Title:       "List Domains",
 			Description: "Get all domains",
 			InputSchema: map[string]interface{}{
@@ -38,7 +36,7 @@ func GetToolDefinitions() []ToolDefinition {
 			},
 		},
 		{
-			Name:        namespace + "/create_domain",
+			Name:        "create_domain",
 			Title:       "Create Domain",
 			Description: "Create new domain for organizing URLs",
 			InputSchema: map[string]interface{}{
@@ -53,7 +51,7 @@ func GetToolDefinitions() []ToolDefinition {
 
 		// Node Management
 		{
-			Name:        namespace + "/list_nodes",
+			Name:        "list_nodes",
 			Title:       "List URLs",
 			Description: "List URLs in domain (requires: domain must exist via create_domain)",
 			InputSchema: map[string]interface{}{
@@ -68,7 +66,7 @@ func GetToolDefinitions() []ToolDefinition {
 			},
 		},
 		{
-			Name:        namespace + "/create_node",
+			Name:        "create_node",
 			Title:       "Add URL",
 			Description: "Add URL to domain (requires: domain must exist via create_domain)",
 			InputSchema: map[string]interface{}{
@@ -83,7 +81,7 @@ func GetToolDefinitions() []ToolDefinition {
 			},
 		},
 		{
-			Name:        namespace + "/get_node",
+			Name:        "get_node",
 			Title:       "Get URL Details",
 			Description: "Get URL details (requires: node must exist via create_node; returns composite_id from create_node)",
 			InputSchema: map[string]interface{}{
@@ -95,7 +93,7 @@ func GetToolDefinitions() []ToolDefinition {
 			},
 		},
 		{
-			Name:        namespace + "/update_node",
+			Name:        "update_node",
 			Title:       "Update URL",
 			Description: "Update URL title or description (requires: node must exist via create_node; use composite_id from create_node)",
 			InputSchema: map[string]interface{}{
@@ -109,7 +107,7 @@ func GetToolDefinitions() []ToolDefinition {
 			},
 		},
 		{
-			Name:        namespace + "/delete_node",
+			Name:        "delete_node",
 			Title:       "Remove URL",
 			Description: "Remove URL (requires: node must exist via create_node; use composite_id from create_node)",
 			InputSchema: map[string]interface{}{
@@ -121,7 +119,7 @@ func GetToolDefinitions() []ToolDefinition {
 			},
 		},
 		{
-			Name:        namespace + "/find_node_by_url",
+			Name:        "find_node_by_url",
 			Title:       "Find URL",
 			Description: "Search by exact URL (requires: domain must exist via create_domain; returns composite_id if found)",
 			InputSchema: map[string]interface{}{
@@ -134,7 +132,7 @@ func GetToolDefinitions() []ToolDefinition {
 			},
 		},
 		{
-			Name:        namespace + "/scan_all_content",
+			Name:        "scan_all_content",
 			Title:       "Scan All Content",
 			Description: "Retrieve all URLs and their content from a domain using page-based navigation with token optimization for AI processing",
 			InputSchema: map[string]interface{}{
@@ -152,7 +150,7 @@ func GetToolDefinitions() []ToolDefinition {
 
 		// Attribute Management
 		{
-			Name:        namespace + "/get_node_attributes",
+			Name:        "get_node_attributes",
 			Title:       "Get URL Attributes",
 			Description: "Get URL tags and attributes (requires: node must exist via create_node; attributes defined via create_domain_attribute)",
 			InputSchema: map[string]interface{}{
@@ -164,7 +162,7 @@ func GetToolDefinitions() []ToolDefinition {
 			},
 		},
 		{
-			Name:        namespace + "/set_node_attributes",
+			Name:        "set_node_attributes",
 			Title:       "Set URL Attributes",
 			Description: "Add or update URL tags (requires: node must exist via create_node; attributes should be defined via create_domain_attribute unless auto_create_attributes=true)",
 			InputSchema: map[string]interface{}{
@@ -192,7 +190,7 @@ func GetToolDefinitions() []ToolDefinition {
 
 		// Domain Attribute Schema
 		{
-			Name:        namespace + "/list_domain_attributes",
+			Name:        "list_domain_attributes",
 			Title:       "List Domain Attributes",
 			Description: "Get available tag types for domain (requires: domain must exist via create_domain)",
 			InputSchema: map[string]interface{}{
@@ -204,7 +202,7 @@ func GetToolDefinitions() []ToolDefinition {
 			},
 		},
 		{
-			Name:        namespace + "/create_domain_attribute",
+			Name:        "create_domain_attribute",
 			Title:       "Create Domain Attribute",
 			Description: "Define new tag type for domain (requires: domain must exist via create_domain; enables attributes for set_node_attributes)",
 			InputSchema: map[string]interface{}{
@@ -223,7 +221,7 @@ func GetToolDefinitions() []ToolDefinition {
 			},
 		},
 		{
-			Name:        namespace + "/get_domain_attribute",
+			Name:        "get_domain_attribute",
 			Title:       "Get Domain Attribute",
 			Description: "Get details of a specific domain attribute (requires: attribute must exist via create_domain_attribute)",
 			InputSchema: map[string]interface{}{
@@ -236,7 +234,7 @@ func GetToolDefinitions() []ToolDefinition {
 			},
 		},
 		{
-			Name:        namespace + "/update_domain_attribute",
+			Name:        "update_domain_attribute",
 			Title:       "Update Domain Attribute",
 			Description: "Update domain attribute description (requires: attribute must exist via create_domain_attribute)",
 			InputSchema: map[string]interface{}{
@@ -250,7 +248,7 @@ func GetToolDefinitions() []ToolDefinition {
 			},
 		},
 		{
-			Name:        namespace + "/delete_domain_attribute",
+			Name:        "delete_domain_attribute",
 			Title:       "Delete Domain Attribute",
 			Description: "Remove domain attribute definition (requires: attribute must exist via create_domain_attribute; removes all values from nodes)",
 			InputSchema: map[string]interface{}{
@@ -265,7 +263,7 @@ func GetToolDefinitions() []ToolDefinition {
 
 		// Dependency Management
 		{
-			Name:        namespace + "/create_dependency",
+			Name:        "create_dependency",
 			Title:       "Create Dependency",
 			Description: "Create dependency relationship between nodes (requires: both nodes must exist via create_node; use composite_ids from create_node)",
 			InputSchema: map[string]interface{}{
@@ -286,7 +284,7 @@ func GetToolDefinitions() []ToolDefinition {
 			},
 		},
 		{
-			Name:        namespace + "/list_node_dependencies",
+			Name:        "list_node_dependencies",
 			Title:       "List Node Dependencies",
 			Description: "List what a node depends on (requires: node must exist via create_node; dependencies created via create_dependency)",
 			InputSchema: map[string]interface{}{
@@ -298,7 +296,7 @@ func GetToolDefinitions() []ToolDefinition {
 			},
 		},
 		{
-			Name:        namespace + "/list_node_dependents",
+			Name:        "list_node_dependents",
 			Title:       "List Node Dependents",
 			Description: "List what depends on a node (requires: node must exist via create_node; dependencies created via create_dependency)",
 			InputSchema: map[string]interface{}{
@@ -310,7 +308,7 @@ func GetToolDefinitions() []ToolDefinition {
 			},
 		},
 		{
-			Name:        namespace + "/delete_dependency",
+			Name:        "delete_dependency",
 			Title:       "Delete Dependency",
 			Description: "Remove dependency relationship (requires: dependency must exist via create_dependency; use dependency_id from list_node_dependencies)",
 			InputSchema: map[string]interface{}{
@@ -324,7 +322,7 @@ func GetToolDefinitions() []ToolDefinition {
 
 		// Filtering and Queries
 		{
-			Name:        namespace + "/filter_nodes_by_attributes",
+			Name:        "filter_nodes_by_attributes",
 			Title:       "Filter URLs by Attributes",
 			Description: "Filter nodes by attribute values (requires: domain must exist via create_domain; attributes defined via create_domain_attribute)",
 			InputSchema: map[string]interface{}{
@@ -351,7 +349,7 @@ func GetToolDefinitions() []ToolDefinition {
 			},
 		},
 		{
-			Name:        namespace + "/get_node_with_attributes",
+			Name:        "get_node_with_attributes",
 			Title:       "Get URL with Attributes",
 			Description: "Get URL details with all attributes (requires: node must exist via create_node; combines get_node + get_node_attributes)",
 			InputSchema: map[string]interface{}{
@@ -365,7 +363,7 @@ func GetToolDefinitions() []ToolDefinition {
 
 		// Template Management
 		{
-			Name:        namespace + "/list_templates",
+			Name:        "list_templates",
 			Title:       "List Templates",
 			Description: "List templates in domain (requires: domain must exist via create_domain)",
 			InputSchema: map[string]interface{}{
@@ -382,7 +380,7 @@ func GetToolDefinitions() []ToolDefinition {
 			},
 		},
 		{
-			Name:        namespace + "/create_template",
+			Name:        "create_template",
 			Title:       "Create Template",
 			Description: "Create new template in domain (requires: domain must exist via create_domain; use validate_template to check template_data)",
 			InputSchema: map[string]interface{}{
@@ -398,7 +396,7 @@ func GetToolDefinitions() []ToolDefinition {
 			},
 		},
 		{
-			Name:        namespace + "/get_template",
+			Name:        "get_template",
 			Title:       "Get Template",
 			Description: "Get template details (requires: template must exist via create_template; use composite_id from create_template)",
 			InputSchema: map[string]interface{}{
@@ -410,7 +408,7 @@ func GetToolDefinitions() []ToolDefinition {
 			},
 		},
 		{
-			Name:        namespace + "/update_template",
+			Name:        "update_template",
 			Title:       "Update Template",
 			Description: "Update template (requires: template must exist via create_template; use validate_template to check new template_data)",
 			InputSchema: map[string]interface{}{
@@ -426,7 +424,7 @@ func GetToolDefinitions() []ToolDefinition {
 			},
 		},
 		{
-			Name:        namespace + "/delete_template",
+			Name:        "delete_template",
 			Title:       "Delete Template",
 			Description: "Delete template (requires: template must exist via create_template)",
 			InputSchema: map[string]interface{}{
@@ -438,7 +436,7 @@ func GetToolDefinitions() []ToolDefinition {
 			},
 		},
 		{
-			Name:        namespace + "/clone_template",
+			Name:        "clone_template",
 			Title:       "Clone Template",
 			Description: "Clone existing template (requires: source template must exist via create_template; creates new template with same domain)",
 			InputSchema: map[string]interface{}{
@@ -453,7 +451,7 @@ func GetToolDefinitions() []ToolDefinition {
 			},
 		},
 		{
-			Name:        namespace + "/generate_template_scaffold",
+			Name:        "generate_template_scaffold",
 			Title:       "Generate Template Scaffold",
 			Description: "Generate template scaffold for given type (helper: provides starting point for create_template)",
 			InputSchema: map[string]interface{}{
@@ -469,7 +467,7 @@ func GetToolDefinitions() []ToolDefinition {
 			},
 		},
 		{
-			Name:        namespace + "/validate_template",
+			Name:        "validate_template",
 			Title:       "Validate Template",
 			Description: "Validate template data structure (helper: use before create_template or update_template)",
 			InputSchema: map[string]interface{}{
