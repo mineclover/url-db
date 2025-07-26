@@ -6,7 +6,10 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: url-db:latest
+      tags:
+        - "asfdassdssa/url-db:latest"
+        - "asfdassdssa/url-db:stdio"
+    image: asfdassdssa/url-db:latest
     container_name: url-db-mcp-stdio
     volumes:
       - url-db-data:/data
@@ -23,7 +26,10 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: url-db:latest
+      tags:
+        - "asfdassdssa/url-db:latest"
+        - "asfdassdssa/url-db:http"
+    image: asfdassdssa/url-db:latest
     container_name: url-db-http
     ports:
       - "8080:8080"
@@ -40,7 +46,10 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: url-db:latest
+      tags:
+        - "asfdassdssa/url-db:latest"
+        - "asfdassdssa/url-db:sse"
+    image: asfdassdssa/url-db:latest
     container_name: url-db-mcp-sse
     ports:
       - "8081:8081"
@@ -57,7 +66,10 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: url-db:latest
+      tags:
+        - "asfdassdssa/url-db:latest"
+        - "asfdassdssa/url-db:mcp-http"
+    image: asfdassdssa/url-db:latest
     container_name: url-db-mcp-http
     ports:
       - "8082:8082"

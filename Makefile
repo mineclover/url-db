@@ -172,14 +172,15 @@ help:
 	@echo "  ./scripts/coverage_analysis.sh - Detailed coverage analysis script"
 	@echo ""
 	@echo "$(BLUE)Docker commands:$(NC)"
-	@echo "  make docker-build      - Build Docker image"
+	@echo "  make docker-build      - Build Docker image with proper tagging"
 	@echo "  make docker-run        - Run container in MCP stdio mode"
+	@echo "  make docker-sse        - Run container in SSE mode"
 	@echo "  make docker-compose-up - Start all services with Docker Compose"
 	@echo "  make docker-compose-down - Stop all services"
 	@echo "  make docker-logs       - Show Docker logs"
-	@echo "  make docker-push       - Push image to Docker Hub"
-	@echo "  make docker-clean      - Clean Docker resources"
-	@echo "  make docker-sse        - Run container in SSE mode"
+	@echo "  make docker-push       - Push image to Docker Hub (auto-build if needed)"
+	@echo "  make docker-clean      - Clean project Docker resources"
+	@echo "  make docker-clean-all  - Deep clean all unused Docker resources"
 	@echo ""
 	@echo "$(BLUE)To run the server:$(NC)"
 	@echo "  ./$(BUILD_DIR)/$(BINARY_NAME)              # HTTP mode"
@@ -201,14 +202,19 @@ DOCKER_IMAGE=url-db
 DOCKER_TAG?=latest
 DOCKER_REGISTRY?=asfdassdssa
 DOCKER_USERNAME?=asfdassdssa
+DOCKER_FULL_IMAGE=$(DOCKER_REGISTRY)/$(DOCKER_IMAGE)
 
 # Docker 빌드
 docker-build:
-	@echo "$(BLUE)Building Docker image $(DOCKER_IMAGE):$(DOCKER_TAG)...$(NC)"
-	docker build -t $(DOCKER_IMAGE):$(DOCKER_TAG) .
+	@echo "$(BLUE)Building Docker image $(DOCKER_FULL_IMAGE):$(DOCKER_TAG)...$(NC)"
+	@# 이전 dangling 이미지 정리
+	@docker image prune -f > /dev/null 2>&1 || true
+	@# 빌드 시 레지스트리 포함 이름으로 직접 태그
+	docker build -t $(DOCKER_FULL_IMAGE):$(DOCKER_TAG) -t $(DOCKER_FULL_IMAGE):latest .
 	@if [ $$? -eq 0 ]; then \
 		echo "$(GREEN)✓ Docker image built successfully!$(NC)"; \
-		echo "$(GREEN)✓ Image: $(DOCKER_IMAGE):$(DOCKER_TAG)$(NC)"; \
+		echo "$(GREEN)✓ Image: $(DOCKER_FULL_IMAGE):$(DOCKER_TAG)$(NC)"; \
+		echo "$(GREEN)✓ Image: $(DOCKER_FULL_IMAGE):latest$(NC)"; \
 	else \
 		echo "$(RED)✗ Docker build failed!$(NC)"; \
 		exit 1; \
@@ -221,7 +227,7 @@ docker-run:
 	docker run -it --rm \
 		--name url-db-mcp \
 		-v url-db-data:/data \
-		$(DOCKER_IMAGE):$(DOCKER_TAG)
+		$(DOCKER_FULL_IMAGE):$(DOCKER_TAG)
 
 # Docker 실행 (SSE mode)
 docker-sse:
@@ -232,7 +238,7 @@ docker-sse:
 		--name url-db-sse \
 		-p 8080:8080 \
 		-v url-db-data:/data \
-		$(DOCKER_IMAGE):$(DOCKER_TAG) \
+		$(DOCKER_FULL_IMAGE):$(DOCKER_TAG) \
 		-mcp-mode=sse
 	@sleep 2
 	@echo "$(BLUE)Testing SSE health endpoint...$(NC)"
@@ -264,20 +270,40 @@ docker-logs:
 # Docker 이미지 푸시
 docker-push:
 	@echo "$(BLUE)Pushing Docker image to Docker Hub...$(NC)"
-	@echo "$(BLUE)Username: $(DOCKER_USERNAME)$(NC)"
-	@echo "$(BLUE)Image: $(DOCKER_USERNAME)/$(DOCKER_IMAGE):$(DOCKER_TAG)$(NC)"
-	@if [ "$(DOCKER_TAG)" != "latest" ]; then \
-		docker tag $(DOCKER_IMAGE):$(DOCKER_TAG) $(DOCKER_USERNAME)/$(DOCKER_IMAGE):$(DOCKER_TAG); \
+	@echo "$(BLUE)Registry: $(DOCKER_REGISTRY)$(NC)"
+	@echo "$(BLUE)Image: $(DOCKER_FULL_IMAGE):$(DOCKER_TAG)$(NC)"
+	@# 이미지가 빌드되어 있는지 확인
+	@if ! docker image inspect $(DOCKER_FULL_IMAGE):$(DOCKER_TAG) > /dev/null 2>&1; then \
+		echo "$(YELLOW)⚠ Image not found locally. Building first...$(NC)"; \
+		$(MAKE) docker-build; \
 	fi
-	docker tag $(DOCKER_IMAGE):$(DOCKER_TAG) $(DOCKER_USERNAME)/$(DOCKER_IMAGE):latest
-	docker push $(DOCKER_USERNAME)/$(DOCKER_IMAGE):$(DOCKER_TAG)
-	docker push $(DOCKER_USERNAME)/$(DOCKER_IMAGE):latest
+	@# 푸시 전 dangling 이미지 정리
+	@docker image prune -f > /dev/null 2>&1 || true
+	docker push $(DOCKER_FULL_IMAGE):$(DOCKER_TAG)
+	@if [ "$(DOCKER_TAG)" != "latest" ]; then \
+		docker push $(DOCKER_FULL_IMAGE):latest; \
+	fi
 	@echo "$(GREEN)✓ Image pushed to Docker Hub!$(NC)"
-	@echo "$(GREEN)✓ Pull with: docker pull $(DOCKER_USERNAME)/$(DOCKER_IMAGE):latest$(NC)"
+	@echo "$(GREEN)✓ Pull with: docker pull $(DOCKER_FULL_IMAGE):latest$(NC)"
 
 # Docker 정리
 docker-clean:
 	@echo "$(BLUE)Cleaning Docker resources...$(NC)"
-	docker-compose down -v
-	docker rmi $(DOCKER_IMAGE):$(DOCKER_TAG) || true
+	@# Docker Compose 서비스 정리
+	docker-compose down -v 2>/dev/null || true
+	@# 프로젝트 이미지 제거 (로컬 및 레지스트리 태그)
+	docker rmi $(DOCKER_FULL_IMAGE):$(DOCKER_TAG) 2>/dev/null || true
+	docker rmi $(DOCKER_FULL_IMAGE):latest 2>/dev/null || true
+	@# dangling 이미지 정리
+	docker image prune -f > /dev/null 2>&1 || true
+	@# 사용하지 않는 볼륨 정리
+	docker volume prune -f > /dev/null 2>&1 || true
 	@echo "$(GREEN)✓ Docker resources cleaned$(NC)"
+
+# Docker 완전 정리 (모든 unused 리소스)
+docker-clean-all:
+	@echo "$(BLUE)Deep cleaning all Docker resources...$(NC)"
+	@echo "$(YELLOW)⚠ This will remove all unused containers, networks, images, and volumes$(NC)"
+	@read -p "Continue? (y/N): " confirm && [ "$$confirm" = "y" ] || exit 1
+	docker system prune -a -f --volumes
+	@echo "$(GREEN)✓ All Docker resources cleaned$(NC)"

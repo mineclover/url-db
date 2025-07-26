@@ -1,163 +1,122 @@
 # URL-DB: AI 어시스턴트용 URL 관리 시스템
 
-URL-DB는 Claude Desktop 등의 AI 어시스턴트가 URL을 효율적으로 저장하고 관리할 수 있게 해주는 MCP(Model Context Protocol) 서버입니다.
+URL-DB는 HTTP 클라이언트와 AI 어시스턴트가 URL을 효율적으로 저장하고 관리할 수 있게 해주는 MCP(Model Context Protocol) 서버입니다.
 
 ## 🎯 무엇을 할 수 있나요?
 
 - **URL 저장 및 분류**: 웹사이트 주소를 도메인별로 체계적으로 관리
 - **스마트 태깅**: URL에 태그, 카테고리, 메모 등 다양한 속성 추가
 - **빠른 검색**: 저장된 URL을 키워드, 태그, 도메인으로 빠르게 찾기
-- **AI 통합**: Claude Desktop에서 자연어로 URL 관리 가능
-- **데이터 소유권**: 모든 데이터는 본인의 컴퓨터에 SQLite 파일로 저장
+- **AI 통합**: HTTP 클라이언트와 SSE 연결로 다양한 환경에서 사용 가능
+- **폴더별 데이터 관리**: Docker 볼륨으로 프로젝트별 데이터베이스 자동 분리
 
-## 🚀 빠른 시작
+## 🚀 빠른 시작 (SSE 서버 모드)
 
-### 1. Docker로 간단 설치 (권장)
+### 1. SSE 서버 실행
 
 ```bash
-# Docker 이미지 다운로드 및 실행
-docker run -it --rm -v ~/url-db-data:/data asfdassdssa/url-db:latest
+# SSE 모드로 URL-DB 서버 시작 (포트 8080)
+docker run -d -p 8080:8080 -v ~/url-db:/data --name url-db-server asfdassdssa/url-db:latest -mcp-mode=sse
+
+# 서버 상태 확인
+curl http://localhost:8080/health
 ```
 
-### 2. Claude Desktop 설정
+### 2. HTTP 클라이언트 연결 설정
 
-Claude Desktop 설정 파일에 다음 내용을 추가하세요:
-
-**macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
-**Windows**: `%AppData%\Claude\claude_desktop_config.json`
-
-```json
-{
-  "mcpServers": {
-    "url-db": {
-      "command": "docker",
-      "args": [
-        "run", "-i", "--rm",
-        "-v", "~/url-db-data:/data",
-        "asfdassdssa/url-db:latest"
-      ]
-    }
-  }
-}
-```
-
-### 3. Claude Desktop 재시작
-
-설정을 저장한 후 Claude Desktop을 재시작하면 URL 관리 기능을 사용할 수 있습니다!
-
-## 💡 사용 예시
-
-Claude Desktop에서 다음과 같이 대화하면 됩니다:
+SSE 모드를 지원하는 HTTP 클라이언트에서 다음 엔드포인트로 연결:
 
 ```
-👤 "이 URL을 개발 자료로 저장해줘: https://github.com/microsoft/vscode"
-
-🤖 GitHub 개발 자료로 저장했습니다!
-   - 도메인: github
-   - 태그: development, editor, microsoft
-   - 저장 위치: ~/url-db-data/url-db.sqlite
-
-👤 "개발 관련 URL들 찾아줘"
-
-🤖 개발 관련 URL 5개를 찾았습니다:
-   1. https://github.com/microsoft/vscode (Visual Studio Code)
-   2. https://nodejs.org (Node.js 공식사이트)
-   ...
+서버 주소: http://localhost:8080/mcp
+Health Check: http://localhost:8080/health  
+데이터베이스: ~/url-db/url-db.sqlite (자동 생성)
 ```
 
-## 🗂️ 데이터베이스 위치 및 설정
+### 3. 서버 상태 확인
 
-### 기본 설정
+```bash
+# 서버가 정상 동작하는지 확인
+curl http://localhost:8080/health
+```
 
-위의 기본 설정을 사용하면 SQLite 데이터베이스가 다음 위치에 저장됩니다:
+## 💡 사용 방법
 
-- **macOS/Linux**: `~/url-db-data/url-db.sqlite`
-- **Windows**: `%UserProfile%\url-db-data\url-db.sqlite`
+SSE 서버가 실행되면 MCP 프로토콜을 지원하는 클라이언트에서 다음 엔드포인트로 연결하여 URL 관리 기능을 사용할 수 있습니다:
 
-### 사용자 정의 위치
+- **MCP 엔드포인트**: `http://localhost:8080/mcp`  
+- **Health Check**: `http://localhost:8080/health`
+- **사용 가능한 도구**: 18개의 MCP 도구 (아래 참조)
 
-다른 위치에 저장하고 싶다면 설정에서 경로를 변경하세요:
+## 🗂️ 폴더별 데이터베이스 관리
 
-```json
-{
-  "mcpServers": {
-    "url-db": {
-      "command": "docker",
-      "args": [
-        "run", "-i", "--rm",
-        "-v", "/your/custom/path:/data",
-        "asfdassdssa/url-db:latest"
-      ]
-    }
-  }
-}
+### 자동 폴더 기반 분리
+
+Docker 볼륨을 활용하여 프로젝트별로 데이터베이스를 자동 분리할 수 있습니다:
+
+```bash
+# 프로젝트별 서버 실행 - 각각 독립된 데이터베이스 생성
+docker run -d -p 8080:8080 -v ~/work-project:/data --name work-db asfdassdssa/url-db:latest -mcp-mode=sse
+docker run -d -p 8081:8081 -v ~/personal-urls:/data --name personal-db asfdassdssa/url-db:latest -mcp-mode=sse -port=8081
+docker run -d -p 8082:8082 -v ~/research-links:/data --name research-db asfdassdssa/url-db:latest -mcp-mode=sse -port=8082
+```
+
+### 데이터베이스 위치 확인
+
+각 폴더에 자동으로 `url-db.sqlite` 파일이 생성됩니다:
+
+```bash
+# 각 프로젝트의 데이터베이스 확인
+ls -la ~/work-project/url-db.sqlite      # 작업 프로젝트 DB
+ls -la ~/personal-urls/url-db.sqlite     # 개인 URL DB  
+ls -la ~/research-links/url-db.sqlite    # 연구 자료 DB
 ```
 
 ### 직접 데이터베이스 접근
 
-SQLite 파일에 직접 접근할 수도 있습니다:
+SQLite 파일에 직접 접근하여 데이터 확인:
 
 ```bash
-# 데이터베이스 내용 확인
-sqlite3 ~/url-db-data/url-db.sqlite "SELECT * FROM domains;"
+# 작업 프로젝트 데이터베이스 조회
+sqlite3 ~/work-project/url-db.sqlite "SELECT * FROM domains;"
 
-# 모든 URL 조회  
-sqlite3 ~/url-db-data/url-db.sqlite "SELECT url, title FROM nodes LIMIT 10;"
+# 개인 URL 데이터베이스 조회
+sqlite3 ~/personal-urls/url-db.sqlite "SELECT url, title FROM nodes LIMIT 10;"
 ```
 
-## 🛠️ 고급 설정 옵션
+## 🛠️ 다중 서버 운영
 
-### 1. 프로젝트별 데이터베이스
+### 포트별 서버 관리
 
-여러 프로젝트를 위해 별도의 데이터베이스를 사용할 수 있습니다:
+여러 프로젝트를 동시에 운영할 수 있습니다:
 
-```json
-{
-  "mcpServers": {
-    "url-db-work": {
-      "command": "docker",
-      "args": [
-        "run", "-i", "--rm",
-        "-v", "~/work-urls:/data",
-        "asfdassdssa/url-db:latest"
-      ]
-    },
-    "url-db-personal": {
-      "command": "docker",
-      "args": [
-        "run", "-i", "--rm", 
-        "-v", "~/personal-urls:/data",
-        "asfdassdssa/url-db:latest"
-      ]
-    }
-  }
-}
+```bash
+# 서버 상태 확인
+curl http://localhost:8080/health  # 작업 프로젝트
+curl http://localhost:8081/health  # 개인 URL
+curl http://localhost:8082/health  # 연구 자료
+
+# 서버 중지
+docker stop work-db personal-db research-db
+
+# 서버 재시작
+docker start work-db personal-db research-db
 ```
 
-### 2. 로컬 빌드 (Docker 없이)
+### 로컬 빌드 (개발자용)
 
-Docker를 사용하지 않고 직접 빌드하려면:
+Docker 없이 직접 빌드하여 사용:
 
 ```bash
 # 소스코드 다운로드
 git clone https://github.com/mineclover/url-db.git
 cd url-db
 
-# 빌드 및 실행
+# SSE 모드로 빌드 및 실행
 make build
-./bin/url-db -mcp-mode=stdio
-```
+./bin/url-db -mcp-mode=sse -port=8080
 
-Claude Desktop 설정:
-```json
-{
-  "mcpServers": {
-    "url-db": {
-      "command": "/path/to/url-db/bin/url-db",
-      "args": ["-mcp-mode=stdio"]
-    }
-  }
-}
+# 서버 테스트
+curl http://localhost:8080/health
 ```
 
 ## 🔧 주요 기능
@@ -179,74 +138,93 @@ Claude Desktop 설정:
 - 도메인별 그룹화
 - 날짜 범위 검색
 
-## 🐳 Docker 배포 옵션
+## 🐳 실제 사용 시나리오
 
-### 1. Docker Hub에서 바로 사용
+### 개발팀 협업 시나리오
+
 ```bash
-docker run -it --rm -v url-db-data:/data asfdassdssa/url-db:latest
+# 팀별 URL 데이터베이스 서버 구축
+docker run -d -p 8080:8080 -v ~/team-frontend:/data --name frontend-urls asfdassdssa/url-db:latest -mcp-mode=sse
+docker run -d -p 8081:8081 -v ~/team-backend:/data --name backend-urls asfdassdssa/url-db:latest -mcp-mode=sse -port=8081
+docker run -d -p 8082:8082 -v ~/team-design:/data --name design-urls asfdassdssa/url-db:latest -mcp-mode=sse -port=8082
+
+# 각 팀에서 MCP 클라이언트로 접근
+# Frontend팀: http://localhost:8080/mcp
+# Backend팀: http://localhost:8081/mcp  
+# Design팀: http://localhost:8082/mcp
 ```
 
-### 2. 여러 서비스 모드로 실행
+### 연구자/학습자 시나리오
+
 ```bash
-# HTTP API 서버 (포트 8080)
-docker run -d -p 8080:8080 -v url-db-data:/data asfdassdssa/url-db:latest -port=8080
+# 주제별 연구 자료 서버
+docker run -d -p 8080:8080 -v ~/ai-research:/data --name ai-papers asfdassdssa/url-db:latest -mcp-mode=sse
+docker run -d -p 8081:8081 -v ~/web-dev-learning:/data --name webdev-resources asfdassdssa/url-db:latest -mcp-mode=sse -port=8081
 
-# SSE (Server-Sent Events) 모드 - HTTP 클라이언트용
-docker run -d -p 8080:8080 -v $(pwd)/data:/data --name url-db-sse asfdassdssa/url-db:latest -mcp-mode=sse
+# MCP 클라이언트로 자료 정리
+# AI 논문 및 자료: http://localhost:8080/mcp
+# 웹 개발 학습 자료: http://localhost:8081/mcp
+```
 
-# 모든 서비스 동시 실행
+### Docker Compose로 한번에 관리
+
+```bash
+# 프로젝트 클론 후 전체 서비스 실행
 git clone https://github.com/mineclover/url-db.git
 cd url-db
 make docker-compose-up
-```
 
-### 3. SSE 모드로 HTTP 클라이언트 연동
-```bash
-# 간단한 Docker 명령어로 실행
-docker run -d -p 8080:8080 -v $(pwd)/data:/data --name url-db-sse asfdassdssa/url-db:latest -mcp-mode=sse
-
-# Docker Compose로 실행
-docker-compose -f docker-compose-sse.yml up -d
-
-# 연결 테스트
-curl http://localhost:8080/health
-```
-
-SSE 모드는 HTTP 기반 MCP 통신을 제공하여 HTTP 클라이언트에서 URL-DB를 사용할 수 있게 합니다. 자세한 내용은 [SSE 설정 가이드](docs/SSE_MCP_SETUP_GUIDE.md)를 참고하세요.
-
-### 4. 개발자용 빌드
-```bash
-git clone https://github.com/mineclover/url-db.git
-cd url-db
-make docker-build
-make docker-run
+# 접근 포인트:
+# http://localhost:8080 - HTTP API
+# http://localhost:8081 - SSE MCP 
+# http://localhost:8082 - HTTP MCP
 ```
 
 ## 🔍 트러블슈팅
 
-### "command not found" 오류
-- Docker가 설치되어 있는지 확인
-- Docker 데몬이 실행 중인지 확인: `docker ps`
+### 서버 연결 문제
+```bash
+# 서버 상태 확인
+docker ps | grep url-db
+curl http://localhost:8080/health
+
+# 로그 확인  
+docker logs url-db-server
+```
 
 ### 데이터가 저장되지 않음
-- 볼륨 마운트 경로 확인
-- 디렉토리 권한 확인: `ls -la ~/url-db-data/`
-
-### Claude Desktop에서 인식 안됨
-- 설정 파일 경로 확인
-- JSON 문법 오류 확인 (따옴표, 쉼표 등)
-- Claude Desktop 재시작 필요
-
-### 자세한 로그 확인
 ```bash
-# Docker 컨테이너 로그 확인
-docker run -it --rm -v url-db-data:/data asfdassdssa/url-db:latest -mcp-mode=stdio
+# 볼륨 마운트 확인
+docker inspect url-db-server | grep Mounts -A 10
+
+# 데이터베이스 파일 확인
+ls -la ~/url-db/url-db.sqlite
+```
+
+### 포트 충돌 문제
+```bash
+# 사용 중인 포트 확인
+lsof -i :8080
+
+# 다른 포트로 실행
+docker run -d -p 8083:8083 -v ~/url-db:/data --name url-db-alt asfdassdssa/url-db:latest -mcp-mode=sse -port=8083
+```
+
+### 서버 재시작
+```bash
+# 컨테이너 재시작
+docker restart url-db-server
+
+# 완전 재생성
+docker stop url-db-server
+docker rm url-db-server
+docker run -d -p 8080:8080 -v ~/url-db:/data --name url-db-server asfdassdssa/url-db:latest -mcp-mode=sse
 ```
 
 ## 📚 추가 문서
 
 - [Docker 배포 가이드](docker-deployment.md) - 상세한 Docker 설정 방법
-- [Claude Desktop 설정 가이드](docker-hub-deploy.md) - 다양한 설정 예시
+- [HTTP 클라이언트 연동 가이드](docker-hub-deploy.md) - 다양한 설정 예시
 - [SQLite 호스트 저장 가이드](sqlite-host-storage-guide.md) - 데이터베이스 관리 방법
 - [개발자 가이드](CLAUDE.md) - 코드 기여 및 개발 환경 설정
 
@@ -307,4 +285,4 @@ URL-DB는 다음과 같은 MCP 도구들을 제공합니다:
 
 ---
 
-**💡 팁**: Claude Desktop에서 "URL 관리 도구가 있어?" 라고 물어보면 사용 가능한 모든 기능을 확인할 수 있습니다!
+**💡 팁**: MCP 클라이언트에서 18개의 도구를 통해 URL을 체계적으로 관리할 수 있습니다. 서버 상태는 health 엔드포인트로 확인하세요!
