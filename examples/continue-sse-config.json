@@ -1,0 +1,12 @@
+{
+  "mcpServers": [
+    {
+      "name": "url-db-sse",
+      "serverUrl": "http://localhost:8080/mcp",
+      "protocol": "http",
+      "timeout": 30000,
+      "retries": 3,
+      "description": "URL Database MCP Server via SSE"
+    }
+  ]
+}

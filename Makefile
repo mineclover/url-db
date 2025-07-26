@@ -34,32 +34,45 @@ deps:
 
 # 빌드 (현재 플랫폼)
 build:
-	@echo "$(BLUE)Building URL-DB Server...$(NC)"
+	@echo "$(BLUE)Building URL-DB Server and MCP Bridge...$(NC)"
 	@echo "$(BLUE)Building for current platform...$(NC)"
 	@mkdir -p $(BUILD_DIR)
 	$(GO) build $(GOFLAGS) $(LDFLAGS) -o $(BUILD_DIR)/$(BINARY_NAME) cmd/server/main.go
 	@if [ $$? -ne 0 ]; then \
-		echo "$(RED)✗ Build failed!$(NC)"; \
+		echo "$(RED)✗ Server build failed!$(NC)"; \
+		exit 1; \
+	fi
+	$(GO) build $(GOFLAGS) $(LDFLAGS) -o $(BUILD_DIR)/mcp-bridge cmd/bridge/main.go
+	@if [ $$? -ne 0 ]; then \
+		echo "$(RED)✗ Bridge build failed!$(NC)"; \
 		exit 1; \
 	fi
 	@echo "$(GREEN)✓ Build completed successfully!$(NC)"
-	@echo "$(GREEN)✓ Executable created: $(BUILD_DIR)/$(BINARY_NAME)$(NC)"
+	@echo "$(GREEN)✓ Executables created: $(BUILD_DIR)/$(BINARY_NAME), $(BUILD_DIR)/mcp-bridge$(NC)"
 
 # 멀티플랫폼 빌드
 build-all:
-	@echo "$(BLUE)Building for all platforms...$(NC)"
+	@echo "$(BLUE)Building server and bridge for all platforms...$(NC)"
 	@mkdir -p $(BUILD_DIR)
 	@for platform in $(PLATFORMS); do \
 		GOOS=$$(echo $$platform | cut -d/ -f1) \
 		GOARCH=$$(echo $$platform | cut -d/ -f2) \
-		output_name='$(BUILD_DIR)/$(BINARY_NAME)-'$$(echo $$platform | tr '/' '-'); \
+		server_output='$(BUILD_DIR)/$(BINARY_NAME)-'$$(echo $$platform | tr '/' '-'); \
+		bridge_output='$(BUILD_DIR)/mcp-bridge-'$$(echo $$platform | tr '/' '-'); \
 		if [ $$GOOS = "windows" ]; then \
-			output_name="$$output_name.exe"; \
+			server_output="$$server_output.exe"; \
+			bridge_output="$$bridge_output.exe"; \
 		fi; \
-		echo "$(BLUE)Building $$output_name...$(NC)"; \
-		GOOS=$$GOOS GOARCH=$$GOARCH $(GO) build $(GOFLAGS) $(LDFLAGS) -o $$output_name cmd/server/main.go; \
+		echo "$(BLUE)Building server: $$server_output...$(NC)"; \
+		GOOS=$$GOOS GOARCH=$$GOARCH $(GO) build $(GOFLAGS) $(LDFLAGS) -o $$server_output cmd/server/main.go; \
 		if [ $$? -ne 0 ]; then \
-			echo "$(RED)✗ Build failed for $$platform!$(NC)"; \
+			echo "$(RED)✗ Server build failed for $$platform!$(NC)"; \
+			exit 1; \
+		fi; \
+		echo "$(BLUE)Building bridge: $$bridge_output...$(NC)"; \
+		GOOS=$$GOOS GOARCH=$$GOARCH $(GO) build $(GOFLAGS) $(LDFLAGS) -o $$bridge_output cmd/bridge/main.go; \
+		if [ $$? -ne 0 ]; then \
+			echo "$(RED)✗ Bridge build failed for $$platform!$(NC)"; \
 			exit 1; \
 		fi; \
 	done
@@ -141,9 +154,9 @@ coverage-analysis:
 help:
 	@echo "$(BLUE)Available targets:$(NC)"
 	@echo "  make deps          - Install dependencies"
-	@echo "  make build         - Build for current platform"
-	@echo "  make build-all     - Build for all platforms"
-	@echo "  make run           - Build and run"
+	@echo "  make build         - Build server and bridge for current platform"
+	@echo "  make build-all     - Build server and bridge for all platforms"
+	@echo "  make run           - Build and run server"
 	@echo "  make lint          - Run linter"
 	@echo "  make fmt           - Format code"
 	@echo "  make clean         - Clean build artifacts"
@@ -169,7 +182,13 @@ help:
 	@echo "  make docker-sse        - Run container in SSE mode"
 	@echo ""
 	@echo "$(BLUE)To run the server:$(NC)"
-	@echo "  ./$(BUILD_DIR)/$(BINARY_NAME)"
+	@echo "  ./$(BUILD_DIR)/$(BINARY_NAME)              # HTTP mode"
+	@echo "  ./$(BUILD_DIR)/$(BINARY_NAME) -mcp-mode=sse # SSE mode"
+	@echo "  ./$(BUILD_DIR)/$(BINARY_NAME) -mcp-mode=stdio # stdio mode"
+	@echo ""
+	@echo "$(BLUE)To use MCP bridge (stdio → SSE):$(NC)"
+	@echo "  ./$(BUILD_DIR)/mcp-bridge                   # Default endpoint"
+	@echo "  ./$(BUILD_DIR)/mcp-bridge -endpoint http://localhost:8080/mcp"
 	@echo ""
 	@echo "$(BLUE)Default configuration (managed in internal/constants/):$(NC)"
 	@echo "  Port: 8080 (constants.DefaultPort)"

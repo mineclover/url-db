@@ -53,6 +53,7 @@ server
 # Build artifacts
 build/
 dist/
+bin/
 
 # Log files
 *.log
@@ -66,6 +67,10 @@ dist/
 *.tmp
 *.temp
 *~
+
+# Multiple database directories (use single root-level sqlite file)
+database/
+data/
 
 # Coverage reports
 coverage.txt

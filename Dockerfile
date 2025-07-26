@@ -16,8 +16,9 @@ RUN go mod download
 # Copy source code
 COPY . .
 
-# Build the application
+# Build the applications
 RUN CGO_ENABLED=1 GOOS=linux go build -a -installsuffix cgo -ldflags="-s -w -X main.Version=1.0.0" -o url-db cmd/server/main.go
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -ldflags="-s -w" -o mcp-bridge cmd/bridge/main.go
 
 # Final stage - minimal runtime image
 FROM alpine:latest
@@ -32,8 +33,9 @@ RUN addgroup -g 1000 -S urldb && \
 # Set working directory
 WORKDIR /app
 
-# Copy binary from builder
+# Copy binaries from builder
 COPY --from=builder /build/url-db .
+COPY --from=builder /build/mcp-bridge .
 
 # Copy schema file
 COPY --from=builder /build/schema.sql .
