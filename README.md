@@ -71,17 +71,6 @@ ls -la ~/personal-urls/url-db.sqlite     # 개인 URL DB
 ls -la ~/research-links/url-db.sqlite    # 연구 자료 DB
 ```
 
-### 직접 데이터베이스 접근
-
-SQLite 파일에 직접 접근하여 데이터 확인:
-
-```bash
-# 작업 프로젝트 데이터베이스 조회
-sqlite3 ~/work-project/url-db.sqlite "SELECT * FROM domains;"
-
-# 개인 URL 데이터베이스 조회
-sqlite3 ~/personal-urls/url-db.sqlite "SELECT url, title FROM nodes LIMIT 10;"
-```
 
 ## 🛠️ 다중 서버 운영
 
@@ -126,11 +115,11 @@ curl http://localhost:8080/health
 - 도메인별 커스텀 속성 정의 가능
 
 ### 속성 시스템
-- **태그**: 키워드 기반 분류
-- **카테고리**: 계층적 분류
-- **평점**: 5점 척도 평가
-- **메모**: 자유 텍스트 설명
-- **날짜**: 생성/수정 시간 자동 기록
+
+- 도메인을 추가한 뒤 도메인 별로 속성을 추가 할 수 있음
+- 도메인 내에 추가 된 URL들에 원하는 속성을 추가할 수 있음
+- 템플릿을 통해 속성에 제약 조건을 설정할 수 있음
+
 
 ### 검색 기능
 - 제목, URL, 설명으로 검색
