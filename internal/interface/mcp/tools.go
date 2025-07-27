@@ -28,6 +28,30 @@ func NewMCPToolHandler(factory *setup.ApplicationFactory) *MCPToolHandler {
 	}
 }
 
+// Helper functions for MCP response formatting
+
+// createMCPResponse creates a standardized MCP tool response with optional structured content
+func createMCPResponse(content []map[string]interface{}, structuredContent map[string]interface{}) map[string]interface{} {
+	response := map[string]interface{}{
+		"content": content,
+	}
+	
+	// Add structured content if provided
+	if structuredContent != nil && len(structuredContent) > 0 {
+		response["structuredContent"] = structuredContent
+	}
+	
+	return response
+}
+
+// createTextContent creates a text content block according to MCP schema
+func createTextContent(text string) map[string]interface{} {
+	return map[string]interface{}{
+		"type": "text",
+		"text": text,
+	}
+}
+
 // Domain Management Tools
 
 // handleListDomains implements the list_domains tool
@@ -50,25 +74,33 @@ func (h *MCPToolHandler) handleListDomains(ctx context.Context, args map[string]
 
 	// Convert to MCP response format
 	content := []map[string]interface{}{}
+	structuredDomains := []map[string]interface{}{}
+	
 	for _, domain := range result.Domains {
-		content = append(content, map[string]interface{}{
-			"type": "text",
-			"text": fmt.Sprintf("Domain: %s\nDescription: %s\nCreated: %s",
-				domain.Name, domain.Description, domain.CreatedAt.Format("2006-01-02 15:04:05")),
+		content = append(content, createTextContent(
+			fmt.Sprintf("Domain: %s\nDescription: %s\nCreated: %s",
+				domain.Name, domain.Description, domain.CreatedAt.Format("2006-01-02 15:04:05"))))
+		
+		structuredDomains = append(structuredDomains, map[string]interface{}{
+			"name":        domain.Name,
+			"description": domain.Description,
+			"created_at":  domain.CreatedAt.Format(time.RFC3339),
 		})
 	}
 
 	if len(content) == 0 {
-		content = append(content, map[string]interface{}{
-			"type": "text",
-			"text": "No domains found",
-		})
+		content = append(content, createTextContent("No domains found"))
 	}
 
-	return map[string]interface{}{
-		"content": content,
-		"isError": false,
-	}, nil
+	// Create structured content for machine-readable access
+	structuredContent := map[string]interface{}{
+		"domains":     structuredDomains,
+		"total_count": result.TotalCount,
+		"page":        result.Page,
+		"total_pages": result.TotalPages,
+	}
+
+	return createMCPResponse(content, structuredContent), nil
 }
 
 // handleCreateDomain implements the create_domain tool
@@ -97,16 +129,18 @@ func (h *MCPToolHandler) handleCreateDomain(ctx context.Context, args map[string
 	}
 
 	// Convert to MCP response format
-	return map[string]interface{}{
-		"content": []map[string]interface{}{
-			{
-				"type": "text",
-				"text": fmt.Sprintf("Successfully created domain: %s\nDescription: %s\nCreated: %s",
-					result.Name, result.Description, result.CreatedAt.Format("2006-01-02 15:04:05")),
-			},
-		},
-		"isError": false,
-	}, nil
+	content := []map[string]interface{}{
+		createTextContent(fmt.Sprintf("Successfully created domain: %s\nDescription: %s\nCreated: %s",
+			result.Name, result.Description, result.CreatedAt.Format("2006-01-02 15:04:05"))),
+	}
+
+	structuredContent := map[string]interface{}{
+		"name":        result.Name,
+		"description": result.Description,
+		"created_at":  result.CreatedAt.Format(time.RFC3339),
+	}
+
+	return createMCPResponse(content, structuredContent), nil
 }
 
 // Node Management Tools
@@ -144,25 +178,36 @@ func (h *MCPToolHandler) handleListNodes(ctx context.Context, args map[string]in
 
 	// Convert to MCP response format
 	content := []map[string]interface{}{}
+	structuredNodes := []map[string]interface{}{}
+	
 	for _, node := range result.Nodes {
-		content = append(content, map[string]interface{}{
-			"type": "text",
-			"text": fmt.Sprintf("Node ID: %d\nURL: %s\nTitle: %s\nDescription: %s\nCreated: %s",
-				node.ID, node.URL, node.Title, node.Description, node.CreatedAt.Format("2006-01-02 15:04:05")),
+		content = append(content, createTextContent(
+			fmt.Sprintf("Node ID: %d\nURL: %s\nTitle: %s\nDescription: %s\nCreated: %s",
+				node.ID, node.URL, node.Title, node.Description, node.CreatedAt.Format("2006-01-02 15:04:05"))))
+		
+		structuredNodes = append(structuredNodes, map[string]interface{}{
+			"id":          node.ID,
+			"url":         node.URL,
+			"title":       node.Title,
+			"description": node.Description,
+			"created_at":  node.CreatedAt.Format(time.RFC3339),
 		})
 	}
 
 	if len(content) == 0 {
-		content = append(content, map[string]interface{}{
-			"type": "text",
-			"text": fmt.Sprintf("No nodes found in domain '%s'", domainName),
-		})
+		content = append(content, createTextContent(fmt.Sprintf("No nodes found in domain '%s'", domainName)))
 	}
 
-	return map[string]interface{}{
-		"content": content,
-		"isError": false,
-	}, nil
+	// Create structured content for machine-readable access
+	structuredContent := map[string]interface{}{
+		"domain_name": domainName,
+		"nodes":       structuredNodes,
+		"total_count": result.TotalCount,
+		"page":        result.Page,
+		"total_pages": result.TotalPages,
+	}
+
+	return createMCPResponse(content, structuredContent), nil
 }
 
 // handleCreateNode implements the create_node tool
@@ -203,17 +248,25 @@ func (h *MCPToolHandler) handleCreateNode(ctx context.Context, args map[string]i
 		return nil, fmt.Errorf("failed to create node: %w", err)
 	}
 
-	// Convert to MCP response format
-	return map[string]interface{}{
-		"content": []map[string]interface{}{
-			{
-				"type": "text",
-				"text": fmt.Sprintf("Successfully created node in domain '%s'\nURL: %s\nTitle: %s\nDescription: %s\nCreated: %s",
-					domainName, result.URL, result.Title, result.Description, result.CreatedAt.Format("2006-01-02 15:04:05")),
-			},
-		},
-		"isError": false,
-	}, nil
+	// Convert to MCP response format with composite ID for easy reference
+	compositeID := fmt.Sprintf("%s:%s:%d", constants.DefaultServerName, domainName, result.ID)
+
+	content := []map[string]interface{}{
+		createTextContent(fmt.Sprintf("Successfully created node in domain '%s'\nComposite ID: %s\nURL: %s\nTitle: %s\nDescription: %s\nCreated: %s",
+			domainName, compositeID, result.URL, result.Title, result.Description, result.CreatedAt.Format("2006-01-02 15:04:05"))),
+	}
+
+	structuredContent := map[string]interface{}{
+		"composite_id": compositeID,
+		"domain_name":  domainName,
+		"id":           result.ID,
+		"url":          result.URL,
+		"title":        result.Title,
+		"description":  result.Description,
+		"created_at":   result.CreatedAt.Format(time.RFC3339),
+	}
+
+	return createMCPResponse(content, structuredContent), nil
 }
 
 // Additional Node Management Tools
@@ -246,18 +299,24 @@ func (h *MCPToolHandler) handleGetNode(ctx context.Context, args map[string]inte
 	}
 
 	// Convert to MCP response format
-	return map[string]interface{}{
-		"content": []map[string]interface{}{
-			{
-				"type": "text",
-				"text": fmt.Sprintf("Node ID: %d\nURL: %s\nTitle: %s\nDescription: %s\nCreated: %s\nUpdated: %s",
-					node.ID(), node.URL(), node.Title(), node.Description(),
-					node.CreatedAt().Format("2006-01-02 15:04:05"),
-					node.UpdatedAt().Format("2006-01-02 15:04:05")),
-			},
-		},
-		"isError": false,
-	}, nil
+	content := []map[string]interface{}{
+		createTextContent(fmt.Sprintf("Node ID: %d\nComposite ID: %s\nURL: %s\nTitle: %s\nDescription: %s\nCreated: %s\nUpdated: %s",
+			node.ID(), compositeID, node.URL(), node.Title(), node.Description(),
+			node.CreatedAt().Format("2006-01-02 15:04:05"),
+			node.UpdatedAt().Format("2006-01-02 15:04:05"))),
+	}
+
+	structuredContent := map[string]interface{}{
+		"composite_id": compositeID,
+		"id":           node.ID(),
+		"url":          node.URL(),
+		"title":        node.Title(),
+		"description":  node.Description(),
+		"created_at":   node.CreatedAt().Format(time.RFC3339),
+		"updated_at":   node.UpdatedAt().Format(time.RFC3339),
+	}
+
+	return createMCPResponse(content, structuredContent), nil
 }
 
 // handleUpdateNode implements the update_node tool
@@ -321,7 +380,6 @@ func (h *MCPToolHandler) handleUpdateNode(ctx context.Context, args map[string]i
 					node.UpdatedAt().Format("2006-01-02 15:04:05")),
 			},
 		},
-		"isError": false,
 	}, nil
 }
 
@@ -365,7 +423,6 @@ func (h *MCPToolHandler) handleDeleteNode(ctx context.Context, args map[string]i
 					node.ID(), node.URL(), node.Title()),
 			},
 		},
-		"isError": false,
 	}, nil
 }
 
@@ -398,7 +455,6 @@ func (h *MCPToolHandler) handleFindNodeByURL(ctx context.Context, args map[strin
 					node.CreatedAt().Format("2006-01-02 15:04:05")),
 			},
 		},
-		"isError": false,
 	}, nil
 }
 
@@ -444,8 +500,7 @@ func (h *MCPToolHandler) handleGetNodeAttributes(ctx context.Context, args map[s
 					"text": fmt.Sprintf("No attributes found for node: %s\nURL: %s", node.Title(), node.URL()),
 				},
 			},
-			"isError": false,
-		}, nil
+			}, nil
 	}
 
 	// Build attributes display
@@ -474,7 +529,6 @@ func (h *MCPToolHandler) handleGetNodeAttributes(ctx context.Context, args map[s
 
 	return map[string]interface{}{
 		"content": content,
-		"isError": false,
 	}, nil
 }
 
@@ -562,7 +616,6 @@ func (h *MCPToolHandler) handleSetNodeAttributes(ctx context.Context, args map[s
 					len(attributes), node.Title(), node.URL()),
 			},
 		},
-		"isError": false,
 	}, nil
 }
 
@@ -608,7 +661,6 @@ func (h *MCPToolHandler) handleListDomainAttributes(ctx context.Context, args ma
 
 	return map[string]interface{}{
 		"content": content,
-		"isError": false,
 	}, nil
 }
 
@@ -665,7 +717,6 @@ func (h *MCPToolHandler) handleCreateDomainAttribute(ctx context.Context, args m
 					result.CreatedAt.Format("2006-01-02 15:04:05")),
 			},
 		},
-		"isError": false,
 	}, nil
 }
 
@@ -717,7 +768,6 @@ func (h *MCPToolHandler) handleGetDomainAttribute(ctx context.Context, args map[
 					foundAttribute.CreatedAt().Format("2006-01-02 15:04:05")),
 			},
 		},
-		"isError": false,
 	}, nil
 }
 
@@ -785,7 +835,6 @@ func (h *MCPToolHandler) handleUpdateDomainAttribute(ctx context.Context, args m
 					foundAttribute.UpdatedAt().Format("2006-01-02 15:04:05")),
 			},
 		},
-		"isError": false,
 	}, nil
 }
 
@@ -841,7 +890,6 @@ func (h *MCPToolHandler) handleDeleteDomainAttribute(ctx context.Context, args m
 					domainName, foundAttribute.Name(), foundAttribute.Type()),
 			},
 		},
-		"isError": false,
 	}, nil
 }
 
@@ -946,7 +994,6 @@ func (h *MCPToolHandler) handleCreateDependency(ctx context.Context, args map[st
 					dependentNodeID, dependencyNodeID, dependencyType, cascadeDelete, cascadeUpdate, description),
 			},
 		},
-		"isError": false,
 	}, nil
 }
 
@@ -980,7 +1027,6 @@ func (h *MCPToolHandler) handleListNodeDependencies(ctx context.Context, args ma
 					node.Title(), node.URL()),
 			},
 		},
-		"isError": false,
 	}, nil
 }
 
@@ -1014,7 +1060,6 @@ func (h *MCPToolHandler) handleListNodeDependents(ctx context.Context, args map[
 					node.Title(), node.URL()),
 			},
 		},
-		"isError": false,
 	}, nil
 }
 
@@ -1056,7 +1101,6 @@ func (h *MCPToolHandler) handleDeleteDependency(ctx context.Context, args map[st
 					dependencyID),
 			},
 		},
-		"isError": false,
 	}, nil
 }
 
@@ -1154,7 +1198,6 @@ func (h *MCPToolHandler) handleFilterNodesByAttributes(ctx context.Context, args
 
 	return map[string]interface{}{
 		"content": content,
-		"isError": false,
 	}, nil
 }
 
@@ -1216,7 +1259,6 @@ func (h *MCPToolHandler) handleGetNodeWithAttributes(ctx context.Context, args m
 				"text": responseText.String(),
 			},
 		},
-		"isError": false,
 	}, nil
 }
 
@@ -1293,7 +1335,6 @@ func (h *MCPToolHandler) handleListTemplates(ctx context.Context, args map[strin
 					len(templates), page, total, formatTemplateList(content)),
 			},
 		},
-		"isError": false,
 	}, nil
 }
 
@@ -1356,7 +1397,6 @@ func (h *MCPToolHandler) handleCreateTemplate(ctx context.Context, args map[stri
 					template.CreatedAt().Format("2006-01-02 15:04:05")),
 			},
 		},
-		"isError": false,
 	}, nil
 }
 
@@ -1406,7 +1446,6 @@ func (h *MCPToolHandler) handleGetTemplate(ctx context.Context, args map[string]
 					template.TemplateData()),
 			},
 		},
-		"isError": false,
 	}, nil
 }
 
@@ -1472,7 +1511,6 @@ func (h *MCPToolHandler) handleUpdateTemplate(ctx context.Context, args map[stri
 					template.UpdatedAt().Format("2006-01-02 15:04:05")),
 			},
 		},
-		"isError": false,
 	}, nil
 }
 
@@ -1518,7 +1556,6 @@ func (h *MCPToolHandler) handleDeleteTemplate(ctx context.Context, args map[stri
 					time.Now().Format("2006-01-02 15:04:05")),
 			},
 		},
-		"isError": false,
 	}, nil
 }
 
@@ -1580,7 +1617,6 @@ func (h *MCPToolHandler) handleCloneTemplate(ctx context.Context, args map[strin
 					clonedTemplate.CreatedAt().Format("2006-01-02 15:04:05")),
 			},
 		},
-		"isError": false,
 	}, nil
 }
 
@@ -1605,7 +1641,6 @@ func (h *MCPToolHandler) handleGenerateTemplateScaffold(ctx context.Context, arg
 					scaffold),
 			},
 		},
-		"isError": false,
 	}, nil
 }
 
@@ -1635,8 +1670,7 @@ func (h *MCPToolHandler) handleValidateTemplate(ctx context.Context, args map[st
 						templateVersion),
 				},
 			},
-			"isError": false,
-		}, nil
+			}, nil
 	} else {
 		var errorText strings.Builder
 		errorText.WriteString("❌ Template validation failed!\n\nErrors:\n")

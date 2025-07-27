@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "url-db": {
+      "command": "/path/to/url-db",
+      "args": ["-mcp-mode=stdio"],
+      "env": {
+        "DATABASE_URL": "/path/to/url-db.sqlite"
+      }
+    }
+  }
+}

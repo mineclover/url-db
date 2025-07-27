@@ -14,12 +14,14 @@ curl http://localhost:8080/health
 
 ### Claude Desktop
 
+**Note**: Claude Desktop currently supports stdio mode. For SSE usage, you would need a custom bridge implementation:
+
 ```json
 {
   "mcpServers": {
-    "url-db-sse": {
-      "command": "/path/to/mcp-bridge",
-      "args": ["-endpoint", "http://localhost:8080/mcp"]
+    "url-db": {
+      "command": "/path/to/url-db", 
+      "args": ["-mcp-mode=stdio"]
     }
   }
 }
@@ -27,12 +29,14 @@ curl http://localhost:8080/health
 
 ### Cursor
 
+For Cursor, use stdio mode configuration:
+
 ```json
 {
   "cursor.experimental.mcpServers": {
-    "url-db-sse": {
-      "command": "/path/to/mcp-bridge", 
-      "args": ["-endpoint", "http://localhost:8080/mcp"]
+    "url-db": {
+      "command": "/path/to/url-db",
+      "args": ["-mcp-mode=stdio"]
     }
   }
 }
@@ -50,29 +54,23 @@ curl http://localhost:8080/health
 }
 ```
 
-## 🔧 Go 브리지 사용법
+## 🔧 직접 SSE 서버 사용법
 
 ```bash
 # 빌드
 make build
 
-# 기본 사용법 (localhost:8080)
-./bin/mcp-bridge
+# SSE 모드로 서버 시작
+./bin/url-db -mcp-mode=sse
 
-# 다른 엔드포인트 지정
-./bin/mcp-bridge -endpoint http://remote-server:8080/mcp
+# 포트 지정
+./bin/url-db -mcp-mode=sse -port=8081
 
 # 디버그 모드
-./bin/mcp-bridge -debug -endpoint http://localhost:8080/mcp
+LOG_LEVEL=debug ./bin/url-db -mcp-mode=sse
 
-# 타임아웃 설정 (기본: 30초)
-./bin/mcp-bridge -timeout 60 -endpoint http://localhost:8080/mcp
-
-# 환경변수 사용
-export SSE_ENDPOINT=http://localhost:8080/mcp
-export DEBUG=1
-export TIMEOUT=45
-./bin/mcp-bridge
+# Docker로 SSE 서버 시작
+docker run -d -p 8080:8080 -v $(pwd)/data:/data --name url-db-sse asfdassdssa/url-db:latest -mcp-mode=sse
 ```
 
 ## 🌐 HTTP 클라이언트 예제

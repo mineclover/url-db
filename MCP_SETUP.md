@@ -46,6 +46,36 @@
 
 2. Cursor를 재시작하세요.
 
+## SSE 모드 설정 (URL만 필요)
+
+일부 MCP 클라이언트는 SSE (Server-Sent Events) 방식을 지원합니다. 이 경우 브릿지 없이 직접 URL만 설정하면 됩니다.
+
+### 1. SSE 서버 시작
+```bash
+# 로컬에서 직접 실행
+./bin/url-db -mcp-mode=sse -port=8080
+
+# Docker로 실행
+docker run -d -p 8080:8080 -v $(pwd)/data:/data --name url-db-sse asfdassdssa/url-db:latest -mcp-mode=sse
+```
+
+### 2. 클라이언트 설정 (예시)
+```json
+{
+  "mcpServers": {
+    "url-db-sse": {
+      "url": "http://localhost:8080/mcp",
+      "transport": "sse"
+    }
+  }
+}
+```
+
+**참고**: 
+- **stdio 모드**: Claude Desktop, Cursor 등 대부분의 MCP 클라이언트가 지원
+- **SSE 모드**: Server-Sent Events를 통한 실시간 HTTP 통신, 웹 기반 클라이언트용
+- **HTTP 모드**: 일반적인 HTTP JSON-RPC 2.0 통신, REST API처럼 사용 가능
+
 ## 사용 가능한 도구들
 
 URL-DB MCP 서버는 30개의 도구를 제공합니다:
